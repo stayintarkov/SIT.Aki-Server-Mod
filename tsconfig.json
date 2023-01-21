@@ -1,0 +1,25 @@
+{
+    "compilerOptions": {
+        "allowJs": true,
+        "module": "CommonJS",
+        "target": "es2020",
+        "moduleResolution": "node",
+        "esModuleInterop": true,
+        "downlevelIteration": true,
+        "experimentalDecorators": true,
+        "emitDecoratorMetadata": true,
+        "resolveJsonModule": true,
+        "outDir": "tmp",
+        "baseUrl": ".",
+        "paths": {
+            "@spt-aki/*": ["./types/*"]
+        }
+    },
+    "lib": [
+        "es2020"
+    ],
+    "include": [
+        "src/*",
+        "src/**/*"
+    ]
+}
