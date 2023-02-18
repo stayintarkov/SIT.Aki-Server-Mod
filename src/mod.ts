@@ -1,11 +1,11 @@
-import { DependencyContainer } from "tsyringe";
+import { DialogueController } from "@spt-aki/controllers/DialogueController";
+import { IGetFriendListDataResponse } from "@spt-aki/models/eft/dialog/IGetFriendListDataResponse";
 import type { IPreAkiLoadMod } from "@spt-aki/models/external/IPreAkiLoadMod";
 import type { ILogger } from "@spt-aki/models/spt/utils/ILogger";
-import type {DynamicRouterModService} from "@spt-aki/services/mod/dynamicRouter/DynamicRouterModService";
-import type {StaticRouterModService} from "@spt-aki/services/mod/staticRouter/StaticRouterModService";
+import type { DynamicRouterModService } from "@spt-aki/services/mod/dynamicRouter/DynamicRouterModService";
+import type { StaticRouterModService } from "@spt-aki/services/mod/staticRouter/StaticRouterModService";
+import { DependencyContainer, injectable } from "tsyringe";
 // import type { SITMatching } from "./sitmatching";
-
-
 
 class CoopMatch {
 
@@ -22,38 +22,52 @@ class CoopMatch {
     // All characters in the game. Including AI
     Characters: any[] = [];
     LastData: Record<string, Record<string, any>> = {};
+    LastMoves: Record<string, any> = {};
+    LastRotates: Record<string, any> = {};
 
     public constructor(inData: any) {
         this.CreatedDateTime = new Date(Date.now());
     }
+
     
 }
 
+@injectable()
 class Mod implements IPreAkiLoadMod
 {
+    constructor(
+    )
+    { 
+
+    }
+
+    private static container: DependencyContainer;
+
     // A Dictonary of Coop Matches. The Key is the Account Id of the Player that created it
     CoopMatches: Record<string, CoopMatch> = {}; 
 
+    public getCoopMatch(serverId: string) : CoopMatch {
+
+        if(serverId === undefined) {
+            console.error("getCoopMatch -- no serverId provided");
+            return null;
+        }
+
+        if(this.CoopMatches[serverId] === undefined) {
+            console.error(`getCoopMatch -- no server of ${serverId} exists`);
+            return null;
+        }
+
+        return this.CoopMatches[serverId];
+    } 
+
     public preAkiLoad(container: DependencyContainer): void {
+
+        Mod.container = container;
         const logger = container.resolve<ILogger>("WinstonLogger");
         const dynamicRouterModService = container.resolve<DynamicRouterModService>("DynamicRouterModService");
         const staticRouterModService = container.resolve<StaticRouterModService>("StaticRouterModService");
         
-        // Hook up a new dynamic route
-        // dynamicRouterModService.registerDynamicRouter(
-        //     "MyDynamicModRouter",
-        //     [
-        //         {
-        //             url: "/coop/start-server",
-        //             action: (url, info, sessionId, output) => 
-        //             {
-        //                 logger.info("Start a Coop Server")
-        //                 return JSON.stringify({response: "OK"});
-        //             }
-        //         }
-        //     ],
-        //     "custom-dynamic-my-mod"
-        // );
         staticRouterModService.registerStaticRouter(
             "Web-Page-Router",
             [
@@ -76,25 +90,56 @@ class Mod implements IPreAkiLoadMod
             [
                 {
                     url: "/coop/server/create",
-                    action: (url, info: any, sessionId, output) => 
-                    {
+                    action: (url, info: any, sessionId, output) => {
                         logger.info("Start a Coop Server")
                         console.log(info);
-                        this.CoopMatches[info] = new CoopMatch(info);
-                        output = JSON.stringify(this.CoopMatches[info]);
+                        if(this.CoopMatches[info.serverId] !== undefined) {
+                            delete this.CoopMatches[info.serverId];
+                        }
+
+                        this.CoopMatches[info.serverId] = new CoopMatch(info.serverId);
+                        output = JSON.stringify(this.CoopMatches[info.serverId]);
                         return output;
                     }
                 },
                 {
                     url: "/coop/server/read",
                     action: (url, info, sessionId, output) => {
-                        if(info === undefined || info.serverId === undefined) {
-                            console.error("/coop/server/read -- no info or serverId provided");
-                            output = JSON.stringify({ response: "ERROR" });
-                            return JSON.stringify({ response: "ERROR" });
-                        }
+                        
+                        let coopMatch = this.getCoopMatch(info.serverId);
+                        output = JSON.stringify(coopMatch);
+                        return output;
+                    }
+                },
+                {
+                    url: "/coop/server/read/players",
+                    action: (url, info, sessionId, output) => {
+                        
+                        // ---------------------------------------------------------------------------------------------------
+                        // This call requires the client to pass what players/bots it knows about to filter the response back!
 
-                        output = JSON.stringify(this.CoopMatches[info.serverId]);
+                        let coopMatch = this.getCoopMatch(info.serverId);
+                        output = JSON.stringify(coopMatch.Characters);
+                        return output;
+                    }
+                },
+                {
+                    url: "/coop/server/read/lastActions",
+                    action: (url, info, sessionId, output) => {
+
+                        // ---------------------------------------------------------------------------------------------------
+                        // Send's lastData without player spawns etc
+
+                        let coopMatch = this.getCoopMatch(info.serverId);
+                        output = JSON.stringify(coopMatch.LastData);
+                        return output;
+                    }
+                },
+                {
+                    url: "/coop/server/read/lastMoves",
+                    action: (url, info, sessionId, output) => {
+                        let coopMatch = this.getCoopMatch(info.serverId);
+                        output = JSON.stringify(coopMatch.LastMoves);
                         return output;
                     }
                 },
@@ -107,9 +152,18 @@ class Mod implements IPreAkiLoadMod
                             output = JSON.stringify({ response: "ERROR" });
                             return JSON.stringify({ response: "ERROR" });
                         }
+
+                        // console.log(info);
                         
-                        console.log(info);
                         this.CoopMatches[info.serverId].LastData[info.m] = info;
+
+                        if(info.m == "Move") {
+                            // console.log(info);
+                            this.CoopMatches[info.serverId].LastMoves[info.accountId] = info;
+                        }
+                        else {
+
+                        }
 
                         output = JSON.stringify(info);
                         return output;
@@ -156,6 +210,7 @@ class Mod implements IPreAkiLoadMod
                         return output;
                     }
                 }
+
                 
                 
             ],
@@ -197,8 +252,7 @@ class Mod implements IPreAkiLoadMod
                         output = JSON.stringify(obj);
                         return output;
                     }
-                }
-                ,
+                },
                 {
                     url: "/client/match/group/exit_from_menu",
                     action: (url: string, info: any, sessionID: string, output: string): any => 
@@ -208,10 +262,66 @@ class Mod implements IPreAkiLoadMod
                         return output;
                     }
                 }
+                // ,
+                // {
+                //     url:  "/client/game/profile/search",
+                //     action: (url: string, info: any, sessionID: string, output: string): any => 
+                //     {
+                //         var result = [
+                //             {
+                //                 _id: "",
+                //                 Info: {
+                //                     Level: 1,
+                //                     Side: "Bear",
+                //                     Nickname: info.nickname
+                //                 }
+                //             }
+                //         ]
+                //         logger.info("custom /client/game/profile/search")
+                //         output = JSON.stringify(result);
+                //         return output;
+                //     }
+                // }
+                // ,
+                // {
+                //     url: "client/friend/list",
+                //     action: (url: string, info: any, sessionID: string, output: string): any => 
+                //     {
+                //         var friendList = {
+                //             "Friends": [],
+                //             "Ignore": [],
+                //             "InIgnoreList": []
+                //         };
+                //         logger.info("get friend list")
+                //         output = JSON.stringify(friendList);
+                //         return output;
+                //     }
+                // }
+               
             ],
             "aki"
         );
+
+        container.afterResolution("DialogueController", (_t, result: DialogueController) => 
+        {
+            // We want to replace the original method logic with something different
+            result.getFriendList = (sessionID: string) => 
+            {
+                return this.getFriendsList(sessionID);
+            }
+            // The modifier Always makes sure this replacement method is ALWAYS replaced
+        }, {frequency: "Always"});
         
+    }
+
+    public getFriendsList(sessionID: string): IGetFriendListDataResponse
+    {
+        console.log("getFriendsList");
+        return {
+            "Friends": [],
+            "Ignore": [],
+            "InIgnoreList": []
+        };
     }
 }
 module.exports = {mod: new Mod()}

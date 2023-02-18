@@ -21,21 +21,6 @@ class Mod {
         const logger = container.resolve("WinstonLogger");
         const dynamicRouterModService = container.resolve("DynamicRouterModService");
         const staticRouterModService = container.resolve("StaticRouterModService");
-        // Hook up a new dynamic route
-        // dynamicRouterModService.registerDynamicRouter(
-        //     "MyDynamicModRouter",
-        //     [
-        //         {
-        //             url: "/coop/start-server",
-        //             action: (url, info, sessionId, output) => 
-        //             {
-        //                 logger.info("Start a Coop Server")
-        //                 return JSON.stringify({response: "OK"});
-        //             }
-        //         }
-        //     ],
-        //     "custom-dynamic-my-mod"
-        // );
         staticRouterModService.registerStaticRouter("Web-Page-Router", [
             {
                 url: "/",
@@ -65,6 +50,11 @@ class Mod {
                         output = JSON.stringify({ response: "ERROR" });
                         return JSON.stringify({ response: "ERROR" });
                     }
+                    if (this.CoopMatches[info.serverId] === undefined) {
+                        console.error(`/coop/server/read -- no server of ${info.serverId} exists`);
+                        output = JSON.stringify({ response: "ERROR" });
+                        return JSON.stringify({ response: "ERROR" });
+                    }
                     output = JSON.stringify(this.CoopMatches[info.serverId]);
                     return output;
                 }
@@ -78,9 +68,12 @@ class Mod {
                         output = JSON.stringify({ response: "ERROR" });
                         return JSON.stringify({ response: "ERROR" });
                     }
-                    console.log(info);
+                    // console.log(info);
                     this.CoopMatches[info.serverId].LastData[info.m] = info;
-                    output = JSON.stringify(info);
+                    // output = JSON.stringify(info);
+                    // return output;
+
+                    output = JSON.stringify(this.CoopMatches[info.serverId]);
                     return output;
                 }
             },
@@ -118,6 +111,19 @@ class Mod {
                 action: (url, info, sessionID, output) => {
                     logger.info("exit_from_menu");
                     output = JSON.stringify({});
+                    return output;
+                }
+            },
+            {
+                url: "client/friend/list",
+                action: (url, info, sessionID, output) => {
+                    var friendList = {
+                        "Friends": [],
+                        "Ignore": [],
+                        "InIgnoreList": []
+                    };
+                    logger.info("get friend list");
+                    output = JSON.stringify(friendList);
                     return output;
                 }
             }
