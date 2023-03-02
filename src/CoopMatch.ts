@@ -2,6 +2,8 @@ export class CoopMatch {
 
     /** The time the match was created. Useful for clearing out old matches. */
     CreatedDateTime: Date = new Date();
+    LastUpdateDateTime: Date = new Date();
+
     /** The state of the match. */
     State: any;
     /** The IP of the match. */
@@ -18,6 +20,7 @@ export class CoopMatch {
 
     public constructor(inData: any) {
         this.CreatedDateTime = new Date(Date.now());
+        this.LastUpdateDateTime = new Date(Date.now());
     }
 
     

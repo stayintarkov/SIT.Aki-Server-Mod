@@ -84,6 +84,25 @@ class Mod implements IPreAkiLoadMod
                     }
                 },
                 {
+                    url: "/coop/server/exist",
+                    action: (url, info, sessionId, output) => {
+                        logger.info(url);
+                        logger.info(info);
+                        logger.info(sessionId);
+                        
+                        let coopMatch: CoopMatch = null;
+                        for(let cm in this.CoopMatches)
+                        {
+                            if(this.CoopMatches[cm].LastUpdateDateTime > new Date(Date.now() - (1000 * 60)))
+                                coopMatch = this.CoopMatches[cm];
+                        }
+                        logger.info(coopMatch != null ? "match exists" : "match doesn't exist!");
+
+                        output = JSON.stringify(coopMatch);
+                        return output;
+                    }
+                },
+                {
                     url: "/coop/server/read",
                     action: (url, info, sessionId, output) => {
                         
@@ -147,7 +166,7 @@ class Mod implements IPreAkiLoadMod
                 {
                     url: "/coop/server/update",
                     action: (url, info, sessionId, output) => {
-                        // logger.info("Update a Coop Server");
+                        logger.info("Update a Coop Server");
                         if(info === undefined || info.serverId === undefined) {
                             console.error("/coop/server/update -- no info or serverId provided");
                             output = JSON.stringify({ response: "ERROR" });
@@ -158,6 +177,8 @@ class Mod implements IPreAkiLoadMod
                         let coopMatch = this.getCoopMatch(info.serverId);
                         if(coopMatch == null || coopMatch == undefined)
                         {
+                            console.error("/coop/server/update -- no coopMatch found to update");
+
                             output = JSON.stringify({});
                             return output; 
                         }
@@ -176,8 +197,8 @@ class Mod implements IPreAkiLoadMod
 
                         }
 
-                        // output = JSON.stringify(info);
-                        output = JSON.stringify({});
+                        this.CoopMatches[info.serverId].LastUpdateDateTime = new Date(Date.now());
+                        output = JSON.stringify(this.CoopMatches[info.serverId].LastData);
                         return output;
                     }
                 },
@@ -213,26 +234,8 @@ class Mod implements IPreAkiLoadMod
                         return "";
                     }
                 },
-                {
-                    url: "/client/match/group/exit_from_menu",
-                    action: (url: string, info: any, sessionID: string, output: string): any => 
-                    {
-                        logger.info("exit_from_menu")
-                        output = JSON.stringify({});
-                        return output;
-                    }
-                },
-                {
-                    url: "/client/raid/person/killed",
-                    action: (url: string, info: any, sessionID: string, output: string): any => 
-                    {
-                        logger.info("Person has been Killed!")
-                        console.log(info);
-                        output = JSON.stringify(info);
-                        return output;
-                    }
-                },
-
+               
+                
                 
                 
             ],
@@ -241,20 +244,21 @@ class Mod implements IPreAkiLoadMod
         );
 
         // Hook up to existing AKI dynamic route
-        // dynamicRouterModService.registerDynamicRouter(
-        //     "DynamicRoutePeekingAki",
-        //     [
-        //         {
-        //             url: "/client/menu/locale/",
-        //             action: (url, info, sessionId, output) => 
-        //             {
-        //                 logger.info("/client/menu/locale/ data was: " + JSON.stringify(output))
-        //                 return output;
-        //             }
-        //         }
-        //     ],
-        //     "aki"
-        // );
+        dynamicRouterModService.registerDynamicRouter(
+            "DynamicRoutePeekingAki",
+            [
+                // {
+                //     url: "/client/match/raid/ready",
+                //     action: (url: string, info: any, sessionID: string, output: string): any => 
+                //     {
+                //         console.log(info);
+                //         output = JSON.stringify({});
+                //         return output;
+                //     }
+                // },
+            ],
+            "aki"
+        );
         
         // Hook up to existing AKI static route
         staticRouterModService.registerStaticRouter(
@@ -316,6 +320,162 @@ class Mod implements IPreAkiLoadMod
                 //         };
                 //         logger.info("get friend list")
                 //         output = JSON.stringify(friendList);
+                //         return output;
+                //     }
+                // }
+                ,{
+                    url: "/client/match/group/exit_from_menu",
+                    action: (url: string, info: any, sessionID: string, output: string): any => 
+                    {
+                        logger.info("exit_from_menu")
+                        output = JSON.stringify({});
+                        return output;
+                    }
+                },
+                {
+                    url: "/client/raid/person/killed",
+                    action: (url: string, info: any, sessionID: string, output: string): any => 
+                    {
+                        logger.info("Person has been Killed!")
+                        console.log(info);
+                        output = JSON.stringify(info);
+                        return output;
+                    }
+                },
+                {
+                    url: "/client/raid/createFriendlyAI",
+                    action: (url: string, info: any, sessionID: string, output: string): any => 
+                    {
+                        // logger.info("Person has been Killed!")
+                        console.log(info);
+                        output = JSON.stringify(info);
+                        return output;
+                    }
+                },
+                // {
+                //     url: "/client/match/group/current",
+                //     action: (url: string, info: any, sessionID: string, output: string): any => 
+                //     {
+                //         console.log(url);
+                //         console.log(info);
+                //         console.log(sessionID);
+		        //         const myAccount = this.saveServer.getProfile(sessionID);
+                        
+                //         let squad = [
+                //             {
+                //                 aid: sessionID,
+                //                 _id: sessionID,
+                //                 IsLeader: true,
+                //                 IsReady: true,
+                //                 Info: {
+                //                     Nickname: myAccount.characters.pmc.Info.Nickname,
+                //                     Side: myAccount.characters.pmc.Info.Side,
+                //                     Level: myAccount.characters.pmc.Info.Level,
+                //                     MemberCategory: myAccount.characters.pmc.Info.MemberCategory,
+                //                     SavageLockTime: myAccount.characters.pmc.Info.SavageLockTime,
+                //                     SavageNickname: myAccount.characters.scav.Info.Nickname,
+                //                     GameVersion: "Live",
+                //                 },
+                //                 PlayerVisualRepresentation: {
+                                    
+                //                 }
+                //             }
+                //         ];
+                //         let raidSettings = {
+                //             side: "pmc",
+                //             raidMode: "Local"
+                //         }
+                //         let response = { squad: squad, raidSettings: raidSettings }
+                //         // output = JSON.stringify(response);
+                //         output = JSON.stringify(null);
+                //         return output;
+                //     }
+                // },
+                {
+                    url: "/client/match/raid/ready",
+                    action: (url: string, info: any, sessionID: string, output: string): any => 
+                    {
+                        console.log(url);
+                        console.log(info);
+                        console.log(sessionID);
+                        output = JSON.stringify({});
+                        return output;
+                    }
+                },
+                {
+                    url: "/client/match/raid/not-ready",
+                    action: (url: string, info: any, sessionID: string, output: string): any => 
+                    {
+                        console.log(url);
+                        console.log(info);
+                        console.log(sessionID);
+                        output = JSON.stringify({});
+                        return output;
+                    }
+                },
+                {
+                    url: "/client/match/group/invite/cancel-all",
+                    action: (url: string, info: any, sessionID: string, output: string): any => 
+                    {
+                        console.log(url);
+                        console.log(info);
+                        console.log(sessionID);
+                        output = JSON.stringify({});
+                        return output;
+                    }
+                },
+                {
+                    url: "/client/match/available",
+                    action: (url: string, info: any, sessionID: string, output: string): any => 
+                    {
+                        console.log(url);
+                        console.log(info);
+                        console.log(sessionID);
+                        output = JSON.stringify(false);
+                        return output;
+                    }
+                }
+                //,
+                // {
+                //     url: "/client/profile/status",
+                //     action: (url: string, info: any, sessionID: string, output: string): any => 
+                //     {
+                //         console.log(url);
+                //         console.log(info);
+                //         console.log(sessionID);
+                //         const response = {
+                //             maxPveCountExceeded: false,
+                //             profiles: [
+                //                 {
+                //                     "profileid": `scav${sessionID}`,
+                //                     profileToken: null,
+                //                     "status": "Free",
+                //                     "sid": "",
+                //                     "ip": "",
+                //                     "port": 0,
+                //                     version: "live",
+                //                     location: "bigmap",
+                //                     raidMode: "Local",
+                //                     mode: "deathmatch",
+                //                     shortId: "xxx1x1"
+                
+                //                 },
+                //                 {
+                //                     "profileid": `pmc${sessionID}`,
+                //                     profileToken: null,
+                //                     "status": "Free",
+                //                     "sid": "",
+                //                     "ip": "",
+                //                     "port": 0,
+                //                     // "raidMode": "Local",
+                //                     // location: "bigmap",
+                //                     // version: "live",
+                //                     // mode: "deathmatch",
+                //                     // shortId: "xxx1x1"
+                //                 }
+                //             ]
+                //         };
+                //         output = JSON.stringify(response);
                 //         return output;
                 //     }
                 // }
