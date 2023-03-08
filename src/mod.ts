@@ -129,7 +129,18 @@ class Mod implements IPreAkiLoadMod
                             output = JSON.stringify({});
                             return output; 
                         }
-                        output = JSON.stringify(coopMatch.Characters);
+
+                        //
+                        let charactersToSend:any[] = [];
+                        let playersToFilterOut:string[] = info.pL;
+                        for(var c of coopMatch.Characters) {
+                            if(!playersToFilterOut.includes(c.accountId)) {
+                                charactersToSend.push(c);
+                            }
+                        }
+
+                        output = JSON.stringify(charactersToSend);
+                        // console.log(output);
                         return output;
                     }
                 },
@@ -166,13 +177,13 @@ class Mod implements IPreAkiLoadMod
                 {
                     url: "/coop/server/update",
                     action: (url, info, sessionId, output) => {
-                        logger.info("Update a Coop Server");
                         if(info === undefined || info.serverId === undefined) {
                             console.error("/coop/server/update -- no info or serverId provided");
                             output = JSON.stringify({ response: "ERROR" });
                             return JSON.stringify({ response: "ERROR" });
                         }
 
+                        logger.info(`Update a Coop Server ${info.m}`);
                         // console.log(info);
                         let coopMatch = this.getCoopMatch(info.serverId);
                         if(coopMatch == null || coopMatch == undefined)
@@ -191,7 +202,15 @@ class Mod implements IPreAkiLoadMod
                         }
                         else if(info.m == "PlayerSpawn") {
                             // console.log(info);
-                            this.CoopMatches[info.serverId].Characters.push(info);
+                            let foundExistingPlayer = false;
+                            for(var c of coopMatch.Characters) {
+                                if(info.accountId == c.accountId) {
+                                    foundExistingPlayer = true;
+                                    break;
+                                }
+                            }
+                            if(!foundExistingPlayer)
+                                this.CoopMatches[info.serverId].Characters.push(info);
                         }
                         else {
 
