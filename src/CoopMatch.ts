@@ -17,6 +17,7 @@ export class CoopMatch {
     LastData: Record<string, Record<string, any>> = {};
     LastMoves: Record<string, any> = {};
     LastRotates: Record<string, any> = {};
+    DamageArray: any[] = [];
 
     public constructor(inData: any) {
         this.CreatedDateTime = new Date(Date.now());

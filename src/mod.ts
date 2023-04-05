@@ -183,7 +183,6 @@ class Mod implements IPreAkiLoadMod
                             return JSON.stringify({ response: "ERROR" });
                         }
 
-                        logger.info(`Update a Coop Server ${info.m}`);
                         // console.log(info);
                         let coopMatch = this.getCoopMatch(info.serverId);
                         if(coopMatch == null || coopMatch == undefined)
@@ -194,6 +193,8 @@ class Mod implements IPreAkiLoadMod
                             return output; 
                         }
                         
+                        // logger.info(`Update a Coop Server [${info.serverId}][${info.accountId}][${info.m}]`);
+                        logger.info(`Update a Coop Server [${info.serverId}][${info.m}]`);
                         this.CoopMatches[info.serverId].LastData[info.m] = info;
                         
                         if(info.m == "Move") {
@@ -217,7 +218,8 @@ class Mod implements IPreAkiLoadMod
                         }
 
                         this.CoopMatches[info.serverId].LastUpdateDateTime = new Date(Date.now());
-                        output = JSON.stringify(this.CoopMatches[info.serverId].LastData);
+                        // output = JSON.stringify(this.CoopMatches[info.serverId].LastData);
+                        output = JSON.stringify({});
                         return output;
                     }
                 },
@@ -262,23 +264,6 @@ class Mod implements IPreAkiLoadMod
             // "aki"
         );
 
-        // Hook up to existing AKI dynamic route
-        dynamicRouterModService.registerDynamicRouter(
-            "DynamicRoutePeekingAki",
-            [
-                // {
-                //     url: "/client/match/raid/ready",
-                //     action: (url: string, info: any, sessionID: string, output: string): any => 
-                //     {
-                //         console.log(info);
-                //         output = JSON.stringify({});
-                //         return output;
-                //     }
-                // },
-            ],
-            "aki"
-        );
-        
         // Hook up to existing AKI static route
         staticRouterModService.registerStaticRouter(
             "MatchStaticRouter-SIT",
@@ -307,41 +292,6 @@ class Mod implements IPreAkiLoadMod
                         return output;
                     }
                 }
-                // ,
-                // {
-                //     url:  "/client/game/profile/search",
-                //     action: (url: string, info: any, sessionID: string, output: string): any => 
-                //     {
-                //         var result = [
-                //             {
-                //                 _id: "",
-                //                 Info: {
-                //                     Level: 1,
-                //                     Side: "Bear",
-                //                     Nickname: info.nickname
-                //                 }
-                //             }
-                //         ]
-                //         logger.info("custom /client/game/profile/search")
-                //         output = JSON.stringify(result);
-                //         return output;
-                //     }
-                // }
-                // ,
-                // {
-                //     url: "client/friend/list",
-                //     action: (url: string, info: any, sessionID: string, output: string): any => 
-                //     {
-                //         var friendList = {
-                //             "Friends": [],
-                //             "Ignore": [],
-                //             "InIgnoreList": []
-                //         };
-                //         logger.info("get friend list")
-                //         output = JSON.stringify(friendList);
-                //         return output;
-                //     }
-                // }
                 ,{
                     url: "/client/match/group/exit_from_menu",
                     action: (url: string, info: any, sessionID: string, output: string): any => 
@@ -371,45 +321,6 @@ class Mod implements IPreAkiLoadMod
                         return output;
                     }
                 },
-                // {
-                //     url: "/client/match/group/current",
-                //     action: (url: string, info: any, sessionID: string, output: string): any => 
-                //     {
-                //         console.log(url);
-                //         console.log(info);
-                //         console.log(sessionID);
-		        //         const myAccount = this.saveServer.getProfile(sessionID);
-                        
-                //         let squad = [
-                //             {
-                //                 aid: sessionID,
-                //                 _id: sessionID,
-                //                 IsLeader: true,
-                //                 IsReady: true,
-                //                 Info: {
-                //                     Nickname: myAccount.characters.pmc.Info.Nickname,
-                //                     Side: myAccount.characters.pmc.Info.Side,
-                //                     Level: myAccount.characters.pmc.Info.Level,
-                //                     MemberCategory: myAccount.characters.pmc.Info.MemberCategory,
-                //                     SavageLockTime: myAccount.characters.pmc.Info.SavageLockTime,
-                //                     SavageNickname: myAccount.characters.scav.Info.Nickname,
-                //                     GameVersion: "Live",
-                //                 },
-                //                 PlayerVisualRepresentation: {
-                                    
-                //                 }
-                //             }
-                //         ];
-                //         let raidSettings = {
-                //             side: "pmc",
-                //             raidMode: "Local"
-                //         }
-                //         let response = { squad: squad, raidSettings: raidSettings }
-                //         // output = JSON.stringify(response);
-                //         output = JSON.stringify(null);
-                //         return output;
-                //     }
-                // },
                 {
                     url: "/client/match/raid/ready",
                     action: (url: string, info: any, sessionID: string, output: string): any => 
