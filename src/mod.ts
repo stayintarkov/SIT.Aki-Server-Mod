@@ -192,33 +192,31 @@ class Mod implements IPreAkiLoadMod
                             output = JSON.stringify({});
                             return output; 
                         }
-                        
-                        // logger.info(`Update a Coop Server [${info.serverId}][${info.accountId}][${info.m}]`);
-                        logger.info(`Update a Coop Server [${info.serverId}][${info.m}]`);
-                        this.CoopMatches[info.serverId].LastData[info.m] = info;
-                        
-                        if(info.m == "Move") {
-                            // console.log(info);
-                            this.CoopMatches[info.serverId].LastMoves[info.accountId] = info;
-                        }
-                        else if(info.m == "PlayerSpawn") {
-                            // console.log(info);
-                            let foundExistingPlayer = false;
-                            for(var c of coopMatch.Characters) {
-                                if(info.accountId == c.accountId) {
-                                    foundExistingPlayer = true;
-                                    break;
-                                }
-                            }
-                            if(!foundExistingPlayer)
-                                this.CoopMatches[info.serverId].Characters.push(info);
-                        }
-                        else {
 
-                        }
+                        coopMatch.ProcessData(info, logger);
+                        
+                        // logger.info(`Update a Coop Server [${info.serverId}][${info.m}]`);
+                        // this.CoopMatches[info.serverId].LastData[info.m] = info;
+                        
+                        // if(info.m == "Move") {
+                        //     // console.log(info);
+                        //     this.CoopMatches[info.serverId].LastMoves[info.accountId] = info;
+                        // }
+                        // else if(info.m == "PlayerSpawn") {
+                        //     // console.log(info);
+                        //     let foundExistingPlayer = false;
+                        //     for(var c of coopMatch.Characters) {
+                        //         if(info.accountId == c.accountId) {
+                        //             foundExistingPlayer = true;
+                        //             break;
+                        //         }
+                        //     }
+                        //     if(!foundExistingPlayer)
+                        //         this.CoopMatches[info.serverId].Characters.push(info);
+                        // }
 
-                        this.CoopMatches[info.serverId].LastUpdateDateTime = new Date(Date.now());
-                        // output = JSON.stringify(this.CoopMatches[info.serverId].LastData);
+                        // this.CoopMatches[info.serverId].LastUpdateDateTime = new Date(Date.now());
+
                         output = JSON.stringify({});
                         return output;
                     }
