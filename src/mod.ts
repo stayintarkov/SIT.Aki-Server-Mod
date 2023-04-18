@@ -49,26 +49,33 @@ class Mod implements IPreAkiLoadMod
         const staticRouterModService = container.resolve<StaticRouterModService>("StaticRouterModService");
         this.saveServer = container.resolve<SaveServer>("SaveServer");
 
-        staticRouterModService.registerStaticRouter(
-            "Web-Page-Router",
-            [
-                {
-                    url: "/",
-                    action: (url, info, sessionId, output) => 
-                    {
-                        output =  JSON.stringify({response: "HELLO"});
-                        return output;
-                    }
-                },
+        // staticRouterModService.registerStaticRouter(
+        //     "Web-Page-Router",
+        //     [
+        //         {
+        //             url: "/",
+        //             action: (url, info, sessionId, output) => 
+        //             {
+        //                 output =  JSON.stringify({response: "HELLO"});
+        //                 return output;
+        //             }
+        //         },
 
-            ],
-            "sit-first-page"
-        );
+        //     ],
+        //     "sit-first-page"
+        // );
 
         // Hook up a new static route
         staticRouterModService.registerStaticRouter(
             "MyStaticModRouter",
             [
+                // {
+                //     url: "/coop/check",
+                //     action: (url, info: any, sessionId, output) => {
+                //         output = "YES";
+                //         return output;
+                //     }
+                // },
                 {
                     url: "/coop/server/create",
                     action: (url, info: any, sessionId, output) => {
@@ -195,28 +202,6 @@ class Mod implements IPreAkiLoadMod
 
                         coopMatch.ProcessData(info, logger);
                         
-                        // logger.info(`Update a Coop Server [${info.serverId}][${info.m}]`);
-                        // this.CoopMatches[info.serverId].LastData[info.m] = info;
-                        
-                        // if(info.m == "Move") {
-                        //     // console.log(info);
-                        //     this.CoopMatches[info.serverId].LastMoves[info.accountId] = info;
-                        // }
-                        // else if(info.m == "PlayerSpawn") {
-                        //     // console.log(info);
-                        //     let foundExistingPlayer = false;
-                        //     for(var c of coopMatch.Characters) {
-                        //         if(info.accountId == c.accountId) {
-                        //             foundExistingPlayer = true;
-                        //             break;
-                        //         }
-                        //     }
-                        //     if(!foundExistingPlayer)
-                        //         this.CoopMatches[info.serverId].Characters.push(info);
-                        // }
-
-                        // this.CoopMatches[info.serverId].LastUpdateDateTime = new Date(Date.now());
-
                         output = JSON.stringify({});
                         return output;
                     }
@@ -363,51 +348,6 @@ class Mod implements IPreAkiLoadMod
                         return output;
                     }
                 }
-                //,
-                // {
-                //     url: "/client/profile/status",
-                //     action: (url: string, info: any, sessionID: string, output: string): any => 
-                //     {
-                //         console.log(url);
-                //         console.log(info);
-                //         console.log(sessionID);
-                //         const response = {
-                //             maxPveCountExceeded: false,
-                //             profiles: [
-                //                 {
-                //                     "profileid": `scav${sessionID}`,
-                //                     profileToken: null,
-                //                     "status": "Free",
-                //                     "sid": "",
-                //                     "ip": "",
-                //                     "port": 0,
-                //                     version: "live",
-                //                     location: "bigmap",
-                //                     raidMode: "Local",
-                //                     mode: "deathmatch",
-                //                     shortId: "xxx1x1"
-                
-                //                 },
-                //                 {
-                //                     "profileid": `pmc${sessionID}`,
-                //                     profileToken: null,
-                //                     "status": "Free",
-                //                     "sid": "",
-                //                     "ip": "",
-                //                     "port": 0,
-                //                     // "raidMode": "Local",
-                //                     // location: "bigmap",
-                //                     // version: "live",
-                //                     // mode: "deathmatch",
-                //                     // shortId: "xxx1x1"
-                //                 }
-                //             ]
-                //         };
-                //         output = JSON.stringify(response);
-                //         return output;
-                //     }
-                // }
-               
             ],
             "aki"
         );
