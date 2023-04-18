@@ -41,7 +41,7 @@ export class CoopMatch {
             return;
         }
 
-        logger.info(`Update a Coop Server [${info.serverId}][${info.m}]`);
+        // logger.info(`Update a Coop Server [${info.serverId}][${info.m}]`);
         this.LastData[info.m] = info;
         
         if(info.m == "Move") {
