@@ -164,20 +164,23 @@ class Mod implements IPreAkiLoadMod
                             output = JSON.stringify({});
                             return output; 
                         }
-                        output = JSON.stringify(coopMatch.LastData);
-                        return output;
-                    }
-                },
-                {
-                    url: "/coop/server/read/lastMoves",
-                    action: (url, info, sessionId, output) => {
-                        let coopMatch = this.getCoopMatch(info.serverId);
-                        if(coopMatch == null || coopMatch == undefined)
-                        {
-                            output = JSON.stringify({});
-                            return output; 
-                        }
-                        output = JSON.stringify(coopMatch.LastMoves);
+
+                        const dataResult = JSON.parse(JSON.stringify(coopMatch.LastDataByAccountId));
+                        // for(let accountId in dataResult) {
+                        //     const accountLastData = coopMatch[accountId];
+                        //     for(const m in accountLastData) {
+                                
+                        //         const data = accountLastData[m];
+                        //         if(data["t"] === undefined)
+                        //             continue;
+
+                        //         const dataDate = new Date(parseInt(data["t"]));
+                        //         const infoDate = new Date(parseInt(info["t"]));
+                        //         if(dataDate < infoDate)
+                        //             accountLastData[m] = {};
+                        //     }
+                        // }
+                        output = JSON.stringify(dataResult);
                         return output;
                     }
                 },

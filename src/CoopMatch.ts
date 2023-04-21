@@ -16,6 +16,7 @@ export class CoopMatch {
     ExpectedNumberOfPlayers: number = 1;
     // All characters in the game. Including AI
     Characters: any[] = [];
+    LastDataByAccountId: Record<string, Record<string, Record<string, any>>> = {};
     LastData: Record<string, Record<string, any>> = {};
     LastMoves: Record<string, any> = {};
     LastRotates: Record<string, any> = {};
@@ -28,7 +29,7 @@ export class CoopMatch {
 
     public ProcessData(info: any, logger: ILogger) {
 
-        if(typeof(info) === undefined)
+        if(info === undefined)
             return;
 
         if(JSON.stringify(info).charAt(0) === "[") {
@@ -43,6 +44,11 @@ export class CoopMatch {
 
         // logger.info(`Update a Coop Server [${info.serverId}][${info.m}]`);
         this.LastData[info.m] = info;
+
+        if(this.LastDataByAccountId[info.accountId] === undefined)
+            this.LastDataByAccountId[info.accountId] = {};
+
+        this.LastDataByAccountId[info.accountId][info.m] = info;
         
         if(info.m == "Move") {
             // console.log(info);
