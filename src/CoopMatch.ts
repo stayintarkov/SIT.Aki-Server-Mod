@@ -1,7 +1,14 @@
 import type { ILogger } from "@spt-aki/models/spt/utils/ILogger";
 
+export enum CoopMatchStatus {
+    Loading,
+    InGame,
+    Complete
+}
+
 export class CoopMatch {
 
+    ServerId: string;
     /** The time the match was created. Useful for clearing out old matches. */
     CreatedDateTime: Date = new Date();
     LastUpdateDateTime: Date = new Date();
@@ -21,8 +28,19 @@ export class CoopMatch {
     LastMoves: Record<string, any> = {};
     LastRotates: Record<string, any> = {};
     DamageArray: any[] = [];
+    Status: CoopMatchStatus = CoopMatchStatus.Loading;
+    Settings: any = {};
+    Location: string;
+    Time: string;
+    WeatherSettings: any;
 
     public constructor(inData: any) {
+
+        this.ServerId = inData.serverId;
+        this.Location = inData.settings.location;
+        this.Time = inData.settings.timeVariant;
+        this.WeatherSettings = inData.settings.timeAndWeatherSettings;
+
         this.CreatedDateTime = new Date(Date.now());
         this.LastUpdateDateTime = new Date(Date.now());
     }

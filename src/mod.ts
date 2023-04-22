@@ -79,13 +79,21 @@ class Mod implements IPreAkiLoadMod
                 {
                     url: "/coop/server/create",
                     action: (url, info: any, sessionId, output) => {
-                        logger.info("Start a Coop Server")
-                        console.log(info);
+                        logger.info("___________________");
+                        logger.info("Start a Coop Server");
+                        logger.info("___________________");
+                        logger.info("Coop Data:_________");
+                        logger.info(info);
+                        logger.info("___________________");
                         if(this.CoopMatches[info.serverId] !== undefined) {
                             delete this.CoopMatches[info.serverId];
                         }
 
-                        this.CoopMatches[info.serverId] = new CoopMatch(info.serverId);
+                        this.CoopMatches[info.serverId] = new CoopMatch(info);
+                        // this.CoopMatches[info.serverId].Settings = info.settings;
+                        this.CoopMatches[info.serverId].Location = info.settings.location;
+                        this.CoopMatches[info.serverId].Time = info.settings.timeVariant;
+                        this.CoopMatches[info.serverId].WeatherSettings = info.settings.timeAndWeatherSettings;
                         output = JSON.stringify(this.CoopMatches[info.serverId]);
                         return output;
                     }
@@ -93,17 +101,29 @@ class Mod implements IPreAkiLoadMod
                 {
                     url: "/coop/server/exist",
                     action: (url, info, sessionId, output) => {
-                        logger.info(url);
-                        logger.info(info);
-                        logger.info(sessionId);
+                        // logger.info(url);
+                        // logger.info(info);
+                        // logger.info(sessionId);
+
+                        // logger.info(JSON.stringify(this.CoopMatches));
                         
                         let coopMatch: CoopMatch = null;
                         for(let cm in this.CoopMatches)
                         {
-                            if(this.CoopMatches[cm].LastUpdateDateTime > new Date(Date.now() - (1000 * 60)))
-                                coopMatch = this.CoopMatches[cm];
+                            logger.info(JSON.stringify(this.CoopMatches[cm]));
+
+                            if(this.CoopMatches[cm].Location != info.location)
+                                continue;
+
+                            // if(this.CoopMatches[cm].Time != info.timeVariant)
+                            //     continue;
+
+                            if(this.CoopMatches[cm].LastUpdateDateTime < new Date(Date.now() - (1000 * 300)))
+                                continue;
+
+                            coopMatch = this.CoopMatches[cm];
                         }
-                        logger.info(coopMatch != null ? "match exists" : "match doesn't exist!");
+                        logger.info(coopMatch !== null ? "match exists" : "match doesn't exist!");
 
                         output = JSON.stringify(coopMatch);
                         return output;
