@@ -1,15 +1,21 @@
 import { DependencyContainer, injectable } from "tsyringe";
 
 import { DialogueController } from "@spt-aki/controllers/DialogueController";
+import { LocationController } from "@spt-aki/controllers/LocationController";
+import { AkiHttpListener } from "@spt-aki/servers/http/AkiHttpListener";
 import { SaveServer } from "@spt-aki/servers/SaveServer";
 
+import { RouteAction } from "@spt-aki/di/Router";
 import { Friend, IGetFriendListDataResponse } from "@spt-aki/models/eft/dialog/IGetFriendListDataResponse";
 import { MemberCategory } from "@spt-aki/models/enums/MemberCategory";
 import type { IPreAkiLoadMod } from "@spt-aki/models/external/IPreAkiLoadMod";
 import type { ILogger } from "@spt-aki/models/spt/utils/ILogger";
+import { HttpBufferHandler } from "@spt-aki/servers/http/HttpBufferHandler";
 import type { DynamicRouterModService } from "@spt-aki/services/mod/dynamicRouter/DynamicRouterModService";
 import type { StaticRouterModService } from "@spt-aki/services/mod/staticRouter/StaticRouterModService";
-import { CoopMatch } from "./CoopMatch";
+import { IncomingMessage, ServerResponse } from "http";
+import zlib from "zlib";
+import { CoopMatch, CoopMatchStatus } from "./CoopMatch";
 
 @injectable()
 class Mod implements IPreAkiLoadMod
@@ -25,6 +31,8 @@ class Mod implements IPreAkiLoadMod
     // A Dictonary of Coop Matches. The Key is the Account Id of the Player that created it
     CoopMatches: Record<string, CoopMatch> = {}; 
     saveServer: SaveServer;
+    locationController: LocationController;
+    httpBufferHandler: HttpBufferHandler;
 
     public getCoopMatch(serverId: string) : CoopMatch {
 
@@ -48,6 +56,44 @@ class Mod implements IPreAkiLoadMod
         const dynamicRouterModService = container.resolve<DynamicRouterModService>("DynamicRouterModService");
         const staticRouterModService = container.resolve<StaticRouterModService>("StaticRouterModService");
         this.saveServer = container.resolve<SaveServer>("SaveServer");
+        this.locationController = container.resolve<LocationController>("LocationController");
+        this.httpBufferHandler  = container.resolve<HttpBufferHandler>("HttpBufferHandler");
+        // ----------------------------------------------------------------
+        // TODO: Coop server needs to save and send same loot pools!
+
+        dynamicRouterModService.registerDynamicRouter(
+            "sit-coop-loot",
+            [
+                new RouteAction(
+                    "/client/location/getLocalloot",
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    (url: string, info: any, sessionID: string, output: string): any =>
+                    {
+                        const responseBody = {
+                            data: {},
+                            err: 0,
+                            errmsg: null,
+                        }
+                        console.log(info);
+                        responseBody.data = this.locationController.get(info.locationId);
+
+                        // if owner of this coop match, generate
+                        let coopMatch = this.CoopMatches[sessionID];
+                        if(coopMatch !== undefined) {
+                            coopMatch.Loot = responseBody.data;
+                        }
+                        // Find the Coop Match I am in!
+                        else {
+
+                        }
+
+                        output = JSON.stringify(responseBody);
+                        return output;
+                    }
+                )
+            ]
+            ,"aki-loot"
+        )
 
         // staticRouterModService.registerStaticRouter(
         //     "Web-Page-Router",
@@ -108,17 +154,20 @@ class Mod implements IPreAkiLoadMod
                         // logger.info(JSON.stringify(this.CoopMatches));
                         
                         let coopMatch: CoopMatch = null;
-                        for(let cm in this.CoopMatches)
+                        for (let cm in this.CoopMatches)
                         {
                             logger.info(JSON.stringify(this.CoopMatches[cm]));
 
-                            if(this.CoopMatches[cm].Location != info.location)
+                            if (this.CoopMatches[cm].Location != info.location)
                                 continue;
 
                             // if(this.CoopMatches[cm].Time != info.timeVariant)
                             //     continue;
 
-                            if(this.CoopMatches[cm].LastUpdateDateTime < new Date(Date.now() - (1000 * 300)))
+                            if (this.CoopMatches[cm].Status == CoopMatchStatus.Complete)
+                                continue;
+
+                            if (this.CoopMatches[cm].LastUpdateDateTime < new Date(Date.now() - (1000 * 5)))
                                 continue;
 
                             coopMatch = this.CoopMatches[cm];
@@ -382,6 +431,97 @@ class Mod implements IPreAkiLoadMod
             {
                 return this.getFriendsList(sessionID);
             }
+            // The modifier Always makes sure this replacement method is ALWAYS replaced
+        }, {frequency: "Always"});
+
+
+        container.afterResolution("AkiHttpListener", (_t, result: AkiHttpListener) => 
+        {
+            // We want to replace the original method logic with something different
+            result.handle = (sessionId: string, req: IncomingMessage, resp: ServerResponse) => 
+            {
+                // TODO: cleanup into interface IVerbHandler
+                switch (req.method)
+                {
+                    case "GET":
+                    {
+                        const response = result.getResponse(sessionId, req, null);
+                        result.sendResponse(sessionId, req, resp, null, response);
+                        break;
+                    }
+                    case "POST":
+                    {
+                        req.on("data", (data: any) =>
+                        {
+                            if (sessionId === undefined)
+                                sessionId = "launcher";
+
+                            const requestLength = parseInt(req.headers["content-length"]);
+                                    
+                            if (!this.httpBufferHandler.putInBuffer(sessionId, data, requestLength))
+                            {
+                                resp.writeContinue();
+                            }
+                        });
+
+                        req.on("end", async () =>
+                        {
+                            if (sessionId === undefined)
+                                sessionId = "launcher";
+
+                            const data = this.httpBufferHandler.getFromBuffer(sessionId);
+                            const value = (req.headers["debug"] === "1") ? data.toString() : zlib.inflateSync(data);
+                            if (req.headers["debug"] === "1") 
+                            {
+                                console.log(value.toString());
+                            }
+                            this.httpBufferHandler.resetBuffer(sessionId);
+                            
+                            const response = result.getResponse(sessionId, req, value);
+                            result.sendResponse(sessionId, req, resp, value, response);
+                        });
+
+                        
+                        break;
+                    }
+                    case "PUT":
+                    {
+                        req.on("data", (data) =>
+                        {
+                            // receive data
+                            //if ("expect" in req.headers)
+                            {
+                                const requestLength = parseInt(req.headers["content-length"]);
+                                    
+                                if (!this.httpBufferHandler.putInBuffer(req.headers.sessionid, data, requestLength))
+                                {
+                                    resp.writeContinue();
+                                }
+                            }
+                        });
+                            
+                        req.on("end", async () =>
+                        {
+                            const data = this.httpBufferHandler.getFromBuffer(sessionId);
+                            this.httpBufferHandler.resetBuffer(sessionId);
+                            
+                            let value = zlib.inflateSync(data);
+                            if (!value)
+                            {
+                                value = data;
+                            }
+                            const response = result.getResponse(sessionId, req, value);
+                            result.sendResponse(sessionId, req, resp, value, response);
+                        });
+                        break;
+                    }
+                    default:
+                    {
+                        break;
+                    }
+                }
+            }
+
             // The modifier Always makes sure this replacement method is ALWAYS replaced
         }, {frequency: "Always"});
         

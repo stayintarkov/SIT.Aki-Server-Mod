@@ -30,6 +30,7 @@ export class CoopMatch {
     DamageArray: any[] = [];
     Status: CoopMatchStatus = CoopMatchStatus.Loading;
     Settings: any = {};
+    Loot: any = {};
     Location: string;
     Time: string;
     WeatherSettings: any;
@@ -40,7 +41,7 @@ export class CoopMatch {
         this.Location = inData.settings.location;
         this.Time = inData.settings.timeVariant;
         this.WeatherSettings = inData.settings.timeAndWeatherSettings;
-
+        this.Status = CoopMatchStatus.Loading;
         this.CreatedDateTime = new Date(Date.now());
         this.LastUpdateDateTime = new Date(Date.now());
     }
@@ -86,6 +87,14 @@ export class CoopMatch {
         }
 
         this.LastUpdateDateTime = new Date(Date.now());
+    }
+
+    public UpdateStatus(inStatus: CoopMatchStatus) {
+        this.Status = inStatus;
+    }
+
+    public PlayerLeft(accountId: string) {
+        
     }
 
 
