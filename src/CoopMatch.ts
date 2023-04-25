@@ -24,6 +24,7 @@ export class CoopMatch {
     // All characters in the game. Including AI
     Characters: any[] = [];
     LastDataByAccountId: Record<string, Record<string, Record<string, any>>> = {};
+    LastDataReceivedByAccountId: Record<string, number> = {};
     LastData: Record<string, Record<string, any>> = {};
     LastMoves: Record<string, any> = {};
     LastRotates: Record<string, any> = {};
@@ -61,19 +62,29 @@ export class CoopMatch {
             return;
         }
 
+
+
+
+        if(info.m === undefined)
+            return;
         // logger.info(`Update a Coop Server [${info.serverId}][${info.m}]`);
-        this.LastData[info.m] = info;
 
-        if(this.LastDataByAccountId[info.accountId] === undefined)
-            this.LastDataByAccountId[info.accountId] = {};
+        if(info.m !== "PlayerSpawn") {
+            // this.LastData[info.m] = info;
 
-        this.LastDataByAccountId[info.accountId][info.m] = info;
-        
-        if(info.m == "Move") {
-            // console.log(info);
-            this.LastMoves[info.accountId] = info;
+            if(this.LastDataByAccountId[info.accountId] === undefined)
+                this.LastDataByAccountId[info.accountId] = {};
+
+            this.LastDataByAccountId[info.accountId][info.m] = info;
         }
-        else if(info.m == "PlayerSpawn") {
+        
+        // if(info.m == "Move") {
+        //     // console.log(info);
+        //     this.LastMoves[info.accountId] = info;
+        // }
+        // else
+        
+        if(info.m == "PlayerSpawn") {
             // console.log(info);
             let foundExistingPlayer = false;
             for(var c of this.Characters) {
