@@ -74,7 +74,7 @@ class Mod implements IPreAkiLoadMod
                             err: 0,
                             errmsg: null,
                         }
-                        console.log(info);
+                        // console.log(info);
                         responseBody.data = this.locationController.get(info.locationId);
 
                         // if owner of this coop match, generate
@@ -82,12 +82,46 @@ class Mod implements IPreAkiLoadMod
                         if(coopMatch !== undefined) {
                             coopMatch.Loot = responseBody.data;
                         }
-                        // Find the Coop Match I am in!
+                        // TODO: Find the Coop Match I am in!
                         else {
-
+                            for(const cm in this.CoopMatches) {
+                                responseBody.data = this.CoopMatches[cm].Loot;
+                            }
                         }
 
                         output = JSON.stringify(responseBody);
+                        return output;
+                    }
+                ),
+                new RouteAction(
+                    "/coop/server/read/lastActions/",
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    (url: string, info: any, sessionID: string, output: string): any =>
+                    {
+
+                        const serverId = url.replace("/coop/server/read/lastActions/", "");
+
+                        if(serverId === undefined || serverId == "")
+                        {
+                            output = JSON.stringify({});
+                            return output; 
+                        }
+                        
+                        let coopMatch = this.getCoopMatch(serverId);
+                        if(coopMatch == null || coopMatch == undefined)
+                        {
+                            output = JSON.stringify({});
+                            return output; 
+                        }
+
+                        if(coopMatch.LastDataReceivedByAccountId[sessionID] === undefined)
+                            coopMatch.LastDataReceivedByAccountId[sessionID] = Date.now();
+
+                        const dataResult = coopMatch.LastDataByAccountId;
+
+
+                        output = JSON.stringify(dataResult);
+                        console.log(output.length);
                         return output;
                     }
                 )
@@ -147,22 +181,17 @@ class Mod implements IPreAkiLoadMod
                 {
                     url: "/coop/server/exist",
                     action: (url, info, sessionId, output) => {
-                        // logger.info(url);
-                        // logger.info(info);
-                        // logger.info(sessionId);
-
-                        // logger.info(JSON.stringify(this.CoopMatches));
                         
                         let coopMatch: CoopMatch = null;
                         for (let cm in this.CoopMatches)
                         {
-                            logger.info(JSON.stringify(this.CoopMatches[cm]));
+                            // logger.info(JSON.stringify(this.CoopMatches[cm]));
 
                             if (this.CoopMatches[cm].Location != info.location)
                                 continue;
 
-                            // if(this.CoopMatches[cm].Time != info.timeVariant)
-                            //     continue;
+                            if(this.CoopMatches[cm].Time != info.timeVariant)
+                                continue;
 
                             if (this.CoopMatches[cm].Status == CoopMatchStatus.Complete)
                                 continue;
@@ -217,39 +246,6 @@ class Mod implements IPreAkiLoadMod
 
                         output = JSON.stringify(charactersToSend);
                         // console.log(output);
-                        return output;
-                    }
-                },
-                {
-                    url: "/coop/server/read/lastActions",
-                    action: (url, info, sessionId, output) => {
-
-                        // ---------------------------------------------------------------------------------------------------
-                        // Send's lastData without player spawns etc
-
-                        let coopMatch = this.getCoopMatch(info.serverId);
-                        if(coopMatch == null || coopMatch == undefined)
-                        {
-                            output = JSON.stringify({});
-                            return output; 
-                        }
-
-                        const dataResult = JSON.parse(JSON.stringify(coopMatch.LastDataByAccountId));
-                        // for(let accountId in dataResult) {
-                        //     const accountLastData = coopMatch[accountId];
-                        //     for(const m in accountLastData) {
-                                
-                        //         const data = accountLastData[m];
-                        //         if(data["t"] === undefined)
-                        //             continue;
-
-                        //         const dataDate = new Date(parseInt(data["t"]));
-                        //         const infoDate = new Date(parseInt(info["t"]));
-                        //         if(dataDate < infoDate)
-                        //             accountLastData[m] = {};
-                        //     }
-                        // }
-                        output = JSON.stringify(dataResult);
                         return output;
                     }
                 },
@@ -567,6 +563,92 @@ class Mod implements IPreAkiLoadMod
         }
 
         return friendList;
+    }
+
+
+    // TODO: Hook this up
+    public sitHttpHandler(sessionId: string, req: IncomingMessage, resp: ServerResponse, result: AkiHttpListener)
+    {
+        // TODO: cleanup into interface IVerbHandler
+        switch (req.method)
+        {
+            case "GET":
+            {
+                const response = result.getResponse(sessionId, req, null);
+                result.sendResponse(sessionId, req, resp, null, response);
+                break;
+            }
+            case "POST":
+            {
+                req.on("data", (data: any) =>
+                {
+                    if (sessionId === undefined)
+                        sessionId = "launcher";
+
+                    const requestLength = parseInt(req.headers["content-length"]);
+                            
+                    if (!this.httpBufferHandler.putInBuffer(sessionId, data, requestLength))
+                    {
+                        resp.writeContinue();
+                    }
+                });
+
+                req.on("end", async () =>
+                {
+                    if (sessionId === undefined)
+                        sessionId = "launcher";
+
+                    const data = this.httpBufferHandler.getFromBuffer(sessionId);
+                    const value = (req.headers["debug"] === "1") ? data.toString() : zlib.inflateSync(data);
+                    if (req.headers["debug"] === "1") 
+                    {
+                        console.log(value.toString());
+                    }
+                    this.httpBufferHandler.resetBuffer(sessionId);
+                    
+                    const response = result.getResponse(sessionId, req, value);
+                    result.sendResponse(sessionId, req, resp, value, response);
+                });
+
+                
+                break;
+            }
+            case "PUT":
+            {
+                req.on("data", (data) =>
+                {
+                    // receive data
+                    //if ("expect" in req.headers)
+                    {
+                        const requestLength = parseInt(req.headers["content-length"]);
+                            
+                        if (!this.httpBufferHandler.putInBuffer(req.headers.sessionid, data, requestLength))
+                        {
+                            resp.writeContinue();
+                        }
+                    }
+                });
+                    
+                req.on("end", async () =>
+                {
+                    const data = this.httpBufferHandler.getFromBuffer(sessionId);
+                    this.httpBufferHandler.resetBuffer(sessionId);
+                    
+                    let value = zlib.inflateSync(data);
+                    if (!value)
+                    {
+                        value = data;
+                    }
+                    const response = result.getResponse(sessionId, req, value);
+                    result.sendResponse(sessionId, req, resp, value, response);
+                });
+                break;
+            }
+            default:
+            {
+                break;
+            }
+        }
     }
 }
 module.exports = {mod: new Mod()}
