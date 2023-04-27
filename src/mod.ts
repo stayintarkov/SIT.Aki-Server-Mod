@@ -1,19 +1,26 @@
 import { DependencyContainer, injectable } from "tsyringe";
 
 import { DialogueController } from "@spt-aki/controllers/DialogueController";
+import { GameController } from "@spt-aki/controllers/GameController";
 import { LocationController } from "@spt-aki/controllers/LocationController";
 import { AkiHttpListener } from "@spt-aki/servers/http/AkiHttpListener";
 import { SaveServer } from "@spt-aki/servers/SaveServer";
 
 import { RouteAction } from "@spt-aki/di/Router";
 import { Friend, IGetFriendListDataResponse } from "@spt-aki/models/eft/dialog/IGetFriendListDataResponse";
+import { IGameConfigResponse } from "@spt-aki/models/eft/game/IGameConfigResponse";
 import { MemberCategory } from "@spt-aki/models/enums/MemberCategory";
+
 import type { IPreAkiLoadMod } from "@spt-aki/models/external/IPreAkiLoadMod";
 import type { ILogger } from "@spt-aki/models/spt/utils/ILogger";
 import { HttpBufferHandler } from "@spt-aki/servers/http/HttpBufferHandler";
 import type { DynamicRouterModService } from "@spt-aki/services/mod/dynamicRouter/DynamicRouterModService";
 import type { StaticRouterModService } from "@spt-aki/services/mod/staticRouter/StaticRouterModService";
+
+import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
+import fs from "fs";
 import { IncomingMessage, ServerResponse } from "http";
+import path from "path";
 import zlib from "zlib";
 import { CoopMatch, CoopMatchStatus } from "./CoopMatch";
 
@@ -33,6 +40,8 @@ class Mod implements IPreAkiLoadMod
     saveServer: SaveServer;
     locationController: LocationController;
     httpBufferHandler: HttpBufferHandler;
+    databaseServer: DatabaseServer;
+    coopConfig: any;
 
     public getCoopMatch(serverId: string) : CoopMatch {
 
@@ -58,6 +67,18 @@ class Mod implements IPreAkiLoadMod
         this.saveServer = container.resolve<SaveServer>("SaveServer");
         this.locationController = container.resolve<LocationController>("LocationController");
         this.httpBufferHandler  = container.resolve<HttpBufferHandler>("HttpBufferHandler");
+        this.databaseServer = container.resolve<DatabaseServer>("DatabaseServer");
+
+
+        console.log("================= COOP Config: Loading ============================");
+        var coopConfigFilePath = path.join(__dirname, "coopconfig.json");
+        console.log(coopConfigFilePath);
+        if(!fs.existsSync(coopConfigFilePath)) {
+            throw "coopconfig.json doesn't exist, please follow the README.md to create";
+        }
+        this.coopConfig = JSON.parse(fs.readFileSync(coopConfigFilePath).toString());
+        console.log(this.coopConfig);
+
         // ----------------------------------------------------------------
         // TODO: Coop server needs to save and send same loot pools!
 
@@ -521,6 +542,15 @@ class Mod implements IPreAkiLoadMod
             // The modifier Always makes sure this replacement method is ALWAYS replaced
         }, {frequency: "Always"});
         
+        container.afterResolution("GameController", (_t, result: GameController) => 
+        {
+            // We want to replace the original method logic with something different
+            result.getGameConfig = (sessionID: string) => 
+            {
+                return this.getGameConfig(sessionID);
+            }
+            // The modifier Always makes sure this replacement method is ALWAYS replaced
+        }, {frequency: "Always"});
     }
 
     public getFriendsList(sessionID: string): IGetFriendListDataResponse
@@ -563,6 +593,32 @@ class Mod implements IPreAkiLoadMod
         }
 
         return friendList;
+    }
+
+    public getGameConfig(sessionID: string): IGameConfigResponse
+    {
+        const config: IGameConfigResponse = {
+            languages: this.databaseServer.getTables().locales.languages,
+            ndaFree: false,
+            reportAvailable: false,
+            twitchEventMember: false,
+            lang: "en",
+            aid: sessionID,
+            taxonomy: 6,
+            activeProfileId: `pmc${sessionID}`,
+            backend: {
+                Lobby: this.coopConfig.externalIP,// this.httpServerHelper.getBackendUrl(),
+                Trading: this.coopConfig.externalIP,// this.httpServerHelper.getBackendUrl(),
+                Messaging: this.coopConfig.externalIP,// this.httpServerHelper.getBackendUrl(),
+                Main: this.coopConfig.externalIP,// this.httpServerHelper.getBackendUrl(),
+                RagFair: this.coopConfig.externalIP//  this.httpServerHelper.getBackendUrl()
+            },
+            // eslint-disable-next-line @typescript-eslint/naming-convention
+            utc_time: new Date().getTime() / 1000,
+            totalInGame: 1
+        };
+
+        return config;
     }
 
 
