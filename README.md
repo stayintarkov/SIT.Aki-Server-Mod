@@ -4,9 +4,12 @@
 
 This is the SERVER modification of [SPT-Aki](https://www.sp-tarkov.com/) to allow the [Coop Module](https://github.com/paulov-t/SIT.Core) to communicate with the SPT-Aki Server.
 
-## Where does this repo go?
+## How to use this Repo?
 
-All mods must go in the server /user/mods/ folder
+* Install SIT via the Launcher (or manually)
+* Download and Install the latest SPT-Aki Server
+* Download this repo (see the Code button above)
+* Install this repo into the server /user/mods/ folder
 
 ## How do I set up this mod?
 
