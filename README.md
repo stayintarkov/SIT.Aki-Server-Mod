@@ -18,7 +18,8 @@ This is the SERVER modification of [SPT-Aki](https://www.sp-tarkov.com/) to allo
 * In the file you must use the following config, replacing the IP with your own
 ```
 {
-    "externalIP": "http://{enter your external IP here}:6969"
+    "externalIP": "http://{enter your external IP here}:6969",
+    "webSocketPort": 6970
 }
 ```
 

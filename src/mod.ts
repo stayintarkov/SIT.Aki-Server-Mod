@@ -6,6 +6,7 @@ import { LocationController } from "@spt-aki/controllers/LocationController";
 import { AkiHttpListener } from "@spt-aki/servers/http/AkiHttpListener";
 import { SaveServer } from "@spt-aki/servers/SaveServer";
 
+
 import { RouteAction } from "@spt-aki/di/Router";
 import { Friend, IGetFriendListDataResponse } from "@spt-aki/models/eft/dialog/IGetFriendListDataResponse";
 import { IGameConfigResponse } from "@spt-aki/models/eft/game/IGameConfigResponse";
@@ -22,26 +23,24 @@ import fs from "fs";
 import { IncomingMessage, ServerResponse } from "http";
 import path from "path";
 import zlib from "zlib";
+
 import { CoopMatch, CoopMatchStatus } from "./CoopMatch";
+import { WebSocketHandler } from "./WebSocketHandler";
 
 @injectable()
-class Mod implements IPreAkiLoadMod
+export class Mod implements IPreAkiLoadMod
 {
-    constructor(
-    )
-    { 
-
-    }
+   
 
     private static container: DependencyContainer;
 
-    // A Dictonary of Coop Matches. The Key is the Account Id of the Player that created it
-    CoopMatches: Record<string, CoopMatch> = {}; 
+   
     saveServer: SaveServer;
     locationController: LocationController;
     httpBufferHandler: HttpBufferHandler;
     databaseServer: DatabaseServer;
     coopConfig: any;
+    webSocketHandler: WebSocketHandler;
 
     public getCoopMatch(serverId: string) : CoopMatch {
 
@@ -50,12 +49,12 @@ class Mod implements IPreAkiLoadMod
             return undefined;
         }
 
-        if(this.CoopMatches[serverId] === undefined) {
+        if(CoopMatch.CoopMatches[serverId] === undefined) {
             console.error(`getCoopMatch -- no server of ${serverId} exists`);
             return undefined;
         }
 
-        return this.CoopMatches[serverId];
+        return CoopMatch.CoopMatches[serverId];
     } 
 
     public preAkiLoad(container: DependencyContainer): void {
@@ -69,8 +68,9 @@ class Mod implements IPreAkiLoadMod
         this.httpBufferHandler  = container.resolve<HttpBufferHandler>("HttpBufferHandler");
         this.databaseServer = container.resolve<DatabaseServer>("DatabaseServer");
 
-
-        console.log("================= COOP Config: Loading ============================");
+        console.log(`============================================================`);
+        console.log(`COOP MOD: Coop Config Loading`);
+        console.log(`============================================================`);
         var coopConfigFilePath = path.join(__dirname, "coopconfig.json");
         console.log(coopConfigFilePath);
         if(!fs.existsSync(coopConfigFilePath)) {
@@ -78,6 +78,8 @@ class Mod implements IPreAkiLoadMod
         }
         this.coopConfig = JSON.parse(fs.readFileSync(coopConfigFilePath).toString());
         console.log(this.coopConfig);
+        console.log(`============================================================`);
+        this.webSocketHandler = new WebSocketHandler(this.coopConfig.webSocketPort, logger);
 
         // ----------------------------------------------------------------
         // TODO: Coop server needs to save and send same loot pools!
@@ -99,14 +101,14 @@ class Mod implements IPreAkiLoadMod
                         responseBody.data = this.locationController.get(info.locationId);
 
                         // if owner of this coop match, generate
-                        let coopMatch = this.CoopMatches[sessionID];
+                        let coopMatch = CoopMatch.CoopMatches[sessionID];
                         if(coopMatch !== undefined) {
                             coopMatch.Loot = responseBody.data;
                         }
                         // TODO: Find the Coop Match I am in!
                         else {
-                            for(const cm in this.CoopMatches) {
-                                responseBody.data = this.CoopMatches[cm].Loot;
+                            for(const cm in CoopMatch.CoopMatches) {
+                                responseBody.data = CoopMatch.CoopMatches[cm].Loot;
                             }
                         }
 
@@ -119,6 +121,7 @@ class Mod implements IPreAkiLoadMod
                     // eslint-disable-next-line @typescript-eslint/no-unused-vars
                     (url: string, info: any, sessionID: string, output: string): any =>
                     {
+                        let timeCheck = Date.now();
 
                         var splitUrl = url.split('/');
                         const serverId = splitUrl[splitUrl.length-2]; // url.replace("/coop/server/read/lastActions/", "");
@@ -142,13 +145,15 @@ class Mod implements IPreAkiLoadMod
                             coopMatch.LastDataReceivedByAccountId[sessionID] = Date.now();
                             const dataResult = coopMatch.LastDataByAccountId;
                             output = JSON.stringify(dataResult);
-                            console.log(output.length);
+                            // console.log(output.length);
                             return output;
                         }
 
                         const dataResult = coopMatch.LastDataByAccountId;
 
                         output = JSON.stringify(dataResult);
+
+                        // console.log(Date.now() - timeCheck);
                         // console.log(output.length);
                         return output;
                     }
@@ -187,22 +192,20 @@ class Mod implements IPreAkiLoadMod
                 {
                     url: "/coop/server/create",
                     action: (url, info: any, sessionId, output) => {
-                        logger.info("___________________");
                         logger.info("Start a Coop Server");
-                        logger.info("___________________");
                         logger.info("Coop Data:_________");
                         logger.info(info);
                         logger.info("___________________");
-                        if(this.CoopMatches[info.serverId] !== undefined) {
-                            delete this.CoopMatches[info.serverId];
+                        if(CoopMatch.CoopMatches[info.serverId] !== undefined) {
+                            delete CoopMatch.CoopMatches[info.serverId];
                         }
 
-                        this.CoopMatches[info.serverId] = new CoopMatch(info);
+                        CoopMatch.CoopMatches[info.serverId] = new CoopMatch(info);
                         // this.CoopMatches[info.serverId].Settings = info.settings;
-                        this.CoopMatches[info.serverId].Location = info.settings.location;
-                        this.CoopMatches[info.serverId].Time = info.settings.timeVariant;
-                        this.CoopMatches[info.serverId].WeatherSettings = info.settings.timeAndWeatherSettings;
-                        output = JSON.stringify(this.CoopMatches[info.serverId]);
+                        CoopMatch.CoopMatches[info.serverId].Location = info.settings.location;
+                        CoopMatch.CoopMatches[info.serverId].Time = info.settings.timeVariant;
+                        CoopMatch.CoopMatches[info.serverId].WeatherSettings = info.settings.timeAndWeatherSettings;
+                        output = JSON.stringify(CoopMatch.CoopMatches[info.serverId]);
                         return output;
                     }
                 },
@@ -211,23 +214,23 @@ class Mod implements IPreAkiLoadMod
                     action: (url, info, sessionId, output) => {
                         
                         let coopMatch: CoopMatch = null;
-                        for (let cm in this.CoopMatches)
+                        for (let cm in CoopMatch.CoopMatches)
                         {
                             // logger.info(JSON.stringify(this.CoopMatches[cm]));
 
-                            if (this.CoopMatches[cm].Location != info.location)
+                            if (CoopMatch.CoopMatches[cm].Location != info.location)
                                 continue;
 
-                            if(this.CoopMatches[cm].Time != info.timeVariant)
+                            if(CoopMatch.CoopMatches[cm].Time != info.timeVariant)
                                 continue;
 
-                            if (this.CoopMatches[cm].Status == CoopMatchStatus.Complete)
+                            if (CoopMatch.CoopMatches[cm].Status == CoopMatchStatus.Complete)
                                 continue;
 
-                            if (this.CoopMatches[cm].LastUpdateDateTime < new Date(Date.now() - (1000 * 5)))
+                            if (CoopMatch.CoopMatches[cm].LastUpdateDateTime < new Date(Date.now() - (1000 * 5)))
                                 continue;
 
-                            coopMatch = this.CoopMatches[cm];
+                            coopMatch = CoopMatch.CoopMatches[cm];
                         }
                         logger.info(coopMatch !== null ? "match exists" : "match doesn't exist!");
 
@@ -299,6 +302,8 @@ class Mod implements IPreAkiLoadMod
                             return JSON.stringify({ response: "ERROR" });
                         }
 
+                        // let timeCheck = Date.now();
+
                         // console.log(info);
                         let coopMatch = this.getCoopMatch(info.serverId);
                         if(coopMatch == null || coopMatch == undefined)
@@ -311,6 +316,11 @@ class Mod implements IPreAkiLoadMod
 
                         coopMatch.ProcessData(info, logger);
                         
+
+                        // 
+                        // console.log(Date.now() - timeCheck);
+
+
                         output = JSON.stringify({});
                         return output;
                     }
@@ -497,6 +507,62 @@ class Mod implements IPreAkiLoadMod
             }
             // The modifier Always makes sure this replacement method is ALWAYS replaced
         }, {frequency: "Always"});
+
+
+        /**
+         * MUST HAVE: WEB SOCKET ON CONNECTION
+         * wsOnConnection is "protected", need to get SPT-Aki to release it! *facepalm*
+         */
+        // container.afterResolution("WebSocketServer", (_t, result: WebSocketServer) => 
+        // {
+        //     const originalMethod = result.wsOnConnection;
+
+        //     // We want to replace the original method logic with something different
+        //     result.wsOnConnection = (ws: WebSocket, req: IncomingMessage) => 
+        //     {
+        //         // Strip request and break it into sections
+        //         const splitUrl = req.url.substring(0, req.url.indexOf("?")).split("/");
+        //         const sessionID = splitUrl.pop();
+
+        //         ws.on("message", function message(msg) 
+        //         {
+        //             logger.info(`message from ${sessionID} ${msg}`);
+        //         });
+
+        //         // this.logger.info(this.localisationService.getText("websocket-player_connected", sessionID));
+
+        //         // const logger = this.logger;
+        //         // const msgToLog = this.localisationService.getText("websocket-received_message", sessionID);
+        //         // ws.on("message", function message(msg) 
+        //         // {
+        //         //     logger.info(`${msgToLog} ${msg}`);
+        //         // });
+
+        //         // this.webSockets[sessionID] = ws;
+
+        //         // if (this.websocketPingHandler) 
+        //         // {
+        //         //     clearInterval(this.websocketPingHandler);
+        //         // }
+
+        //         // this.websocketPingHandler = setInterval(() => 
+        //         // {
+        //         //     this.logger.debug(this.localisationService.getText("websocket-pinging_player", sessionID));
+
+        //         //     if (ws.readyState === WebSocket.OPEN) 
+        //         //     {
+        //         //         ws.send(JSON.stringify(this.defaultNotification));
+        //         //     }
+        //         //     else 
+        //         //     {
+        //         //         this.logger.debug(this.localisationService.getText("websocket-socket_lost_deleting_handle"));
+        //         //         clearInterval(this.websocketPingHandler);
+        //         //         delete this.webSockets[sessionID];
+        //         //     }
+        //         // }, this.httpConfig.webSocketPingDelayMs);
+        //     }
+        //      // The modifier Always makes sure this replacement method is ALWAYS replaced
+        //  }, {frequency: "Always"});
     }
 
     public getFriendsList(sessionID: string): IGetFriendListDataResponse

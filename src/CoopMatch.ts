@@ -36,6 +36,13 @@ export class CoopMatch {
     Time: string;
     WeatherSettings: any;
 
+    // WebSockets -- Currently Unused
+    // WebSockets: Record<string, WebSocket.WebSocket> = {};
+    // WebSocketServer: WebSocket.Server;
+
+    // A Dictonary of Coop Matches. The Key is the Account Id of the Player that created it
+    public static CoopMatches: Record<string, CoopMatch> = {}; 
+
     public constructor(inData: any) {
 
         this.ServerId = inData.serverId;
@@ -45,6 +52,7 @@ export class CoopMatch {
         this.Status = CoopMatchStatus.Loading;
         this.CreatedDateTime = new Date(Date.now());
         this.LastUpdateDateTime = new Date(Date.now());
+      
     }
 
     public ProcessData(info: any, logger: ILogger) {
@@ -107,7 +115,6 @@ export class CoopMatch {
     public PlayerLeft(accountId: string) {
         
     }
-
 
     
 }
