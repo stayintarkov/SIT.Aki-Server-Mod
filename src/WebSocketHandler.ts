@@ -38,14 +38,16 @@ export class WebSocketHandler {
 
         console.log(`${sessionID} has connected to Coop Web Socket`);
 
-        ws.on("message", function message(msg) 
+        ws.on("message", async function message(msg) 
         {
 
-            console.log(`${sessionID} sent ${msg}`)
 
             const msgStr = msg.toString();
             if(msgStr.charAt(0) !== '{')
                 return;
+
+            // console.log(`${sessionID} sent ${msg}`)
+
 
             var jsonObject = JSON.parse(msgStr);
 
