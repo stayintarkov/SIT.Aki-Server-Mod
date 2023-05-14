@@ -40,7 +40,7 @@ export class Mod implements IPreAkiLoadMod
     httpBufferHandler: HttpBufferHandler;
     databaseServer: DatabaseServer;
     coopConfig: any;
-    webSocketHandler: WebSocketHandler;
+    public webSocketHandler: WebSocketHandler;
 
     public getCoopMatch(serverId: string) : CoopMatch {
 
@@ -192,10 +192,10 @@ export class Mod implements IPreAkiLoadMod
                 {
                     url: "/coop/server/create",
                     action: (url, info: any, sessionId, output) => {
-                        logger.info("Start a Coop Server");
-                        logger.info("Coop Data:_________");
-                        logger.info(info);
-                        logger.info("___________________");
+                        logger.info(`Start a Coop Server ${sessionId}`);
+                        // logger.info("Coop Data:_________");
+                        // logger.info(info);
+                        // logger.info("___________________");
                         if(CoopMatch.CoopMatches[info.serverId] !== undefined) {
                             delete CoopMatch.CoopMatches[info.serverId];
                         }

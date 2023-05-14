@@ -7,12 +7,14 @@ export class WebSocketHandler {
 
     public webSockets: Record<string, WebSocket.WebSocket> = {};
     logger: ILogger;
+    public static Instance: WebSocketHandler;
 
     constructor(
         webSocketPort: number
         , logger: ILogger
         )
         { 
+            WebSocketHandler.Instance = this;
             this.logger = logger;
             const webSocketServer = new WebSocket.Server({
                 "port": webSocketPort
@@ -53,11 +55,33 @@ export class WebSocketHandler {
 
             const match = CoopMatch.CoopMatches[jsonObject["serverId"]];
             if(match !== undefined) {
-                // console.log("found match");
-                match.ProcessData(jsonObject, wsh.logger);
+
+                if(jsonObject["connect"] == true) {
+                    match.PlayerJoined(jsonObject["accountId"]);
+                }
+                else {
+                    // console.log("found match");
+                    match.ProcessData(jsonObject, wsh.logger);
+                }
             }
+
+            wsh.sendToAllWebSockets(JSON.stringify(jsonObject));
+
         });
 
         this.webSockets[sessionID] = ws;
+    }
+
+    public sendToAllWebSockets(data: string) {
+        for(let session in this.webSockets) {
+            this.webSockets[session].send(data);
+        }
+    }
+
+    public sendToWebSockets(sessions: string[], data: string) {
+        for(let session of sessions) {
+            if(this.webSockets[session] !== undefined)
+                this.webSockets[session].send(data);
+        }
     }
 }
