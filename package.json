@@ -19,5 +19,8 @@
         "glob": "8.0.3",
         "tsyringe": "4.7.0",
         "typescript": "4.9.4"
+    },
+    "dependencies": {
+        "ws": "^8.13.0"
     }
 }
