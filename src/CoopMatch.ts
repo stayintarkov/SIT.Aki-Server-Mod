@@ -25,7 +25,7 @@ export class CoopMatch {
     public ConnectedPlayers: string[] = [];
 
     // All characters in the game. Including AI
-    Characters: any[] = [];
+    public Characters: any[] = [];
     LastDataByAccountId: Record<string, Record<string, Record<string, any>>> = {};
     LastDataReceivedByAccountId: Record<string, number> = {};
     LastData: Record<string, Record<string, any>> = {};
@@ -51,6 +51,25 @@ export class CoopMatch {
         this.Status = CoopMatchStatus.Loading;
         this.CreatedDateTime = new Date(Date.now());
         this.LastUpdateDateTime = new Date(Date.now());
+
+        if(CoopMatch.CoopMatches[inData.serverId] !== undefined) {
+            delete CoopMatch.CoopMatches[inData.serverId];
+        }
+
+        let cm = this;
+        setInterval(() => {
+
+            // for(const key in cm.LastDataByAccountId) {
+            //     WebSocketHandler.Instance.sendToWebSockets(this.ConnectedPlayers, JSON.stringify(cm.LastDataByAccountId[key]));
+            // }
+
+        }, 1000);
+
+        setInterval(() => {
+
+            WebSocketHandler.Instance.sendToWebSockets(this.ConnectedPlayers, JSON.stringify({ ping: Date.now() }));
+
+        }, 2000);
     }
 
     public ProcessData(info: any, logger: ILogger) {
@@ -72,8 +91,10 @@ export class CoopMatch {
         if(info.accountId !== undefined)
             this.PlayerJoined(info.accountId);
 
-        if(info.m === undefined)
+        if(info.m === undefined) { 
+            this.LastUpdateDateTime = new Date(Date.now());
             return;
+        }
             
         // logger.info(`Update a Coop Server [${info.serverId}][${info.m}]`);
 

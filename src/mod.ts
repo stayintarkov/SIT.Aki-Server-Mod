@@ -377,7 +377,7 @@ export class Mod implements IPreAkiLoadMod
                         logger.info("/client/match/group/status")
                         logger.info("Getting Coop Server Match Status")
                         const obj = {
-                            "players": [{}, {}],
+                            "players": [],
                             "invite": [],
                             "group": []
                         };
@@ -385,6 +385,42 @@ export class Mod implements IPreAkiLoadMod
                         return output;
                     }
                 },
+                // {
+                //     url: "/client/match/group/current",
+                //     action: (url: string, info: any, sessionID: string, output: string): any => 
+                //     {
+                //         logger.info("/client/match/group/current")
+                //         logger.info("TODO: Look into Getting Group Current")
+
+                //         const myAccount = this.saveServer.getProfile(sessionID);
+                //         if(myAccount === undefined) { 
+                //             console.log("own account cannot be found");
+                //             return null;
+                //         }
+                //         let squadList: Friend[] = [];
+                //         // console.log(allAccounts);
+                //         // {
+                //         //     let squadMember: Friend = {
+                //         //         _id: myAccount.info.id,
+                //         //         Info: {
+                //         //             Level: myAccount.characters.pmc.Info.Level,
+                //         //             Nickname: myAccount.info.username,
+                //         //             Side: myAccount.characters.pmc.Info.Side,
+                //         //             MemberCategory: MemberCategory.DEFAULT
+                //         //         }
+                //         //     };
+                //         //     squadList.push(squadMember);
+                //         // }
+
+
+                //         const obj = {
+                //             squad: squadList,
+                //             raidSettings: {}
+                //         };
+                //         output = JSON.stringify({ data: obj, err: 0, errmsg: null });
+                //         return output;
+                //     }
+                // },
                 {
                     url: "/client/match/group/exit_from_menu",
                     action: (url: string, info: any, sessionID: string, output: string): any => 

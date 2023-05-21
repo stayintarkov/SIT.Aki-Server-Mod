@@ -1,6 +1,6 @@
 import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
 import { IncomingMessage } from "http";
-import WebSocket from "ws";
+import WebSocket, { RawData } from "ws";
 import { CoopMatch } from "./CoopMatch";
 
 export class WebSocketHandler {
@@ -40,36 +40,63 @@ export class WebSocketHandler {
 
         console.log(`${sessionID} has connected to Coop Web Socket`);
 
+        
         ws.on("message", async function message(msg) 
         {
 
-
-            const msgStr = msg.toString();
-            if(msgStr.charAt(0) !== '{')
-                return;
-
-            // console.log(`${sessionID} sent ${msg}`)
-
-
-            var jsonObject = JSON.parse(msgStr);
-
-            const match = CoopMatch.CoopMatches[jsonObject["serverId"]];
-            if(match !== undefined) {
-
-                if(jsonObject["connect"] == true) {
-                    match.PlayerJoined(jsonObject["accountId"]);
-                }
-                else {
-                    // console.log("found match");
-                    match.ProcessData(jsonObject, wsh.logger);
-                }
-            }
-
-            wsh.sendToAllWebSockets(JSON.stringify(jsonObject));
+            wsh.processMessage(msg);
+           
 
         });
 
         this.webSockets[sessionID] = ws;
+    }
+
+    private TryParseJsonArray(msg: string) {
+
+        if(msg.charAt(0) === '[') {
+           var jsonArray = JSON.parse(msg);
+
+           return jsonArray;
+        }
+
+        return null;
+
+    }
+
+    private async processMessage(msg: RawData) {
+
+        const msgStr = msg.toString();
+
+        var jsonArray = this.TryParseJsonArray(msgStr);
+        if(jsonArray !== null) {
+            for(const key in jsonArray) {
+                this.processObject(jsonArray[key]);
+            }
+        }
+
+        if(msgStr.charAt(0) !== '{')
+            return;
+
+        var jsonObject = JSON.parse(msgStr);
+
+        this.processObject(jsonObject);
+    }
+
+    private async processObject(jsonObject: any) {
+        const match = CoopMatch.CoopMatches[jsonObject["serverId"]];
+        if(match !== undefined) {
+
+            if(jsonObject["connect"] == true) {
+                match.PlayerJoined(jsonObject["accountId"]);
+            }
+            else {
+                // console.log("found match");
+                match.ProcessData(jsonObject, this.logger);
+            }
+        }
+
+        this.sendToAllWebSockets(JSON.stringify(jsonObject));
     }
 
     public sendToAllWebSockets(data: string) {
