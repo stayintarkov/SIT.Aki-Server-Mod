@@ -59,9 +59,13 @@ export class CoopMatch {
         let cm = this;
         setInterval(() => {
 
-            // for(const key in cm.LastDataByAccountId) {
-            //     WebSocketHandler.Instance.sendToWebSockets(this.ConnectedPlayers, JSON.stringify(cm.LastDataByAccountId[key]));
-            // }
+            for(const key in cm.LastDataByAccountId) {
+                
+                if(key === "undefined")
+                    continue;
+
+                WebSocketHandler.Instance.sendToWebSockets(this.ConnectedPlayers, JSON.stringify(cm.LastDataByAccountId[key]));
+            }
 
         }, 1000);
 
