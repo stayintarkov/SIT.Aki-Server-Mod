@@ -1,5 +1,5 @@
 <div align=center style="text-align: center;">
-<h1> SIT.Core </h1>
+<h1> Stay in Tarkov </h1>
 A SPT-Aki mod to be used with SPT-Aki Server to allow the Coop Module to communicate with the SPT-Aki Server.
 </div>
 
