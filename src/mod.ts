@@ -1,10 +1,12 @@
 import { DependencyContainer, injectable } from "tsyringe";
 
+import { LocationCallbacks } from "@spt-aki/callbacks/LocationCallbacks";
 import { DialogueController } from "@spt-aki/controllers/DialogueController";
 import { GameController } from "@spt-aki/controllers/GameController";
 import { LocationController } from "@spt-aki/controllers/LocationController";
 import { AkiHttpListener } from "@spt-aki/servers/http/AkiHttpListener";
 import { SaveServer } from "@spt-aki/servers/SaveServer";
+import { HttpResponseUtil } from "@spt-aki/utils/HttpResponseUtil";
 
 
 import { RouteAction } from "@spt-aki/di/Router";
@@ -24,7 +26,9 @@ import { IncomingMessage, ServerResponse } from "http";
 import path from "path";
 import zlib from "zlib";
 
+import { IGetLocationRequestData } from "@spt-aki/models/eft/location/IGetLocationRequestData";
 import { CoopMatch, CoopMatchStatus } from "./CoopMatch";
+import { ExternalIPFinder } from "./ExternalIPFinder";
 import { WebSocketHandler } from "./WebSocketHandler";
 
 @injectable()
@@ -38,9 +42,11 @@ export class Mod implements IPreAkiLoadMod
     saveServer: SaveServer;
     locationController: LocationController;
     httpBufferHandler: HttpBufferHandler;
+    protected httpResponse: HttpResponseUtil;
     databaseServer: DatabaseServer;
     coopConfig: any;
     public webSocketHandler: WebSocketHandler;
+    public externalIPFinder: ExternalIPFinder;
 
     public getCoopMatch(serverId: string) : CoopMatch {
 
@@ -67,6 +73,7 @@ export class Mod implements IPreAkiLoadMod
         this.locationController = container.resolve<LocationController>("LocationController");
         this.httpBufferHandler  = container.resolve<HttpBufferHandler>("HttpBufferHandler");
         this.databaseServer = container.resolve<DatabaseServer>("DatabaseServer");
+        this.httpResponse = container.resolve<HttpResponseUtil>("HttpResponseUtil");
 
         console.log(`============================================================`);
         console.log(`COOP MOD: Coop Config Loading`);
@@ -81,41 +88,44 @@ export class Mod implements IPreAkiLoadMod
         console.log(`============================================================`);
         this.webSocketHandler = new WebSocketHandler(this.coopConfig.webSocketPort, logger);
 
+        // 
+        this.externalIPFinder = new ExternalIPFinder();
+
         // ----------------------------------------------------------------
         // TODO: Coop server needs to save and send same loot pools!
 
         dynamicRouterModService.registerDynamicRouter(
             "sit-coop-loot",
             [
-                new RouteAction(
-                    "/client/location/getLocalloot",
-                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                    (url: string, info: any, sessionID: string, output: string): any =>
-                    {
-                        const responseBody = {
-                            data: {},
-                            err: 0,
-                            errmsg: null,
-                        }
-                        // console.log(info);
-                        responseBody.data = this.locationController.get(info.locationId);
+                // new RouteAction(
+                //     "/client/location/getLocalloot",
+                //     // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                //     (url: string, info: any, sessionID: string, output: string): any =>
+                //     {
+                //         const responseBody = {
+                //             data: {},
+                //             err: 0,
+                //             errmsg: null,
+                //         }
+                //         // console.log(info);
+                //         responseBody.data = this.locationController.get(info.locationId);
 
-                        // if owner of this coop match, generate
-                        let coopMatch = CoopMatch.CoopMatches[sessionID];
-                        if(coopMatch !== undefined) {
-                            coopMatch.Loot = responseBody.data;
-                        }
-                        // TODO: Find the Coop Match I am in!
-                        else {
-                            for(const cm in CoopMatch.CoopMatches) {
-                                responseBody.data = CoopMatch.CoopMatches[cm].Loot;
-                            }
-                        }
+                //         // if owner of this coop match, generate
+                //         let coopMatch = CoopMatch.CoopMatches[sessionID];
+                //         if(coopMatch !== undefined) {
+                //             coopMatch.Loot = responseBody.data;
+                //         }
+                //         // TODO: Find the Coop Match I am in!
+                //         else {
+                //             for(const cm in CoopMatch.CoopMatches) {
+                //                 responseBody.data = CoopMatch.CoopMatches[cm].Loot;
+                //             }
+                //         }
 
-                        output = JSON.stringify(responseBody);
-                        return output;
-                    }
-                ),
+                //         output = JSON.stringify(responseBody);
+                //         return output;
+                //     }
+                // ),
                 new RouteAction(
                     "/coop/server/read/lastActions/",
                     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -507,6 +517,30 @@ export class Mod implements IPreAkiLoadMod
             "aki"
         );
 
+
+        container.afterResolution("LocationCallbacks", (_t, result: LocationCallbacks) => {
+
+            result.getLocation = (url: string, info: IGetLocationRequestData, sessionID: string) => {
+
+                let generatedLoot = this.locationController.get(info.locationId);
+
+                let coopMatch = CoopMatch.CoopMatches[sessionID];
+                if(coopMatch !== undefined) {
+                    coopMatch.Loot = generatedLoot;
+                }
+                // TODO: Find the Coop Match I am in!
+                else {
+                    for(const cm in CoopMatch.CoopMatches) {
+                        generatedLoot = CoopMatch.CoopMatches[cm].Loot;
+                    }
+                }
+
+                return this.httpResponse.getBody(generatedLoot);
+                
+            }
+
+        }, {frequency: "Always"});
+
         /**
          * WIP/UNUSED FEATURE: GET FRIENDS LIST
          */
@@ -645,6 +679,12 @@ export class Mod implements IPreAkiLoadMod
 
     public getGameConfig(sessionID: string): IGameConfigResponse
     {
+        console.log(`============================================================`);
+        console.log(`COOP: Auto-External-IP-Finder`);
+        const externalIp = "http://" + this.externalIPFinder.IP + ":6969";
+        console.log(externalIp);
+        console.log(`============================================================`);
+
         const config: IGameConfigResponse = {
             languages: this.databaseServer.getTables().locales.languages,
             ndaFree: false,
@@ -655,13 +695,12 @@ export class Mod implements IPreAkiLoadMod
             taxonomy: 6,
             activeProfileId: `pmc${sessionID}`,
             backend: {
-                Lobby: this.coopConfig.externalIP,// this.httpServerHelper.getBackendUrl(),
-                Trading: this.coopConfig.externalIP,// this.httpServerHelper.getBackendUrl(),
-                Messaging: this.coopConfig.externalIP,// this.httpServerHelper.getBackendUrl(),
-                Main: this.coopConfig.externalIP,// this.httpServerHelper.getBackendUrl(),
-                RagFair: this.coopConfig.externalIP//  this.httpServerHelper.getBackendUrl()
+                Lobby: this.externalIPFinder.IP !== undefined ? externalIp  : this.coopConfig.externalIP,
+                Trading: this.externalIPFinder.IP !== undefined ? externalIp :  this.coopConfig.externalIP,
+                Messaging: this.externalIPFinder.IP !== undefined ? externalIp :  this.coopConfig.externalIP,
+                Main: this.externalIPFinder.IP !== undefined ? externalIp :  this.coopConfig.externalIP,
+                RagFair: this.externalIPFinder.IP !== undefined ? externalIp :  this.coopConfig.externalIP
             },
-            // eslint-disable-next-line @typescript-eslint/naming-convention
             utc_time: new Date().getTime() / 1000,
             totalInGame: 1
         };

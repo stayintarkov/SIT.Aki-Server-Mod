@@ -1,4 +1,9 @@
-## Made By Paulov-t
+<div align=center style="text-align: center;">
+<h1> SIT.Core </h1>
+A SPT-Aki mod to be used with SPT-Aki Server to allow the Coop Module to communicate with the SPT-Aki Server.
+</div>
+
+---
 
 ## Summary
 
@@ -15,7 +20,7 @@ This is the SERVER modification of [SPT-Aki](https://www.sp-tarkov.com/) to allo
 
 ### Coop Config JSON
 * You must create a file called coopconfig.json in your SITCoop/src folder.
-* In the file you must use the following config, replacing the IP with your own
+* In the file you must use the following config, replacing `{enter your external IP here}` with your own IPv4 from https://www.whatismyip.com
 ```
 {
     "externalIP": "http://{enter your external IP here}:6969",
