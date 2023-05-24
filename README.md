@@ -19,14 +19,15 @@ This is the SERVER modification of [SPT-Aki](https://www.sp-tarkov.com/) to allo
 ## How do I set up this mod?
 
 ### Coop Config JSON
-* You must create a file called coopconfig.json in your SITCoop/src folder.
-* In the file you must use the following config, replacing `{enter your external IP here}` with your own IPv4 from https://www.whatismyip.com
-```
-{
-    "externalIP": "http://{enter your external IP here}:6969",
-    "webSocketPort": 6970
-}
-```
+* You must configure the file called coopConfig.json in your SITCoop/config folder. This file is auto generated on first run of the mod.
+
+#### IF you are using PORT FORWARDING
+* In the file you must use the following config, replacing `{enter your external IP here}` with your own IPv4 from https://www.whatismyip.com and set useExternalIPFinder to false 
+* OR set useExternalIPFinder to true
+
+#### IF you are using HAMACHI
+* set useExternalIPFinder to false
+* set externalIP to your desired IP
 
 ### Http.json
 

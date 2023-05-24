@@ -21,12 +21,11 @@ import type { DynamicRouterModService } from "@spt-aki/services/mod/dynamicRoute
 import type { StaticRouterModService } from "@spt-aki/services/mod/staticRouter/StaticRouterModService";
 
 import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
-import fs from "fs";
 import { IncomingMessage, ServerResponse } from "http";
-import path from "path";
 import zlib from "zlib";
 
 import { IGetLocationRequestData } from "@spt-aki/models/eft/location/IGetLocationRequestData";
+import { CoopConfig } from "./CoopConfig";
 import { CoopMatch, CoopMatchStatus } from "./CoopMatch";
 import { ExternalIPFinder } from "./ExternalIPFinder";
 import { WebSocketHandler } from "./WebSocketHandler";
@@ -44,9 +43,9 @@ export class Mod implements IPreAkiLoadMod
     httpBufferHandler: HttpBufferHandler;
     protected httpResponse: HttpResponseUtil;
     databaseServer: DatabaseServer;
-    coopConfig: any;
     public webSocketHandler: WebSocketHandler;
     public externalIPFinder: ExternalIPFinder;
+    public coopConfig: CoopConfig;
 
     public getCoopMatch(serverId: string) : CoopMatch {
 
@@ -75,17 +74,8 @@ export class Mod implements IPreAkiLoadMod
         this.databaseServer = container.resolve<DatabaseServer>("DatabaseServer");
         this.httpResponse = container.resolve<HttpResponseUtil>("HttpResponseUtil");
 
-        console.log(`============================================================`);
-        console.log(`COOP MOD: Coop Config Loading`);
-        console.log(`============================================================`);
-        var coopConfigFilePath = path.join(__dirname, "coopconfig.json");
-        console.log(coopConfigFilePath);
-        if(!fs.existsSync(coopConfigFilePath)) {
-            throw "coopconfig.json doesn't exist, please follow the README.md to create";
-        }
-        this.coopConfig = JSON.parse(fs.readFileSync(coopConfigFilePath).toString());
-        console.log(this.coopConfig);
-        console.log(`============================================================`);
+        
+        this.coopConfig = new CoopConfig();
         this.webSocketHandler = new WebSocketHandler(this.coopConfig.webSocketPort, logger);
 
         // 
@@ -679,11 +669,15 @@ export class Mod implements IPreAkiLoadMod
 
     public getGameConfig(sessionID: string): IGameConfigResponse
     {
-        console.log(`============================================================`);
-        console.log(`COOP: Auto-External-IP-Finder`);
-        const externalIp = "http://" + this.externalIPFinder.IP + ":6969";
-        console.log(externalIp);
-        console.log(`============================================================`);
+        let externalIp = `${this.coopConfig.externalIP}`;
+
+        if(this.coopConfig.useExternalIPFinder) { 
+            console.log(`============================================================`);
+            console.log(`COOP: Auto-External-IP-Finder`);
+            externalIp = "http://" + this.externalIPFinder.IP + ":6969";
+            console.log(externalIp);
+            console.log(`============================================================`);
+        }
 
         const config: IGameConfigResponse = {
             languages: this.databaseServer.getTables().locales.languages,
@@ -695,11 +689,11 @@ export class Mod implements IPreAkiLoadMod
             taxonomy: 6,
             activeProfileId: `pmc${sessionID}`,
             backend: {
-                Lobby: this.externalIPFinder.IP !== undefined ? externalIp  : this.coopConfig.externalIP,
-                Trading: this.externalIPFinder.IP !== undefined ? externalIp :  this.coopConfig.externalIP,
-                Messaging: this.externalIPFinder.IP !== undefined ? externalIp :  this.coopConfig.externalIP,
-                Main: this.externalIPFinder.IP !== undefined ? externalIp :  this.coopConfig.externalIP,
-                RagFair: this.externalIPFinder.IP !== undefined ? externalIp :  this.coopConfig.externalIP
+                Lobby: externalIp,
+                Trading: externalIp,
+                Messaging: externalIp,
+                Main: externalIp,
+                RagFair: externalIp,
             },
             utc_time: new Date().getTime() / 1000,
             totalInGame: 1

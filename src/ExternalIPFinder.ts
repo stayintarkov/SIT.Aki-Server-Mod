@@ -1,6 +1,5 @@
 
 // get external IP address using ipify https://stackoverflow.com/questions/20273128/node-js-how-to-get-my-external-ip-address-in-node-js-app/37850722#37850722
-// this code was created by chatGPT
 const http = require('http');
 
 
@@ -16,7 +15,7 @@ export class ExternalIPFinder {
         const options = {
             host: 'api.ipify.org',
             port: 80,
-            path: '/?format=json'
+            path: '/?format=json',
         };
 
         // Create a new http.ClientRequest object
