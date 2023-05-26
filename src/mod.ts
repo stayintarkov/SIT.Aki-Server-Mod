@@ -81,6 +81,8 @@ export class Mod implements IPreAkiLoadMod
         // 
         this.externalIPFinder = new ExternalIPFinder();
 
+        
+
         // ----------------------------------------------------------------
         // TODO: Coop server needs to save and send same loot pools!
 
@@ -196,8 +198,10 @@ export class Mod implements IPreAkiLoadMod
                         // logger.info("Coop Data:_________");
                         // logger.info(info);
                         // logger.info("___________________");
-                        if(CoopMatch.CoopMatches[info.serverId] !== undefined) {
+                        let currentCoopMatch = CoopMatch.CoopMatches[info.serverId];
+                        if(currentCoopMatch !== undefined && currentCoopMatch !== null) {
                             delete CoopMatch.CoopMatches[info.serverId];
+                            currentCoopMatch = undefined;
                         }
 
                         CoopMatch.CoopMatches[info.serverId] = new CoopMatch(info);
@@ -205,7 +209,7 @@ export class Mod implements IPreAkiLoadMod
                         CoopMatch.CoopMatches[info.serverId].Location = info.settings.location;
                         CoopMatch.CoopMatches[info.serverId].Time = info.settings.timeVariant;
                         CoopMatch.CoopMatches[info.serverId].WeatherSettings = info.settings.timeAndWeatherSettings;
-                        output = JSON.stringify(CoopMatch.CoopMatches[info.serverId]);
+                        output = JSON.stringify({ serverId:  info.serverId });
                         return output;
                     }
                 },
@@ -234,24 +238,24 @@ export class Mod implements IPreAkiLoadMod
                         }
                         logger.info(coopMatch !== null ? "match exists" : "match doesn't exist!");
 
-                        output = JSON.stringify(coopMatch);
+                        output = JSON.stringify(coopMatch !== null ? { ServerId: coopMatch.ServerId } : null);
                         return output;
                     }
                 },
-                {
-                    url: "/coop/server/read",
-                    action: (url, info, sessionId, output) => {
+                // {
+                //     url: "/coop/server/read",
+                //     action: (url, info, sessionId, output) => {
                         
-                        let coopMatch = this.getCoopMatch(info.serverId);
-                        if(coopMatch == null || coopMatch == undefined)
-                        {
-                            output = JSON.stringify({});
-                            return output; 
-                        }
-                        output = JSON.stringify(coopMatch);
-                        return output;
-                    }
-                },
+                //         let coopMatch = this.getCoopMatch(info.serverId);
+                //         if(coopMatch == null || coopMatch == undefined)
+                //         {
+                //             output = JSON.stringify({});
+                //             return output; 
+                //         }
+                //         output = JSON.stringify(coopMatch);
+                //         return output;
+                //     }
+                // },
                 {
                     url: "/coop/server/read/players",
                     action: (url, info, sessionId, output) => {
