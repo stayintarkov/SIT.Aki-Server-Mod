@@ -39,7 +39,11 @@ export class CoopMatch {
     Time: string;
     WeatherSettings: any;
 
-    // A Dictonary of Coop Matches. The Key is the Account Id of the Player that created it
+    private SendLastDataInterval : NodeJS.Timer;
+    private SendPingInterval : NodeJS.Timer;
+    private CheckStillRunningInterval: NodeJS.Timer;
+
+    // A STATIC Dictonary of Coop Matches. The Key is the Account Id of the Player that created it
     public static CoopMatches: Record<string, CoopMatch> = {}; 
 
     public constructor(inData: any) {
@@ -57,7 +61,7 @@ export class CoopMatch {
         }
 
         let cm = this;
-        setInterval(() => {
+        this.SendLastDataInterval = setInterval(() => {
 
             for(const key in cm.LastDataByAccountId) {
                 
@@ -69,11 +73,23 @@ export class CoopMatch {
 
         }, 1000);
 
-        setInterval(() => {
+        this.SendPingInterval = setInterval(() => {
 
-            WebSocketHandler.Instance.sendToWebSockets(this.ConnectedPlayers, JSON.stringify({ ping: Date.now() }));
+            var dateOfPing = new Date(Date.now());
+            var dateOfPingString = `${dateOfPing.getHours()}:${dateOfPing.getMinutes()}:${dateOfPing.getSeconds()}:${dateOfPing.getMilliseconds()}`;
+            // console.log(dateOfPingString);
+            WebSocketHandler.Instance.sendToWebSockets(this.ConnectedPlayers, JSON.stringify({ ping: dateOfPingString }));
 
         }, 2000);
+
+        // this.CheckStillRunningInterval = setInterval(() => {
+
+        //     const THREE_MINS = 3 * 60 * 1000; /* ms */
+
+        //     if((Date.now() - parseInt(this.LastUpdateDateTime.toString())) < THREE_MINS)
+        //         this.endSession(); 
+
+        // });
     }
 
     public ProcessData(info: any, logger: ILogger) {
@@ -149,6 +165,19 @@ export class CoopMatch {
     public PlayerLeft(accountId: string) {
         this.ConnectedPlayers = this.ConnectedPlayers.filter(x => x != accountId);
         console.log(`${this.ServerId}: ${accountId} has left`);
+    }
+
+    public endSession() {
+        console.log(`COOP SESSION ${this.ServerId} HAS BEEN ENDED`);
+        WebSocketHandler.Instance.sendToWebSockets(this.ConnectedPlayers, JSON.stringify({ "endSession": true }));
+
+        this.Status = CoopMatchStatus.Complete;
+        clearInterval(this.SendLastDataInterval);
+        clearInterval(this.SendPingInterval);
+        // clearInterval(this.CheckStillRunningInterval);
+
+        delete CoopMatch.CoopMatches[this.ServerId];
+
     }
 
     
