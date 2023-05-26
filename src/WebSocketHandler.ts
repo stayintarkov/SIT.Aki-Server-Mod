@@ -108,7 +108,16 @@ export class WebSocketHandler {
     public sendToWebSockets(sessions: string[], data: string) {
         for(let session of sessions) {
             if(this.webSockets[session] !== undefined)
-                this.webSockets[session].send(data);
+            {
+                if (this.webSockets[session].readyState === WebSocket.OPEN) 
+                {
+                    this.webSockets[session].send(data);
+                }
+                else 
+                {
+                    delete this.webSockets[session];
+                }
+            }
         }
     }
 }
