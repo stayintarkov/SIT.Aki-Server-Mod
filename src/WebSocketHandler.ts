@@ -120,4 +120,17 @@ export class WebSocketHandler {
             }
         }
     }
+
+    public areThereAnyWebSocketsOpen(sessions: string[]):boolean {
+        
+        for(let session of sessions) {
+            if(this.webSockets[session] !== undefined)
+            {
+                if (this.webSockets[session].readyState === WebSocket.OPEN) 
+                    return true;
+            }
+        }
+
+        return false;
+    }
 }

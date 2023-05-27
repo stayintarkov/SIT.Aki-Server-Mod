@@ -65,7 +65,10 @@ export class CoopMatch {
 
             for(const key in cm.LastDataByAccountId) {
                 
-                if(key === "undefined")
+                if(key === undefined)
+                    continue;
+                
+                if(this.ConnectedPlayers[key] === undefined)
                     continue;
 
                 WebSocketHandler.Instance.sendToWebSockets(this.ConnectedPlayers, JSON.stringify(cm.LastDataByAccountId[key]));
@@ -82,14 +85,17 @@ export class CoopMatch {
 
         }, 2000);
 
-        // this.CheckStillRunningInterval = setInterval(() => {
+        setTimeout(() => {
+            this.CheckStillRunningInterval = setInterval(() => {
 
-        //     const THREE_MINS = 3 * 60 * 1000; /* ms */
+                if(!WebSocketHandler.Instance.areThereAnyWebSocketsOpen(this.ConnectedPlayers)) {
+                    this.endSession();
+                }
+    
+            }, 5000);
+        }, 5 * 60000);
 
-        //     if((Date.now() - parseInt(this.LastUpdateDateTime.toString())) < THREE_MINS)
-        //         this.endSession(); 
-
-        // });
+        
     }
 
     public ProcessData(info: any, logger: ILogger) {
@@ -107,6 +113,14 @@ export class CoopMatch {
             return;
         }
 
+        if(info.accountId !== undefined && info.m === "PlayerLeft") {
+            this.PlayerLeft(info.accountId);
+
+            if(this.ConnectedPlayers.length == 0)
+                this.endSession();
+
+            return;
+        }
 
         if(info.accountId !== undefined)
             this.PlayerJoined(info.accountId);
@@ -174,7 +188,7 @@ export class CoopMatch {
         this.Status = CoopMatchStatus.Complete;
         clearInterval(this.SendLastDataInterval);
         clearInterval(this.SendPingInterval);
-        // clearInterval(this.CheckStillRunningInterval);
+        clearInterval(this.CheckStillRunningInterval);
 
         delete CoopMatch.CoopMatches[this.ServerId];
 
