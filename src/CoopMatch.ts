@@ -71,6 +71,14 @@ export class CoopMatch {
                 if(this.ConnectedPlayers[key] === undefined)
                     continue;
 
+                // Filter out old data
+                // const LastDataByAccountId2: Record<string, Record<string, Record<string, any>>> = {}
+                // for(const accountKey in this.LastDataByAccountId) {
+                //     LastDataByAccountId2[accountKey] = {};
+                //     const lastD = this.LastDataByAccountId[accountKey];
+                //     // TODO: Continue this!
+                // }
+
                 WebSocketHandler.Instance.sendToWebSockets(this.ConnectedPlayers, JSON.stringify(cm.LastDataByAccountId[key]));
             }
 
@@ -179,6 +187,10 @@ export class CoopMatch {
     public PlayerLeft(accountId: string) {
         this.ConnectedPlayers = this.ConnectedPlayers.filter(x => x != accountId);
         console.log(`${this.ServerId}: ${accountId} has left`);
+        // If the Server Player has died or escaped, end the session
+        if(this.ServerId == accountId) {
+            this.endSession();
+        }
     }
 
     public endSession() {

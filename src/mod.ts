@@ -89,108 +89,43 @@ export class Mod implements IPreAkiLoadMod
         dynamicRouterModService.registerDynamicRouter(
             "sit-coop-loot",
             [
-                // new RouteAction(
-                //     "/client/location/getLocalloot",
-                //     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                //     (url: string, info: any, sessionID: string, output: string): any =>
-                //     {
-                //         const responseBody = {
-                //             data: {},
-                //             err: 0,
-                //             errmsg: null,
-                //         }
-                //         // console.log(info);
-                //         responseBody.data = this.locationController.get(info.locationId);
-
-                //         // if owner of this coop match, generate
-                //         let coopMatch = CoopMatch.CoopMatches[sessionID];
-                //         if(coopMatch !== undefined) {
-                //             coopMatch.Loot = responseBody.data;
-                //         }
-                //         // TODO: Find the Coop Match I am in!
-                //         else {
-                //             for(const cm in CoopMatch.CoopMatches) {
-                //                 responseBody.data = CoopMatch.CoopMatches[cm].Loot;
-                //             }
-                //         }
-
-                //         output = JSON.stringify(responseBody);
-                //         return output;
-                //     }
-                // ),
                 new RouteAction(
-                    "/coop/server/read/lastActions/",
+                    "/client/location/getLocalloot",
                     // eslint-disable-next-line @typescript-eslint/no-unused-vars
                     (url: string, info: any, sessionID: string, output: string): any =>
                     {
-                        let timeCheck = Date.now();
-
-                        var splitUrl = url.split('/');
-                        const serverId = splitUrl[splitUrl.length-2]; // url.replace("/coop/server/read/lastActions/", "");
-                        const timeStamp = splitUrl[splitUrl.length-1]; // url.replace("/coop/server/read/lastActions/", "");
-
-                        if(serverId === undefined || serverId == "")
-                        {
-                            output = JSON.stringify({});
-                            return output; 
+                        const responseBody = {
+                            data: {},
+                            err: 0,
+                            errmsg: null,
                         }
-                        
-                        let coopMatch = this.getCoopMatch(serverId);
-                        if(coopMatch == null || coopMatch == undefined)
-                        {
-                            output = JSON.stringify({});
-                            return output; 
-                        }
+                        // console.log(info);
+                        responseBody.data = this.locationController.get(info.locationId);
 
-                        // Never received anything before. So just send.
-                        if(coopMatch.LastDataReceivedByAccountId[sessionID] === undefined) {
-                            coopMatch.LastDataReceivedByAccountId[sessionID] = Date.now();
-                            const dataResult = coopMatch.LastDataByAccountId;
-                            output = JSON.stringify(dataResult);
-                            // console.log(output.length);
-                            return output;
+                        // if owner of this coop match, generate
+                        let coopMatch = CoopMatch.CoopMatches[sessionID];
+                        if(coopMatch !== undefined) {
+                            coopMatch.Loot = responseBody.data;
+                        }
+                        // TODO: Find the Coop Match I am in!
+                        else {
+                            for(const cm in CoopMatch.CoopMatches) {
+                                responseBody.data = CoopMatch.CoopMatches[cm].Loot;
+                            }
                         }
 
-                        const dataResult = coopMatch.LastDataByAccountId;
-
-                        output = JSON.stringify(dataResult);
-
-                        // console.log(Date.now() - timeCheck);
-                        // console.log(output.length);
+                        output = JSON.stringify(responseBody);
                         return output;
                     }
-                )
+                ),
             ]
-            ,"aki-loot"
+            ,"aki"
         )
-
-        // staticRouterModService.registerStaticRouter(
-        //     "Web-Page-Router",
-        //     [
-        //         {
-        //             url: "/",
-        //             action: (url, info, sessionId, output) => 
-        //             {
-        //                 output =  JSON.stringify({response: "HELLO"});
-        //                 return output;
-        //             }
-        //         },
-
-        //     ],
-        //     "sit-first-page"
-        // );
 
         // Hook up a new static route
         staticRouterModService.registerStaticRouter(
             "MyStaticModRouter",
             [
-                // {
-                //     url: "/coop/check",
-                //     action: (url, info: any, sessionId, output) => {
-                //         output = "YES";
-                //         return output;
-                //     }
-                // },
                 {
                     url: "/coop/server/create",
                     action: (url, info: any, sessionId, output) => {
@@ -200,6 +135,7 @@ export class Mod implements IPreAkiLoadMod
                         // logger.info("___________________");
                         let currentCoopMatch = CoopMatch.CoopMatches[info.serverId];
                         if(currentCoopMatch !== undefined && currentCoopMatch !== null) {
+                            currentCoopMatch.endSession();
                             delete CoopMatch.CoopMatches[info.serverId];
                             currentCoopMatch = undefined;
                         }
@@ -242,20 +178,6 @@ export class Mod implements IPreAkiLoadMod
                         return output;
                     }
                 },
-                // {
-                //     url: "/coop/server/read",
-                //     action: (url, info, sessionId, output) => {
-                        
-                //         let coopMatch = this.getCoopMatch(info.serverId);
-                //         if(coopMatch == null || coopMatch == undefined)
-                //         {
-                //             output = JSON.stringify({});
-                //             return output; 
-                //         }
-                //         output = JSON.stringify(coopMatch);
-                //         return output;
-                //     }
-                // },
                 {
                     url: "/coop/server/read/players",
                     action: (url, info, sessionId, output) => {
