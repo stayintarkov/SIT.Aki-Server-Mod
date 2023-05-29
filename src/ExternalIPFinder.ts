@@ -5,6 +5,7 @@ const http = require('http');
 
 export class ExternalIPFinder {
 
+    public Found: boolean;
     public IP: string;
 
     constructor() {
@@ -31,9 +32,16 @@ export class ExternalIPFinder {
 
             // When the response completes, parse the JSON and log the IP address
             res.on('end', () => {
+                if(body.charAt(0) == 'B') {
+                    console.error("ExternalIPFinder failed! Reverting to your config's externalIP");
+                    externalIPFinderC.Found = false;
+                    return;
+                }
                 const data = JSON.parse(body);
                 // console.log(data.ip);
                 externalIPFinderC.IP = data.ip;
+                externalIPFinderC.Found = true;
+
             });
         });
 
