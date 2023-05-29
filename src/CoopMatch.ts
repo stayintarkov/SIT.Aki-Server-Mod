@@ -1,4 +1,5 @@
 import type { ILogger } from "@spt-aki/models/spt/utils/ILogger";
+import { SaveServer } from "@spt-aki/servers/SaveServer";
 import { WebSocketHandler } from "./WebSocketHandler";
 
 export enum CoopMatchStatus {
@@ -46,15 +47,21 @@ export class CoopMatch {
     // A STATIC Dictonary of Coop Matches. The Key is the Account Id of the Player that created it
     public static CoopMatches: Record<string, CoopMatch> = {}; 
 
+    public static saveServer: SaveServer;
+
     public constructor(inData: any) {
 
         this.ServerId = inData.serverId;
-        this.Location = inData.settings.location;
-        this.Time = inData.settings.timeVariant;
-        this.WeatherSettings = inData.settings.timeAndWeatherSettings;
         this.Status = CoopMatchStatus.Loading;
         this.CreatedDateTime = new Date(Date.now());
         this.LastUpdateDateTime = new Date(Date.now());
+
+        if(inData.settings === undefined)
+            return;
+
+        this.Location = inData.settings.location;
+        this.Time = inData.settings.timeVariant;
+        this.WeatherSettings = inData.settings.timeAndWeatherSettings;
 
         if(CoopMatch.CoopMatches[inData.serverId] !== undefined) {
             delete CoopMatch.CoopMatches[inData.serverId];

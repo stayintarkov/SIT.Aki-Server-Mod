@@ -9,7 +9,6 @@ import { SaveServer } from "@spt-aki/servers/SaveServer";
 import { HttpResponseUtil } from "@spt-aki/utils/HttpResponseUtil";
 
 
-import { RouteAction } from "@spt-aki/di/Router";
 import { Friend, IGetFriendListDataResponse } from "@spt-aki/models/eft/dialog/IGetFriendListDataResponse";
 import { IGameConfigResponse } from "@spt-aki/models/eft/game/IGameConfigResponse";
 import { MemberCategory } from "@spt-aki/models/enums/MemberCategory";
@@ -24,11 +23,14 @@ import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
 import { IncomingMessage, ServerResponse } from "http";
 import zlib from "zlib";
 
+import { IEmptyRequestData } from "@spt-aki/models/eft/common/IEmptyRequestData";
 import { IGetLocationRequestData } from "@spt-aki/models/eft/location/IGetLocationRequestData";
 import { CoopConfig } from "./CoopConfig";
 import { CoopMatch, CoopMatchStatus } from "./CoopMatch";
 import { ExternalIPFinder } from "./ExternalIPFinder";
 import { WebSocketHandler } from "./WebSocketHandler";
+
+import moment from "moment";
 
 @injectable()
 export class Mod implements IPreAkiLoadMod
@@ -46,6 +48,8 @@ export class Mod implements IPreAkiLoadMod
     public webSocketHandler: WebSocketHandler;
     public externalIPFinder: ExternalIPFinder;
     public coopConfig: CoopConfig;
+    locationData: object = {};
+    locationData2: object = {};
 
     public getCoopMatch(serverId: string) : CoopMatch {
 
@@ -69,6 +73,7 @@ export class Mod implements IPreAkiLoadMod
         const dynamicRouterModService = container.resolve<DynamicRouterModService>("DynamicRouterModService");
         const staticRouterModService = container.resolve<StaticRouterModService>("StaticRouterModService");
         this.saveServer = container.resolve<SaveServer>("SaveServer");
+        CoopMatch.saveServer = this.saveServer;
         this.locationController = container.resolve<LocationController>("LocationController");
         this.httpBufferHandler  = container.resolve<HttpBufferHandler>("HttpBufferHandler");
         this.databaseServer = container.resolve<DatabaseServer>("DatabaseServer");
@@ -86,41 +91,41 @@ export class Mod implements IPreAkiLoadMod
         // ----------------------------------------------------------------
         // TODO: Coop server needs to save and send same loot pools!
 
-        dynamicRouterModService.registerDynamicRouter(
-            "sit-coop-loot",
-            [
-                new RouteAction(
-                    "/client/location/getLocalloot",
-                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                    (url: string, info: any, sessionID: string, output: string): any =>
-                    {
-                        const responseBody = {
-                            data: {},
-                            err: 0,
-                            errmsg: null,
-                        }
-                        // console.log(info);
-                        responseBody.data = this.locationController.get(info.locationId);
+        // dynamicRouterModService.registerDynamicRouter(
+        //     "sit-coop-loot",
+        //     [
+        //         new RouteAction(
+        //             "/client/location/getLocalloot",
+        //             // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        //             (url: string, info: any, sessionID: string, output: string): any =>
+        //             {
+        //                 const responseBody = {
+        //                     data: {},
+        //                     err: 0,
+        //                     errmsg: null,
+        //                 }
+        //                 // console.log(info);
+        //                 responseBody.data = this.locationController.get(info.locationId);
 
-                        // if owner of this coop match, generate
-                        let coopMatch = CoopMatch.CoopMatches[sessionID];
-                        if(coopMatch !== undefined) {
-                            coopMatch.Loot = responseBody.data;
-                        }
-                        // TODO: Find the Coop Match I am in!
-                        else {
-                            for(const cm in CoopMatch.CoopMatches) {
-                                responseBody.data = CoopMatch.CoopMatches[cm].Loot;
-                            }
-                        }
+        //                 // if owner of this coop match, generate
+        //                 let coopMatch = CoopMatch.CoopMatches[sessionID];
+        //                 if(coopMatch !== undefined) {
+        //                     coopMatch.Loot = responseBody.data;
+        //                 }
+        //                 // TODO: Find the Coop Match I am in!
+        //                 else {
+        //                     for(const cm in CoopMatch.CoopMatches) {
+        //                         responseBody.data = CoopMatch.CoopMatches[cm].Loot;
+        //                     }
+        //                 }
 
-                        output = JSON.stringify(responseBody);
-                        return output;
-                    }
-                ),
-            ]
-            ,"aki"
-        )
+        //                 output = JSON.stringify(responseBody);
+        //                 return output;
+        //             }
+        //         ),
+        //     ]
+        //     ,"aki"
+        // )
 
         // Hook up a new static route
         staticRouterModService.registerStaticRouter(
@@ -436,24 +441,75 @@ export class Mod implements IPreAkiLoadMod
 
         container.afterResolution("LocationCallbacks", (_t, result: LocationCallbacks) => {
 
+            // result.getLocationData = (url: string, info: IEmptyRequestData, sessionID: string) => {
+
+
+            // }
+
             result.getLocation = (url: string, info: IGetLocationRequestData, sessionID: string) => {
 
-                let generatedLoot = this.locationController.get(info.locationId);
+                // This is HACK to test out getting same loot on multiple clients
+                if (this.locationData[info.locationId] === undefined) {
+                    this.locationData[info.locationId] = {};
+                    this.locationData[info.locationId].Data = this.locationController.get(info.locationId);
+                    this.locationData[info.locationId].Loot = this.locationData[info.locationId].Data.Loot;
+                    this.locationData[info.locationId].GenerationDate = new Date(Date.now());
 
-                let coopMatch = CoopMatch.CoopMatches[sessionID];
-                if(coopMatch !== undefined) {
-                    coopMatch.Loot = generatedLoot;
-                }
-                // TODO: Find the Coop Match I am in!
-                else {
-                    for(const cm in CoopMatch.CoopMatches) {
-                        generatedLoot = CoopMatch.CoopMatches[cm].Loot;
+                    const ownedCoopMatch = this.getCoopMatch(sessionID);
+                    if(ownedCoopMatch !== undefined) {
+                        ownedCoopMatch.Loot = this.locationData[info.locationId].Loot;
                     }
                 }
 
-                return this.httpResponse.getBody(generatedLoot);
+                // This is a HACK. For some reason (not figured out yet) the Loot field empties after it has been generated. So refilling it here.
+                if (this.locationData[info.locationId].Data.Loot.length === 0
+                    && this.locationData[info.locationId].GenerationDate < moment().add(10, "minutes")
+                    ) 
+                {
+                    this.locationData[info.locationId].Data.Loot = this.locationData[info.locationId].Loot;
+                }
+                else {
+                    this.locationData[info.locationId].Data = this.locationController.get(info.locationId);
+                    this.locationData[info.locationId].Loot = this.locationData[info.locationId].Data.Loot;
+                }
+
+                return this.httpResponse.getBody(this.locationData[info.locationId].Data);
+
+            }
+
+            result.getAirdropLoot = (url: string, info: IEmptyRequestData, sessionID: string) => {
+
+                let generatedLoot = this.locationController.getAirdropLoot();
+                // let coopMatch = CoopMatch.CoopMatches[sessionID];
+                // if(coopMatch !== undefined) {
+                //     coopMatch.AirdropLoot = generatedLoot;
+                // }
+                // // TODO: Find the Coop Match I am in!
+                // else {
+                //     for(const cm in CoopMatch.CoopMatches) {
+                //         generatedLoot = CoopMatch.CoopMatches[cm].AirdropLoot;
+                //     }
+                // }
+
+                return this.httpResponse.noBody(generatedLoot);
                 
             }
+
+        }, {frequency: "Always"});
+
+        container.afterResolution("LocationController", (_t, result: LocationController) => {
+
+            result.get = (location: string) => {
+
+                if (this.locationData2[location] === undefined) {
+
+                    const name = location.toLowerCase().replace(" ", "");
+                    this.locationData2[location] = result.generate(name);
+                }
+                
+                return this.locationData2[location];
+            }
+
 
         }, {frequency: "Always"});
 
