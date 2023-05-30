@@ -463,7 +463,7 @@ export class Mod implements IPreAkiLoadMod
 
                 // This is a HACK. For some reason (not figured out yet) the Loot field empties after it has been generated. So refilling it here.
                 if (this.locationData[info.locationId].Data.Loot.length === 0
-                    && this.locationData[info.locationId].GenerationDate < moment().add(10, "minutes")
+                    && this.locationData[info.locationId].GenerationDate > moment().add(-10, "minutes")
                     ) 
                 {
                     this.locationData[info.locationId].Data.Loot = this.locationData[info.locationId].Loot;
