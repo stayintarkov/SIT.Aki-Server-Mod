@@ -471,6 +471,7 @@ export class Mod implements IPreAkiLoadMod
                 else {
                     this.locationData[info.locationId].Data = this.locationController.get(info.locationId);
                     this.locationData[info.locationId].Loot = this.locationData[info.locationId].Data.Loot;
+                    this.locationData[info.locationId].GenerationDate = new Date(Date.now());
                 }
 
                 return this.httpResponse.getBody(this.locationData[info.locationId].Data);
