@@ -26,7 +26,7 @@ import zlib from "zlib";
 import { IEmptyRequestData } from "@spt-aki/models/eft/common/IEmptyRequestData";
 import { IGetLocationRequestData } from "@spt-aki/models/eft/location/IGetLocationRequestData";
 import { CoopConfig } from "./CoopConfig";
-import { CoopMatch, CoopMatchStatus } from "./CoopMatch";
+import { CoopMatch, CoopMatchEndSessionMessages, CoopMatchStatus } from "./CoopMatch";
 import { ExternalIPFinder } from "./ExternalIPFinder";
 import { WebSocketHandler } from "./WebSocketHandler";
 
@@ -140,7 +140,7 @@ export class Mod implements IPreAkiLoadMod
                         // logger.info("___________________");
                         let currentCoopMatch = CoopMatch.CoopMatches[info.serverId];
                         if(currentCoopMatch !== undefined && currentCoopMatch !== null) {
-                            currentCoopMatch.endSession();
+                            currentCoopMatch.endSession(CoopMatchEndSessionMessages.HOST_SHUTDOWN_MESSAGE);
                             delete CoopMatch.CoopMatches[info.serverId];
                             currentCoopMatch = undefined;
                         }
@@ -450,15 +450,7 @@ export class Mod implements IPreAkiLoadMod
 
                 // This is HACK to test out getting same loot on multiple clients
                 if (this.locationData[info.locationId] === undefined) {
-                    this.locationData[info.locationId] = {};
-                    this.locationData[info.locationId].Data = this.locationController.get(info.locationId);
-                    this.locationData[info.locationId].Loot = this.locationData[info.locationId].Data.Loot;
-                    this.locationData[info.locationId].GenerationDate = new Date(Date.now());
-
-                    const ownedCoopMatch = this.getCoopMatch(sessionID);
-                    if(ownedCoopMatch !== undefined) {
-                        ownedCoopMatch.Loot = this.locationData[info.locationId].Loot;
-                    }
+                    this.generateNewLootForLocation(info.locationId, sessionID);
                 }
 
                 // This is a HACK. For some reason (not figured out yet) the Loot field empties after it has been generated. So refilling it here.
@@ -469,9 +461,7 @@ export class Mod implements IPreAkiLoadMod
                     this.locationData[info.locationId].Data.Loot = this.locationData[info.locationId].Loot;
                 }
                 else {
-                    this.locationData[info.locationId].Data = this.locationController.get(info.locationId);
-                    this.locationData[info.locationId].Loot = this.locationData[info.locationId].Data.Loot;
-                    this.locationData[info.locationId].GenerationDate = new Date(Date.now());
+                    this.generateNewLootForLocation(info.locationId, sessionID);
                 }
 
                 return this.httpResponse.getBody(this.locationData[info.locationId].Data);
@@ -606,6 +596,18 @@ export class Mod implements IPreAkiLoadMod
         //     }
         //      // The modifier Always makes sure this replacement method is ALWAYS replaced
         //  }, {frequency: "Always"});
+    }
+
+    public generateNewLootForLocation(locationId:string, sessionID:string) {
+        this.locationData[locationId] = {};
+        this.locationData[locationId].Data = this.locationController.get(locationId);
+        this.locationData[locationId].Loot = this.locationData[locationId].Data.Loot;
+        this.locationData[locationId].GenerationDate = new Date(Date.now());
+
+        const ownedCoopMatch = this.getCoopMatch(sessionID);
+        if(ownedCoopMatch !== undefined) {
+            ownedCoopMatch.Loot = this.locationData[locationId].Loot;
+        }
     }
 
     public getFriendsList(sessionID: string): IGetFriendListDataResponse

@@ -8,6 +8,10 @@ export enum CoopMatchStatus {
     Complete
 }
 
+export class CoopMatchEndSessionMessages {
+    static HOST_SHUTDOWN_MESSAGE: "host-shutdown"
+}
+
 export class CoopMatch {
 
     ServerId: string;
@@ -46,6 +50,7 @@ export class CoopMatch {
 
     // A STATIC Dictonary of Coop Matches. The Key is the Account Id of the Player that created it
     public static CoopMatches: Record<string, CoopMatch> = {}; 
+
 
     public static saveServer: SaveServer;
 
@@ -104,7 +109,7 @@ export class CoopMatch {
             this.CheckStillRunningInterval = setInterval(() => {
 
                 if(!WebSocketHandler.Instance.areThereAnyWebSocketsOpen(this.ConnectedPlayers)) {
-                    this.endSession();
+                    this.endSession(CoopMatchEndSessionMessages.HOST_SHUTDOWN_MESSAGE);
                 }
     
             }, 5000);
@@ -132,7 +137,7 @@ export class CoopMatch {
             this.PlayerLeft(info.accountId);
 
             if(this.ConnectedPlayers.length == 0)
-                this.endSession();
+                this.endSession(CoopMatchEndSessionMessages.HOST_SHUTDOWN_MESSAGE);
 
             return;
         }
@@ -196,13 +201,13 @@ export class CoopMatch {
         console.log(`${this.ServerId}: ${accountId} has left`);
         // If the Server Player has died or escaped, end the session
         if(this.ServerId == accountId) {
-            this.endSession();
+            this.endSession(CoopMatchEndSessionMessages.HOST_SHUTDOWN_MESSAGE);
         }
     }
 
-    public endSession() {
+    public endSession(reason: string) {
         console.log(`COOP SESSION ${this.ServerId} HAS BEEN ENDED`);
-        WebSocketHandler.Instance.sendToWebSockets(this.ConnectedPlayers, JSON.stringify({ "endSession": true }));
+        WebSocketHandler.Instance.sendToWebSockets(this.ConnectedPlayers, JSON.stringify({ "endSession": true, reason: reason }));
 
         this.Status = CoopMatchStatus.Complete;
         clearInterval(this.SendLastDataInterval);
