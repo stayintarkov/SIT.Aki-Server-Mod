@@ -32,12 +32,17 @@ export class ExternalIPFinder {
 
             // When the response completes, parse the JSON and log the IP address
             res.on('end', () => {
-                if(body.charAt(0) == 'B') {
+                if(body === undefined || body.charAt(0) == 'B') {
                     console.error("ExternalIPFinder failed! Reverting to your config's externalIP");
                     externalIPFinderC.Found = false;
                     return;
                 }
                 const data = JSON.parse(body);
+                if(data == "undefined" || data.ip == "undefined") {
+                    console.error("ExternalIPFinder failed! Reverting to your config's externalIP");
+                    externalIPFinderC.Found = false;
+                    return;
+                }
                 // console.log(data.ip);
                 externalIPFinderC.IP = data.ip;
                 externalIPFinderC.Found = true;
