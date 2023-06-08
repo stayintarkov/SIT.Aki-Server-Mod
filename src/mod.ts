@@ -30,16 +30,16 @@ import { CoopMatch, CoopMatchEndSessionMessages, CoopMatchStatus } from "./CoopM
 import { ExternalIPFinder } from "./ExternalIPFinder";
 import { WebSocketHandler } from "./WebSocketHandler";
 
+import { RouteAction } from "@spt-aki/di/Router";
+import { IPostDBLoadMod } from "@spt-aki/models/external/IPostDBLoadMod";
 import moment from "moment";
 
 @injectable()
-export class Mod implements IPreAkiLoadMod
+export class Mod implements IPreAkiLoadMod, IPostDBLoadMod
 {
-   
-
+    
     private static container: DependencyContainer;
 
-   
     saveServer: SaveServer;
     locationController: LocationController;
     httpBufferHandler: HttpBufferHandler;
@@ -86,48 +86,36 @@ export class Mod implements IPreAkiLoadMod
         // 
         this.externalIPFinder = new ExternalIPFinder();
 
-        
-
         // ----------------------------------------------------------------
         // TODO: Coop server needs to save and send same loot pools!
 
-        // dynamicRouterModService.registerDynamicRouter(
-        //     "sit-coop-loot",
-        //     [
-        //         new RouteAction(
-        //             "/client/location/getLocalloot",
-        //             // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        //             (url: string, info: any, sessionID: string, output: string): any =>
-        //             {
-        //                 const responseBody = {
-        //                     data: {},
-        //                     err: 0,
-        //                     errmsg: null,
-        //                 }
-        //                 // console.log(info);
-        //                 responseBody.data = this.locationController.get(info.locationId);
+        dynamicRouterModService.registerDynamicRouter(
+            "sit-coop-loot",
+            [
+                new RouteAction(
+                    "/coop/server/spawnPoint",
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    (url: string, info: any, sessionID: string, output: string): any =>
+                    {
 
-        //                 // if owner of this coop match, generate
-        //                 let coopMatch = CoopMatch.CoopMatches[sessionID];
-        //                 if(coopMatch !== undefined) {
-        //                     coopMatch.Loot = responseBody.data;
-        //                 }
-        //                 // TODO: Find the Coop Match I am in!
-        //                 else {
-        //                     for(const cm in CoopMatch.CoopMatches) {
-        //                         responseBody.data = CoopMatch.CoopMatches[cm].Loot;
-        //                     }
-        //                 }
+                        const splitUrl = url.split("/");
+                        const matchId = splitUrl.pop();
 
-        //                 output = JSON.stringify(responseBody);
-        //                 return output;
-        //             }
-        //         ),
-        //     ]
-        //     ,"aki"
-        // )
+                        var spawnPoint = { x: 0, y: 0, z: 0 };
+                        if(matchId !== undefined) {
+                            // console.log("matchId:" + matchId);
+                            spawnPoint = this.getCoopMatch(matchId).SpawnPoint;
+                        }
 
-        // Hook up a new static route
+
+                        output = JSON.stringify(spawnPoint);
+                        return output;
+                    }
+                ),
+            ]
+            ,"aki"
+        )
+
         staticRouterModService.registerStaticRouter(
             "MyStaticModRouter",
             [
@@ -778,5 +766,93 @@ export class Mod implements IPreAkiLoadMod
             }
         }
     }
+
+
+
+
+    postDBLoad(container: DependencyContainer): void {
+        Mod.container = container;
+        const locations = Mod.container.resolve<DatabaseServer>("DatabaseServer").getTables().locations;
+        this.updateExtracts(locations);
+    }
+
+    private updateExtracts(locations: any):void
+    {
+        // Initialize an array of all of the location names
+        const locationNames = [
+            "bigmap",
+            "factory4_day",
+            "factory4_night",
+            "interchange",
+            "laboratory",
+            "lighthouse",
+            "rezervbase",
+            "shoreline",
+            "tarkovstreets",
+            "woods"
+        ];
+        
+        // Loop through each location
+        for (const location of locationNames)
+        {
+            // Loop through each extract
+            for (const extract in locations[location].base.exits)
+            {
+                const extractName = locations[location].base.exits[extract].Name;
+
+                // Make extracts available no matter what side of the map you spawned.
+                const newEntryPoint = this.getEntryPoints(locations[location].base.Id);
+                if (locations[location].base.exits[extract].EntryPoints !== newEntryPoint)
+                {
+                    locations[location].base.exits[extract].EntryPoints = newEntryPoint;
+                }
+                
+                    
+                // If this is a train extract... Move on to the next extract.
+                if (locations[location].base.exits[extract].PassageRequirement === "Train")
+                {
+                    continue;
+                }
+
+                if (locations[location].base.exits[extract].PassageRequirement === "ScavCooperation")
+                {
+                    locations[location].base.exits[extract].PassageRequirement = "TransferItem";
+                    locations[location].base.exits[extract].RequirementTip = "EXFIL_Item";
+                }
+
+                locations[location].base.exits[extract].ExfiltrationType = "Individual";
+                locations[location].base.exits[extract].PlayersCount = 0;
+            }
+        }
+    }
+
+    private getEntryPoints(location:string):string
+    {
+        switch (location) {
+            case "bigmap":
+                return "Customs,Boiler Tanks";
+            case "factory4_day":
+                return "Factory";
+            case "factory4_night":
+                return "Factory";
+            case "Interchange":
+                return "MallSE,MallNW";
+            case "laboratory":
+                return "Common";
+            case "Lighthouse":
+                return "Tunnel,North";
+            case "RezervBase":
+                return "Common";
+            case "Shoreline":
+                return "Village,Riverside";
+            case "TarkovStreets":
+                return "E1_2,E6_1,E2_3,E3_4,E4_5,E5_6,E6_1"
+            case "Woods":
+                return "House,Old Station";
+            default:
+                return "";
+        }
+    }
+
 }
 module.exports = {mod: new Mod()}

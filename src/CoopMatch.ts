@@ -43,6 +43,7 @@ export class CoopMatch {
     Location: string;
     Time: string;
     WeatherSettings: any;
+    SpawnPoint: any = { x: 0, y:0, z:0 }
 
     private SendLastDataInterval : NodeJS.Timer;
     private SendPingInterval : NodeJS.Timer;
@@ -113,7 +114,7 @@ export class CoopMatch {
                 }
     
             }, 5000);
-        }, 5 * 60000);
+        }, 3 * 60000);
 
         
     }
@@ -129,6 +130,15 @@ export class CoopMatch {
                 const _info = info[indexOfInfo];
                 this.ProcessData(_info, logger);
             }
+
+            return;
+        }
+
+        if(info.m === "SpawnPointForCoop") {
+
+            this.SpawnPoint.x = info.x;
+            this.SpawnPoint.y = info.y;
+            this.SpawnPoint.z = info.z;
 
             return;
         }
