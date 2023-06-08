@@ -3,23 +3,55 @@ export interface IHideoutArea {
     type: number;
     enabled: boolean;
     needsFuel: boolean;
+    requirements: IAreaRequirement[];
     takeFromSlotLocked: boolean;
     craftGivesExp: boolean;
+    displayLevel: boolean;
+    enableAreaRequirements: boolean;
     stages: Record<string, Stage>;
 }
+export interface IAreaRequirement {
+    areaType: number;
+    requiredlevel: number;
+    type: string;
+}
 export interface Stage {
-    requirements: Requirement[];
+    autoUpgrade: boolean;
     bonuses: StageBonus[];
-    slots: number;
     constructionTime: number;
     description: string;
+    displayInterface: boolean;
+    improvements: IStageImprovement[];
+    requirements: IStageRequirement[];
+    slots: number;
 }
-export interface Requirement {
+export interface IStageImprovement {
+    id: string;
+    bonuses: IStageImprovementBonus[];
+    improvementTime: number;
+    requirements: IStageImprovementRequirement[];
+}
+export interface IStageImprovementBonus {
+    passive: boolean;
+    production: boolean;
+    type: string;
+    value: number;
+    visible: boolean;
+}
+export interface IStageImprovementRequirement {
+    count: number;
+    isEncoded: boolean;
+    isFunctional: boolean;
+    templateId: string;
+    type: string;
+}
+export interface IStageRequirement {
     areaType?: number;
     requiredLevel?: number;
     type: string;
     templateId?: string;
     count?: number;
+    isEncoded: false;
     isFunctional?: boolean;
     traderId?: string;
     loyaltyLevel?: number;

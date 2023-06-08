@@ -1,3 +1,4 @@
+import { Item } from "./tables/IItem";
 export interface ILooseLoot {
     spawnpointCount: SpawnpointCount;
     spawnpointsForced: SpawnpointsForced[];
@@ -24,10 +25,6 @@ export interface SpawnpointTemplate {
     Root: any;
     Items: Item[];
 }
-export interface Item {
-    _id: string;
-    _tpl?: string;
-}
 export interface Spawnpoint {
     locationId: string;
     probability: number;
@@ -40,6 +37,9 @@ export interface Xyz {
     z: number;
 }
 export interface ItemDistribution {
-    tpl: string;
+    composedKey: ComposedKey;
     relativeProbability: number;
+}
+export interface ComposedKey {
+    key: string;
 }

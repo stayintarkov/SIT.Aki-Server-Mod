@@ -20,7 +20,12 @@ export declare class ProfileHelper {
     protected itemHelper: ItemHelper;
     protected profileSnapshotService: ProfileSnapshotService;
     constructor(logger: ILogger, jsonUtil: JsonUtil, watermark: Watermark, timeUtil: TimeUtil, saveServer: SaveServer, databaseServer: DatabaseServer, itemHelper: ItemHelper, profileSnapshotService: ProfileSnapshotService);
-    resetProfileQuestCondition(sessionID: string, conditionId: string): void;
+    /**
+     * Remove/reset started quest condtions in player profile
+     * @param sessionID Session id
+     * @param conditionIds Condition ids that need to be reset/removed
+     */
+    resetProfileQuestCondition(sessionID: string, conditionIds: string[]): void;
     /**
      * Get all profiles from server
      * @returns Dictionary of profiles
@@ -40,11 +45,20 @@ export declare class ProfileHelper {
      * @returns updated profile array
      */
     protected postRaidXpWorkaroundFix(sessionId: string, output: IPmcData[], pmcProfile: IPmcData, scavProfile: IPmcData): IPmcData[];
-    isNicknameTaken(info: IValidateNicknameRequestData, sessionID: string): boolean;
+    /**
+     * Check if a nickname is used by another profile loaded by the server
+     * @param nicknameRequest
+     * @param sessionID Session id
+     * @returns True if already used
+     */
+    isNicknameTaken(nicknameRequest: IValidateNicknameRequestData, sessionID: string): boolean;
+    protected profileHasInfoProperty(profile: IAkiProfile): boolean;
+    protected nicknameMatches(profileName: string, nicknameRequest: string): boolean;
+    protected sessionIdMatchesProfileId(profileId: string, sessionId: string): boolean;
     /**
      * Add experience to a PMC inside the players profile
      * @param sessionID Session id
-     * @param experienceToAdd Experiecne to add to PMC character
+     * @param experienceToAdd Experience to add to PMC character
      */
     addExperienceToPmc(sessionID: string, experienceToAdd: number): void;
     getProfileByPmcId(pmcId: string): IPmcData;

@@ -23,11 +23,11 @@ export declare class BotHelper {
      */
     getBotTemplate(role: string): IBotType;
     /**
-     * Randomise the chance the PMC will attack their own side
+     * Randomize the chance the PMC will attack their own side
      * Look up value in bot.json/chanceSameSideIsHostilePercent
      * @param difficultySettings pmc difficulty settings
      */
-    randomisePmcHostility(difficultySettings: Difficulty): void;
+    randomizePmcHostility(difficultySettings: Difficulty): void;
     /**
      * Is the passed in bot role a PMC (usec/bear/pmc)
      * @param botRole bot role to check
@@ -63,26 +63,26 @@ export declare class BotHelper {
     rollChanceToBePmc(role: string, botConvertMinMax: MinMax): boolean;
     botRoleIsPmc(botRole: string): boolean;
     /**
-     * Get randomisation settings for bot from config/bot.json
+     * Get randomization settings for bot from config/bot.json
      * @param botLevel level of bot
      * @param botEquipConfig bot equipment json
      * @returns RandomisationDetails
      */
-    getBotRandomisationDetails(botLevel: number, botEquipConfig: EquipmentFilters): RandomisationDetails;
+    getBotRandomizationDetails(botLevel: number, botEquipConfig: EquipmentFilters): RandomisationDetails;
     /**
      * Choose between sptBear and sptUsec at random based on the % defined in botConfig.pmc.isUsec
      * @returns pmc role
      */
-    getRandomisedPmcRole(): string;
+    getRandomizedPmcRole(): string;
     /**
-     * Get the corrisponding side when sptBear or sptUsec is passed in
+     * Get the corresponding side when sptBear or sptUsec is passed in
      * @param botRole role to get side for
      * @returns side (usec/bear)
      */
     getPmcSideByRole(botRole: string): string;
     /**
-     * Get a randomised PMC side based on bot config value 'isUsec'
+     * Get a randomized PMC side based on bot config value 'isUsec'
      * @returns pmc side as string
      */
-    protected getRandomisedPmcSide(): string;
+    protected getRandomizedPmcSide(): string;
 }

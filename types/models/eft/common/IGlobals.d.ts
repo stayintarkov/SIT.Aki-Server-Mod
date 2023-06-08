@@ -29,6 +29,9 @@ export interface Config {
     GlobalLootChanceModifier: number;
     TimeBeforeDeploy: number;
     TimeBeforeDeployLocal: number;
+    TradingSetting: number;
+    TradingSettings: ITradingSettings;
+    ItemsCommonSettings: IItemsCommonSettings;
     LoadTimeSpeedProgress: number;
     BaseLoadTime: number;
     BaseUnloadTime: number;
@@ -36,6 +39,7 @@ export interface Config {
     Customization: Customization;
     UncheckOnShot: boolean;
     BotsEnabled: boolean;
+    BufferZone: IBufferZone;
     ArmorMaterials: ArmorMaterials;
     LegsOverdamage: number;
     HandsOverdamage: number;
@@ -55,7 +59,6 @@ export interface Config {
     StaminaRestoration: StaminaRestoration;
     StaminaDrain: StaminaDrain;
     RequirementReferences: RequirementReferences;
-    RepairKitSettings: RepairKitSettings;
     RestrictionsInRaid: RestrictionsInRaid[];
     SkillMinEffectiveness: number;
     SkillFatiguePerPoint: number;
@@ -67,6 +70,7 @@ export interface Config {
     EventType: string[];
     WalkSpeed: xyz;
     SprintSpeed: xyz;
+    SquadSettings: ISquadSettings;
     SkillEnduranceWeightThreshold: number;
     TeamSearchingTimeout: number;
     Insurance: Insurance;
@@ -82,6 +86,23 @@ export interface Config {
     TestValue: number;
     Inertia: Inertia;
     Ballistic: Ballistic;
+    RepairSettings: RepairSettings;
+}
+export interface IBufferZone {
+    CustomerAccessTime: number;
+    CustomerCriticalTimeStart: number;
+    CustomerKickNotifTime: number;
+}
+export interface IItemsCommonSettings {
+    ItemRemoveAfterInterruptionTime: number;
+}
+export interface ITradingSettings {
+    BuyoutRestrictions: IBuyoutRestrictions;
+}
+export interface IBuyoutRestrictions {
+    MinDurability: number;
+    MinFoodDrinkResource: number;
+    MinMedsResource: number;
 }
 export interface Content {
     ip: string;
@@ -321,6 +342,8 @@ export interface Effects {
     Pain: Pain;
     PainKiller: PainKiller;
     SandingScreen: SandingScreen;
+    MildMusclePain: IMusclePainEffect;
+    SevereMusclePain: IMusclePainEffect;
     Stimulator: Stimulator;
     Tremor: Tremor;
     ChronicStaminaFatigue: ChronicStaminaFatigue;
@@ -456,6 +479,12 @@ export interface PainKiller {
 }
 export interface SandingScreen {
     Dummy: number;
+}
+export interface IMusclePainEffect {
+    GymEffectivity: number;
+    OfflineDurationMax: number;
+    OfflineDurationMin: number;
+    TraumaChance: number;
 }
 export interface Stimulator {
     BuffLoopTime: number;
@@ -775,6 +804,11 @@ export interface RestrictionsInRaid {
     TemplateId: string;
     Value: number;
 }
+export interface ISquadSettings {
+    CountOfRequestsToOnePlayer: number;
+    SecondsForExpiredRequest: number;
+    SendRequestDelaySeconds: number;
+}
 export interface Insurance {
     MaxStorageTimeInHour: number;
 }
@@ -803,7 +837,7 @@ export interface SkillsSettings {
     HMG: any[];
     Launcher: any[];
     AttachedLauncher: any[];
-    Melee: any[];
+    Melee: IMeleeSkill;
     DMR: WeaponSkills;
     BearAssaultoperations: any[];
     BearAuthority: any[];
@@ -847,9 +881,24 @@ export interface SkillsSettings {
     BotSound: any[];
     TroubleShooting: TroubleShooting;
 }
+export interface IMeleeSkill {
+    BuffSettings: IBuffSettings;
+}
 export interface ArmorSkills {
+    BuffMaxCount: number;
+    BuffSettings: IBuffSettings;
+    Counters: IArmorCounters;
+    MoveSpeedPenaltyReductionHVestsReducePerLevel: number;
+    RicochetChanceHVestsCurrentDurabilityThreshold: number;
+    RicochetChanceHVestsEliteLevel: number;
+    RicochetChanceHVestsMaxDurabilityThreshold: number;
+    MeleeDamageLVestsReducePerLevel: number;
+    MoveSpeedPenaltyReductionLVestsReducePerLevel: number;
     WearAmountRepairLVestsReducePerLevel: number;
     WearChanceRepairLVestsReduceEliteLevel: number;
+}
+export interface IArmorCounters {
+    armorDurability: ISkillCounter;
 }
 export interface HideoutManagement {
     SkillPointsPerAreaUpgrade: number;
@@ -907,16 +956,28 @@ export interface Endurance {
     MovementAction: number;
     SprintAction: number;
     GainPerFatigueStack: number;
+    DependentSkillRatios: IDependentSkillRatio[];
+    QTELevelMultipliers: Record<string, Record<string, number>>;
 }
 export interface Strength {
+    DependentSkillRatios: IDependentSkillRatio[];
     SprintActionMin: number;
     SprintActionMax: number;
     MovementActionMin: number;
     MovementActionMax: number;
     PushUpMin: number;
     PushUpMax: number;
+    QTELevelMultipliers: IQTELevelMultiplier[];
     FistfightAction: number;
     ThrowAction: number;
+}
+export interface IDependentSkillRatio {
+    Ratio: number;
+    SkillId: string;
+}
+export interface IQTELevelMultiplier {
+    Level: number;
+    Multiplier: number;
 }
 export interface Vitality {
     DamageTakenAction: number;
@@ -950,11 +1011,25 @@ export interface Search {
     FindAction: number;
 }
 export interface WeaponTreatment {
+    BuffMaxCount: number;
+    BuffSettings: IBuffSettings;
+    Counters: IWeaponTreatmentCounters;
     DurLossReducePerLevel: number;
     SkillPointsPerRepair: number;
     Filter: any[];
     WearAmountRepairGunsReducePerLevel: number;
     WearChanceRepairGunsReduceEliteLevel: number;
+}
+export interface IWeaponTreatmentCounters {
+    firearmsDurability: ISkillCounter;
+}
+export interface IBuffSettings {
+    CommonBuffChanceLevelBonus: number;
+    CommonBuffMinChanceValue: number;
+    CurrentDurabilityLossToRemoveBuff?: number;
+    MaxDurabilityLossToRemoveBuff?: number;
+    RareBuffChanceCoff: number;
+    ReceivedDurabilityMaxPercent: number;
 }
 export interface MagDrills {
     RaidLoadedAmmoAction: number;
@@ -962,10 +1037,16 @@ export interface MagDrills {
     MagazineCheckAction: number;
 }
 export interface Perception {
+    DependentSkillRatios: ISkillRatio[];
     OnlineAction: number;
     UniqueLoot: number;
 }
+export interface ISkillRatio {
+    Ratio: number;
+    SkillId: string;
+}
 export interface Intellect {
+    Counters: IIntellectCounters;
     ExamineAction: number;
     SkillProgress: number;
     RepairAction: number;
@@ -973,15 +1054,51 @@ export interface Intellect {
     WearChanceReduceEliteLevel: number;
     RepairPointsCostReduction: number;
 }
+export interface IIntellectCounters {
+    armorDurability: ISkillCounter;
+    firearmsDurability: ISkillCounter;
+    meleeWeaponDurability: ISkillCounter;
+}
+export interface ISkillCounter {
+    divisor: number;
+    points: number;
+}
 export interface Attention {
+    DependentSkillRatios: ISkillRatio[];
     ExamineWithInstruction: number;
     FindActionFalse: number;
     FindActionTrue: number;
 }
 export interface Charisma {
+    BonusSettings: IBonusSettings;
+    Counters: ICharismaSkillCounters;
     SkillProgressInt: number;
     SkillProgressAtn: number;
     SkillProgressPer: number;
+}
+export interface ICharismaSkillCounters {
+    insuranceCost: ISkillCounter;
+    repairCost: ISkillCounter;
+    repeatableQuestCompleteCount: ISkillCounter;
+    restoredHealthCost: ISkillCounter;
+    scavCaseCost: ISkillCounter;
+}
+export interface IBonusSettings {
+    EliteBonusSettings: IEliteBonusSettings;
+    LevelBonusSettings: ILevelBonusSettings;
+}
+export interface IEliteBonusSettings {
+    FenceStandingLossDiscount: number;
+    RepeatableQuestExtraCount: number;
+    ScavCaseDiscount: number;
+}
+export interface ILevelBonusSettings {
+    HealthRestoreDiscount: number;
+    HealthRestoreTraderDiscount: number;
+    InsuranceDiscount: number;
+    InsuranceTraderDiscount: number;
+    PaidExitDiscount: number;
+    RepeatableQuestChangeDiscount: number;
 }
 export interface Memory {
     AnySkillUp: number;
@@ -1145,10 +1262,29 @@ export interface xyz {
 export interface Ballistic {
     GlobalDamageDegradationCoefficient: number;
 }
-export interface RepairKitSettings {
+export interface RepairSettings {
+    ItemEnhancementSettings: IItemEnhancementSettings;
+    MinimumLevelToApplyBuff: number;
+    RepairStrategies: IRepairStrategies;
     armorClassDivisor: number;
     durabilityPointCostArmor: number;
     durabilityPointCostGuns: number;
+}
+export interface IItemEnhancementSettings {
+    DamageReduction: IPriceModifier;
+    MalfunctionProtections: IPriceModifier;
+    WeaponSpread: IPriceModifier;
+}
+export interface IPriceModifier {
+    PriceModifier: number;
+}
+export interface IRepairStrategies {
+    Armor: IRepairStrategy;
+    Firearms: IRepairStrategy;
+}
+export interface IRepairStrategy {
+    BuffTypes: string[];
+    Filter: string[];
 }
 export interface BotPreset {
     UseThis: boolean;

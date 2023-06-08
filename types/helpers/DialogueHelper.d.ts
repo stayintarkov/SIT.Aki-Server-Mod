@@ -19,6 +19,13 @@ export declare class DialogueHelper {
     protected localisationService: LocalisationService;
     protected itemHelper: ItemHelper;
     constructor(logger: ILogger, hashUtil: HashUtil, saveServer: SaveServer, databaseServer: DatabaseServer, notifierHelper: NotifierHelper, notificationSendHelper: NotificationSendHelper, localisationService: LocalisationService, itemHelper: ItemHelper);
+    /**
+     * Create basic message context template
+     * @param templateId
+     * @param messageType
+     * @param maxStoreTime
+     * @returns
+     */
     createMessageContext(templateId: string, messageType: MessageType, maxStoreTime: number): MessageContent;
     /**
      * Add a templated message to the dialogue.
@@ -31,7 +38,7 @@ export declare class DialogueHelper {
     /**
      * Get the preview contents of the last message in a dialogue.
      * @param dialogue
-     * @returns
+     * @returns MessagePreview
      */
     getMessagePreview(dialogue: Dialogue): MessagePreview;
     /**

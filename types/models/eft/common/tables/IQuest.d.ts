@@ -2,7 +2,7 @@ import { QuestRewardType } from "../../../enums/QuestRewardType";
 import { QuestStatus } from "../../../enums/QuestStatus";
 import { Item } from "./IItem";
 export interface IQuest {
-    QuestName: string;
+    QuestName?: string;
     _id: string;
     canShowNotificationsInGame: boolean;
     conditions: Conditions;
@@ -15,6 +15,7 @@ export interface IQuest {
     image: string;
     type: string;
     isKey: boolean;
+    questStatus: any;
     restartable: boolean;
     instantComplete: boolean;
     secretQuest: boolean;
@@ -22,7 +23,7 @@ export interface IQuest {
     successMessageText: string;
     templateId: string;
     rewards: Rewards;
-    status: string;
+    status: string | number;
     KeyQuest: boolean;
     changeQuestMessageText: string;
     side: string;
@@ -43,12 +44,15 @@ export interface AvailableForProps {
     id: string;
     index: number;
     parentId: string;
+    isEncoded: boolean;
     dynamicLocale: boolean;
-    value?: number;
+    value?: string | number;
     compareMethod?: string;
     visibilityConditions?: VisibilityCondition[];
     target?: string | string[];
     status?: QuestStatus[];
+    availableAfter?: number;
+    dispersion?: number;
     onlyFoundInRaid?: boolean;
     oneSessionOnly?: boolean;
     doNotResetIfCounterCompleted?: boolean;

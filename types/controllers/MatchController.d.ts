@@ -6,10 +6,9 @@ import { ICreateGroupRequestData } from "../models/eft/match/ICreateGroupRequest
 import { IEndOfflineRaidRequestData } from "../models/eft/match/IEndOfflineRaidRequestData";
 import { IGetGroupStatusRequestData } from "../models/eft/match/IGetGroupStatusRequestData";
 import { IGetProfileRequestData } from "../models/eft/match/IGetProfileRequestData";
+import { IGetRaidConfigurationRequestData } from "../models/eft/match/IGetRaidConfigurationRequestData";
 import { IJoinMatchRequestData } from "../models/eft/match/IJoinMatchRequestData";
 import { IJoinMatchResult } from "../models/eft/match/IJoinMatchResult";
-import { IStartOfflineRaidRequestData } from "../models/eft/match/IStartOffineRaidRequestData";
-import { BotDifficulty } from "../models/enums/BotDifficulty";
 import { IBotConfig } from "../models/spt/config/IBotConfig";
 import { IInRaidConfig } from "../models/spt/config/IInRaidConfig";
 import { IMatchConfig } from "../models/spt/config/IMatchConfig";
@@ -18,9 +17,7 @@ import { ConfigServer } from "../servers/ConfigServer";
 import { SaveServer } from "../servers/SaveServer";
 import { BotGenerationCacheService } from "../services/BotGenerationCacheService";
 import { BotLootCacheService } from "../services/BotLootCacheService";
-import { CustomLocationWaveService } from "../services/CustomLocationWaveService";
 import { MatchLocationService } from "../services/MatchLocationService";
-import { OpenZoneService } from "../services/OpenZoneService";
 import { ProfileSnapshotService } from "../services/ProfileSnapshotService";
 export declare class MatchController {
     protected logger: ILogger;
@@ -31,27 +28,49 @@ export declare class MatchController {
     protected botLootCacheService: BotLootCacheService;
     protected configServer: ConfigServer;
     protected profileSnapshotService: ProfileSnapshotService;
-    protected customLocationWaveService: CustomLocationWaveService;
-    protected openZoneService: OpenZoneService;
     protected botGenerationCacheService: BotGenerationCacheService;
     protected applicationContext: ApplicationContext;
     protected matchConfig: IMatchConfig;
     protected inraidConfig: IInRaidConfig;
     protected botConfig: IBotConfig;
-    constructor(logger: ILogger, saveServer: SaveServer, profileHelper: ProfileHelper, matchLocationService: MatchLocationService, traderHelper: TraderHelper, botLootCacheService: BotLootCacheService, configServer: ConfigServer, profileSnapshotService: ProfileSnapshotService, customLocationWaveService: CustomLocationWaveService, openZoneService: OpenZoneService, botGenerationCacheService: BotGenerationCacheService, applicationContext: ApplicationContext);
+    constructor(logger: ILogger, saveServer: SaveServer, profileHelper: ProfileHelper, matchLocationService: MatchLocationService, traderHelper: TraderHelper, botLootCacheService: BotLootCacheService, configServer: ConfigServer, profileSnapshotService: ProfileSnapshotService, botGenerationCacheService: BotGenerationCacheService, applicationContext: ApplicationContext);
     getEnabled(): boolean;
     getProfile(info: IGetProfileRequestData): IPmcData[];
     createGroup(sessionID: string, info: ICreateGroupRequestData): any;
     deleteGroup(info: any): void;
-    joinMatch(info: IJoinMatchRequestData, sessionID: string): IJoinMatchResult[];
-    protected getMatch(location: string): any;
+    joinMatch(info: IJoinMatchRequestData, sessionId: string): IJoinMatchResult;
     getGroupStatus(info: IGetGroupStatusRequestData): any;
-    startOfflineRaid(info: IStartOfflineRaidRequestData, sessionID: string): void;
+    /**
+     * Handle /client/raid/configuration
+     * @param request
+     * @param sessionID
+     */
+    startOfflineRaid(request: IGetRaidConfigurationRequestData, sessionID: string): void;
     /**
      * Convert a difficulty value from pre-raid screen to a bot difficulty
-     * @param botDifficulty dropdown difficulty
+     * @param botDifficulty dropdown difficulty value
      * @returns bot difficulty
      */
-    protected convertDifficultyDropdownIntoBotDifficulty(botDifficulty: BotDifficulty): string;
-    endOfflineRaid(info: IEndOfflineRaidRequestData, sessionID: string): void;
+    protected convertDifficultyDropdownIntoBotDifficulty(botDifficulty: string): string;
+    endOfflineRaid(info: IEndOfflineRaidRequestData, sessionId: string): void;
+    /**
+     * Is extract by car
+     * @param extractName name of extract
+     * @returns true if car extract
+     */
+    protected extractWasViaCar(extractName: string): boolean;
+    /**
+     * Handle when a player extracts using a car - Add rep to fence
+     * @param extractName name of the extract used
+     * @param pmcData Player profile
+     * @param sessionId Session id
+     */
+    protected handleCarExtract(extractName: string, pmcData: IPmcData, sessionId: string): void;
+    /**
+     * Update players fence trader standing value in profile
+     * @param pmcData Player profile
+     * @param fenceId Id of fence trader
+     * @param extractName Name of extract used
+     */
+    protected updateFenceStandingInProfile(pmcData: IPmcData, fenceId: string, extractName: string): void;
 }

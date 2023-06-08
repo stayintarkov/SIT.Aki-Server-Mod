@@ -1,5 +1,6 @@
 export declare class WeightedRandomHelper {
     /**
+     * USE getWeightedValue() WHERE POSSIBLE
      * Gets a tplId from a weighted dictionary
      * @param {tplId: weighting[]} itemArray
      * @returns tplId
@@ -7,6 +8,9 @@ export declare class WeightedRandomHelper {
     getWeightedInventoryItem(itemArray: {
         [tplId: string]: unknown;
     } | ArrayLike<unknown>): string;
+    getWeightedValue<T>(itemArray: {
+        [key: string]: unknown;
+    } | ArrayLike<unknown>): T;
     /**
      * Picks the random item based on its weight.
      * The items with higher weight will be picked more often (with a higher probability).

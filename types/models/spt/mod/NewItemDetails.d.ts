@@ -4,6 +4,8 @@ export declare abstract class NewItemDetailsBase {
     fleaPriceRoubles: number;
     /** Price of the item in the handbook */
     handbookPriceRoubles: number;
+    /** Handbook ParentId for the new item */
+    handbookParentId: string;
     /**
      * A dictionary for locale settings, key = langauge (e.g. en,cn,es-mx,jp,fr)
      * If a language is not included, the first item in the array will be used in its place

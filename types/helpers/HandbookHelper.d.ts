@@ -1,12 +1,12 @@
 import { DatabaseServer } from "../servers/DatabaseServer";
-declare class LookupItem {
-    byId: Record<number, string>;
-    byParent: Record<string, string[]>;
+declare class LookupItem<T, I> {
+    readonly byId: Map<string, T>;
+    readonly byParent: Map<string, I[]>;
     constructor();
 }
 export declare class LookupCollection {
-    items: LookupItem;
-    categories: LookupItem;
+    readonly items: LookupItem<number, string>;
+    readonly categories: LookupItem<string, string>;
     constructor();
 }
 export declare class HandbookHelper {

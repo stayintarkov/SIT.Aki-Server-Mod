@@ -17,6 +17,8 @@ import { ConfigServer } from "../servers/ConfigServer";
 import { DatabaseServer } from "../servers/DatabaseServer";
 import { SaveServer } from "../servers/SaveServer";
 import { InsuranceService } from "../services/InsuranceService";
+import { MatchBotDetailsCacheService } from "../services/MatchBotDetailsCacheService";
+import { PmcChatResponseService } from "../services/PmcChatResponseService";
 import { JsonUtil } from "../utils/JsonUtil";
 import { TimeUtil } from "../utils/TimeUtil";
 /**
@@ -28,6 +30,8 @@ export declare class InraidController {
     protected jsonUtil: JsonUtil;
     protected timeUtil: TimeUtil;
     protected databaseServer: DatabaseServer;
+    protected pmcChatResponseService: PmcChatResponseService;
+    protected matchBotDetailsCacheService: MatchBotDetailsCacheService;
     protected questHelper: QuestHelper;
     protected itemHelper: ItemHelper;
     protected profileHelper: ProfileHelper;
@@ -40,7 +44,7 @@ export declare class InraidController {
     protected configServer: ConfigServer;
     protected airdropConfig: IAirdropConfig;
     protected inraidConfig: IInRaidConfig;
-    constructor(logger: ILogger, saveServer: SaveServer, jsonUtil: JsonUtil, timeUtil: TimeUtil, databaseServer: DatabaseServer, questHelper: QuestHelper, itemHelper: ItemHelper, profileHelper: ProfileHelper, playerScavGenerator: PlayerScavGenerator, healthHelper: HealthHelper, traderHelper: TraderHelper, insuranceService: InsuranceService, inRaidHelper: InRaidHelper, applicationContext: ApplicationContext, configServer: ConfigServer);
+    constructor(logger: ILogger, saveServer: SaveServer, jsonUtil: JsonUtil, timeUtil: TimeUtil, databaseServer: DatabaseServer, pmcChatResponseService: PmcChatResponseService, matchBotDetailsCacheService: MatchBotDetailsCacheService, questHelper: QuestHelper, itemHelper: ItemHelper, profileHelper: ProfileHelper, playerScavGenerator: PlayerScavGenerator, healthHelper: HealthHelper, traderHelper: TraderHelper, insuranceService: InsuranceService, inRaidHelper: InRaidHelper, applicationContext: ApplicationContext, configServer: ConfigServer);
     /**
      * Save locationId to active profiles inraid object AND app context
      * @param sessionID Session id
@@ -61,18 +65,18 @@ export declare class InraidController {
      */
     protected savePmcProgress(sessionID: string, offraidData: ISaveProgressRequestData): void;
     /**
-     * Make changes to pmc profile after they left raid dead,
-     * alter bodypart hp, handle insurance, delete inventory items, remove carried quest items
-     * @param postRaidSaveRequest post-raid save request
-     * @param pmcData pmc profile
-     * @param insuranceEnabled is insurance enabled
-     * @param preRaidGear gear player had before raid
+     * Make changes to pmc profile after they've died in raid,
+     * Alter bodypart hp, handle insurance, delete inventory items, remove carried quest items
+     * @param postRaidSaveRequest Post-raid save request
+     * @param pmcData Pmc profile
+     * @param insuranceEnabled Is insurance enabled
+     * @param preRaidGear Gear player had before raid
      * @param sessionID Session id
      * @returns Updated profile object
      */
     protected performPostRaidActionsWhenDead(postRaidSaveRequest: ISaveProgressRequestData, pmcData: IPmcData, insuranceEnabled: boolean, preRaidGear: Item[], sessionID: string): IPmcData;
     /**
-     * Adjust player characters bodypart hp if they left raid early
+     * Adjust player characters bodypart hp post-raid
      * @param postRaidSaveRequest post raid data
      * @param pmcData player profile
      */

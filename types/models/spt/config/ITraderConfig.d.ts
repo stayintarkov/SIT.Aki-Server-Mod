@@ -3,9 +3,8 @@ import { IBaseConfig } from "./IBaseConfig";
 export interface ITraderConfig extends IBaseConfig {
     kind: "aki-trader";
     updateTime: UpdateTime[];
+    purchasesAreFoundInRaid: boolean;
     updateTimeDefault: number;
-    /** What % of max durability an item needs to sell to a trader*/
-    durabilityPurchaseThreshhold: Record<string, number>;
     traderPriceMultipler: number;
     persistPurchaseDataInProfile: boolean;
     fence: FenceConfig;
@@ -15,15 +14,21 @@ export interface UpdateTime {
     seconds: number;
 }
 export interface FenceConfig {
+    discountOptions: DiscountOptions;
     partialRefreshTimeSeconds: number;
     partialRefreshChangePercent: number;
     assortSize: number;
     maxPresetsPercent: number;
+    itemPriceMult: number;
     presetPriceMult: number;
     armorMaxDurabilityPercentMinMax: MinMax;
     presetMaxDurabilityPercentMinMax: MinMax;
-    itemPriceMult: number;
-    regenerateAssortsOnRefresh: boolean;
     itemTypeLimits: Record<string, number>;
+    regenerateAssortsOnRefresh: boolean;
     blacklist: string[];
+}
+export interface DiscountOptions {
+    assortSize: number;
+    itemPriceMult: number;
+    presetPriceMult: number;
 }

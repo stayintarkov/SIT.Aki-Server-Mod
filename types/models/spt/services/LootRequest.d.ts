@@ -1,5 +1,5 @@
 import { MinMax } from "../../common/MinMax";
-export declare class LootRequest {
+export interface LootRequest {
     presetCount: MinMax;
     itemCount: MinMax;
     itemBlacklist: string[];

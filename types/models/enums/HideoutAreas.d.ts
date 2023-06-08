@@ -21,5 +21,7 @@ export declare enum HideoutAreas {
     SOLAR_POWER = 18,
     BOOZE_GENERATOR = 19,
     BITCOIN_FARM = 20,
-    CHRISTMAS_TREE = 21
+    CHRISTMAS_TREE = 21,
+    EMERGENCY_WALL = 22,
+    GYM = 23
 }

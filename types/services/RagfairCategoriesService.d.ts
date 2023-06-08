@@ -22,9 +22,9 @@ export declare class RagfairCategoriesService {
     protected processOffersIntoCategories(offers: IRagfairOffer[]): Record<string, number>;
     /**
      * Increment or decrement a category array
-     * @param offer offer to process
-     * @param categories categories to update
-     * @param increment should item be incremented or decremented
+     * @param offer Offer to process
+     * @param categories Categories to update
+     * @param increment (Optional) Should item be incremented or decremented
      */
     protected addOrIncrementCategory(offer: IRagfairOffer, categories: Record<string, number>, increment?: boolean): void;
     /**

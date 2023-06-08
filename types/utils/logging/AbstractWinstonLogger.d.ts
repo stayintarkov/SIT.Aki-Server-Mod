@@ -1,19 +1,17 @@
 /// <reference types="node" />
 import fs from "fs";
 import winston from "winston";
-import { Daum } from "../models/eft/itemEvent/IItemEventRouterRequest";
-import { LogBackgroundColor } from "../models/spt/logging/LogBackgroundColor";
-import { LogTextColor } from "../models/spt/logging/LogTextColor";
-import { SptLogger } from "../models/spt/logging/SptLogger";
-import { IAsyncQueue } from "../models/spt/utils/IAsyncQueue";
-import { ILogger } from "../models/spt/utils/ILogger";
-import { IUUidGenerator } from "../models/spt/utils/IUuidGenerator";
-export declare class WinstonLogger implements ILogger {
+import { Daum } from "../../models/eft/itemEvent/IItemEventRouterRequest";
+import { LogBackgroundColor } from "../../models/spt/logging/LogBackgroundColor";
+import { LogTextColor } from "../../models/spt/logging/LogTextColor";
+import { SptLogger } from "../../models/spt/logging/SptLogger";
+import { IAsyncQueue } from "../../models/spt/utils/IAsyncQueue";
+import { ILogger } from "../../models/spt/utils/ILogger";
+import { IUUidGenerator } from "../../models/spt/utils/IUuidGenerator";
+export declare abstract class AbstractWinstonLogger implements ILogger {
     protected asyncQueue: IAsyncQueue;
     protected uuidGenerator: IUUidGenerator;
     protected showDebugInConsole: boolean;
-    protected folderPath: string;
-    protected file: string;
     protected filePath: string;
     protected logLevels: {
         levels: {
@@ -47,6 +45,13 @@ export declare class WinstonLogger implements ILogger {
     protected logger: winston.Logger & SptLogger;
     protected writeFilePromisify: (path: fs.PathLike, data: string, options?: any) => Promise<void>;
     constructor(asyncQueue: IAsyncQueue, uuidGenerator: IUUidGenerator);
+    protected abstract isLogToFile(): boolean;
+    protected abstract isLogToConsole(): boolean;
+    protected abstract isLogExceptions(): boolean;
+    protected abstract getFilePath(): string;
+    protected abstract getFileName(): string;
+    protected getLogMaxSize(): string;
+    protected getLogMaxFiles(): string;
     writeToLogFile(data: string | Daum): Promise<void>;
     log(data: string | Error | Record<string, unknown>, color: string, backgroundColor?: string): Promise<void>;
     error(data: string | Record<string, unknown>): Promise<void>;

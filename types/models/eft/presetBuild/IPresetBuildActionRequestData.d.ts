@@ -1,3 +1,4 @@
+import { Upd } from "../common/tables/IItem";
 export interface IPresetBuildActionRequestData {
     Action: string;
     id: string;
@@ -11,15 +12,4 @@ export interface Item {
     upd?: Upd;
     parentId?: string;
     slotId?: string;
-}
-export interface Upd {
-    Repairable: Repairable;
-    FireMode: FireMode;
-}
-export interface Repairable {
-    MaxDurability: number;
-    Durability: number;
-}
-export interface FireMode {
-    FireMode: string;
 }

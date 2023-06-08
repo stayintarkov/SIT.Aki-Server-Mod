@@ -47,6 +47,7 @@ export interface IRepeatableQuest {
     canShowNotificationsInGame: boolean;
     rewards: IRewards;
     conditions: IConditions;
+    side: string;
     name: string;
     note: string;
     description: string;

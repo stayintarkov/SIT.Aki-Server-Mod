@@ -7,7 +7,7 @@ export declare class RagfairSortHelper {
     protected localeService: LocaleService;
     constructor(databaseServer: DatabaseServer, localeService: LocaleService);
     /**
-     * Sort a list of ragfair offers by something (id/rating/offer name/price/expirty time)
+     * Sort a list of ragfair offers by something (id/rating/offer name/price/expiry time)
      * @param offers Offers to sort
      * @param type How to sort it
      * @param direction Ascending/descending

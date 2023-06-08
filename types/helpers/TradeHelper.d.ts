@@ -13,6 +13,7 @@ import { ConfigServer } from "../servers/ConfigServer";
 import { RagfairServer } from "../servers/RagfairServer";
 import { FenceService } from "../services/FenceService";
 import { PaymentService } from "../services/PaymentService";
+import { HttpResponseUtil } from "../utils/HttpResponseUtil";
 export declare class TradeHelper {
     protected logger: ILogger;
     protected eventOutputHolder: EventOutputHolder;
@@ -20,17 +21,18 @@ export declare class TradeHelper {
     protected itemHelper: ItemHelper;
     protected paymentService: PaymentService;
     protected fenceService: FenceService;
+    protected httpResponse: HttpResponseUtil;
     protected inventoryHelper: InventoryHelper;
     protected ragfairServer: RagfairServer;
     protected configServer: ConfigServer;
     protected traderConfig: ITraderConfig;
-    constructor(logger: ILogger, eventOutputHolder: EventOutputHolder, traderHelper: TraderHelper, itemHelper: ItemHelper, paymentService: PaymentService, fenceService: FenceService, inventoryHelper: InventoryHelper, ragfairServer: RagfairServer, configServer: ConfigServer);
+    constructor(logger: ILogger, eventOutputHolder: EventOutputHolder, traderHelper: TraderHelper, itemHelper: ItemHelper, paymentService: PaymentService, fenceService: FenceService, httpResponse: HttpResponseUtil, inventoryHelper: InventoryHelper, ragfairServer: RagfairServer, configServer: ConfigServer);
     /**
      * Buy item from flea or trader
-     * @param pmcData
+     * @param pmcData Player profile
      * @param buyRequestData data from client
-     * @param sessionID
-     * @param foundInRaid
+     * @param sessionID Session id
+     * @param foundInRaid Should item be found in raid
      * @param upd optional item details used when buying from flea
      * @returns
      */
@@ -38,14 +40,14 @@ export declare class TradeHelper {
     /**
      * Sell item to trader
      * @param pmcData Profile to update
-     * @param body
-     * @param sessionID
-     * @returns
+     * @param sellRequest Request data
+     * @param sessionID Session id
+     * @returns IItemEventRouterResponse
      */
-    sellItem(pmcData: IPmcData, body: IProcessSellTradeRequestData, sessionID: string): IItemEventRouterResponse;
+    sellItem(pmcData: IPmcData, sellRequest: IProcessSellTradeRequestData, sessionID: string): IItemEventRouterResponse;
     /**
      * Increment the assorts buy count by number of items purchased
-     * Show error on screen if player attepts to buy more than what the buy max allows
+     * Show error on screen if player attempts to buy more than what the buy max allows
      * @param assortBeingPurchased assort being bought
      * @param itemsPurchasedCount number of items being bought
      */

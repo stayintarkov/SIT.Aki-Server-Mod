@@ -89,9 +89,10 @@ export declare class BotWeaponGenerator {
     /**
      * Checks if all required slots are occupied on a weapon and all it's mods
      * @param weaponItemArray Weapon + mods
+     * @param botRole role of bot weapon is for
      * @returns true if valid
      */
-    protected isWeaponValid(weaponItemArray: Item[]): boolean;
+    protected isWeaponValid(weaponItemArray: Item[], botRole: string): boolean;
     /**
      * Generates extra magazines or bullets (if magazine is internal) and adds them to TacticalVest and Pockets.
      * Additionally, adds extra bullets to SecuredContainer
@@ -101,6 +102,13 @@ export declare class BotWeaponGenerator {
      * @param botRole The bot type we're getting generating extra mags for
      */
     addExtraMagazinesToInventory(generatedWeaponResult: GenerateWeaponResult, magCounts: MinMax, inventory: PmcInventory, botRole: string): void;
+    /**
+     * Add Grendaes for UBGL to bots vest and secure container
+     * @param weaponMods Weapon array with mods
+     * @param generatedWeaponResult result of weapon generation
+     * @param inventory bot inventory to add grenades to
+     */
+    protected addUbglGrenadesToBotInventory(weaponMods: Item[], generatedWeaponResult: GenerateWeaponResult, inventory: PmcInventory): void;
     /**
      * Add ammo to the secure container
      * @param stackCount How many stacks of ammo to add
@@ -132,19 +140,27 @@ export declare class BotWeaponGenerator {
     protected getWeaponCaliber(weaponTemplate: ITemplateItem): string;
     /**
      * Fill existing magazines to full, while replacing their contents with specified ammo
-     * @param weaponMods
-     * @param magazine
-     * @param ammoTpl
+     * @param weaponMods Weapon with children
+     * @param magazine Magazine item
+     * @param cartridgeTpl Cartridge to insert into magazine
      */
-    protected fillExistingMagazines(weaponMods: Item[], magazine: Item, ammoTpl: string): void;
+    protected fillExistingMagazines(weaponMods: Item[], magazine: Item, cartridgeTpl: string): void;
+    /**
+     * Add desired ammo tpl as item to weaponmods array, placed as child to UBGL
+     * @param weaponMods Weapon with children
+     * @param ubglMod UBGL item
+     * @param ubglAmmoTpl Grenade ammo tpl
+     */
+    protected fillUbgl(weaponMods: Item[], ubglMod: Item, ubglAmmoTpl: string): void;
     /**
      * Add cartridge item to weapon Item array, if it already exists, update
-     * @param weaponMods Weapon items array to amend
+     * @param weaponWithMods Weapon items array to amend
      * @param magazine magazine item details we're adding cartridges to
-     * @param chosenAmmo cartridge to put into the magazine
+     * @param chosenAmmoTpl cartridge to put into the magazine
      * @param newStackSize how many cartridges should go into the magazine
+     * @param magazineTemplate magazines db template
      */
-    protected addOrUpdateMagazinesChildWithAmmo(weaponMods: Item[], magazine: Item, chosenAmmo: string, newStackSize: number): void;
+    protected addOrUpdateMagazinesChildWithAmmo(weaponWithMods: Item[], magazine: Item, chosenAmmoTpl: string, magazineTemplate: ITemplateItem): void;
     /**
      * Fill each Camora with a bullet
      * @param weaponMods Weapon mods to find and update camora mod(s) from

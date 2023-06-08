@@ -6,7 +6,7 @@ import { ConfigServer } from "../servers/ConfigServer";
 import { LocalisationService } from "../services/LocalisationService";
 import { HttpFileUtil } from "../utils/HttpFileUtil";
 import { HttpResponseUtil } from "../utils/HttpResponseUtil";
-declare class ModCallbacks extends OnLoad {
+declare class ModCallbacks implements OnLoad {
     protected logger: ILogger;
     protected httpResponse: HttpResponseUtil;
     protected httpFileUtil: HttpFileUtil;
@@ -17,8 +17,5 @@ declare class ModCallbacks extends OnLoad {
     constructor(logger: ILogger, httpResponse: HttpResponseUtil, httpFileUtil: HttpFileUtil, postAkiModLoader: PostAkiModLoader, localisationService: LocalisationService, configServer: ConfigServer);
     onLoad(): Promise<void>;
     getRoute(): string;
-    sendBundle(sessionID: string, req: any, resp: any, body: any): void;
-    getBundles(url: string, info: any, sessionID: string): string;
-    getBundle(url: string, info: any, sessionID: string): string;
 }
 export { ModCallbacks };

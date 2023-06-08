@@ -1,7 +1,7 @@
 /// <reference types="node" />
+import { IncomingMessage, ServerResponse } from "http";
 import { Serializer } from "../../di/Serializer";
 import { ImageRouter } from "../ImageRouter";
-import { IncomingMessage, ServerResponse } from "http";
 export declare class ImageSerializer extends Serializer {
     protected imageRouter: ImageRouter;
     constructor(imageRouter: ImageRouter);

@@ -9,6 +9,7 @@ export interface KarmaLevel {
     modifiers: Modifiers;
     itemLimits: ItemLimits;
     equipmentBlacklist: Record<string, string[]>;
+    labsAccessCardChancePercent: number;
 }
 export interface Modifiers {
     equipment: Record<string, number>;

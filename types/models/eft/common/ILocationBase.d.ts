@@ -49,7 +49,10 @@ export interface ILocationBase {
     OldSpawn: boolean;
     OpenZones: string;
     Preview: Preview;
-    RequiredPlayerLevel: number;
+    RequiredPlayerLevel?: number;
+    RequiredPlayerLevelMin?: number;
+    RequiredPlayerLevelMax?: number;
+    MinPlayerLvlAccessKeys: number;
     PmcMaxPlayersInGroup: number;
     ScavMaxPlayersInGroup: number;
     Rules: string;
@@ -118,6 +121,7 @@ export interface BossLocationSpawn {
     TriggerName: string;
     Delay?: number;
     Supports?: BossSupport[];
+    sptId?: string;
 }
 export interface BossSupport {
     BossEscortAmount: string;
@@ -179,6 +183,7 @@ export interface Exit {
     EntryPoints: string;
     ExfiltrationTime: number;
     ExfiltrationType: string;
+    RequiredSlot?: string;
     Id: string;
     MaxTime: number;
     MinTime: number;
@@ -202,6 +207,7 @@ export interface Wave {
     slots_min: number;
     time_max: number;
     time_min: number;
+    sptId?: string;
 }
 export declare enum WildSpawnType {
     ASSAULT = "assault",

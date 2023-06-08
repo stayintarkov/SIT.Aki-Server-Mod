@@ -5,6 +5,7 @@ export interface ISeasonalEventConfig extends IBaseConfig {
     /** event / botType / equipSlot / itemid */
     eventGear: Record<string, Record<string, Record<string, Record<string, number>>>>;
     events: ISeasonalEvent[];
+    gifterSettings: GifterSetting[];
 }
 export interface ISeasonalEvent {
     name: string;
@@ -12,4 +13,9 @@ export interface ISeasonalEvent {
     startMonth: number;
     endDay: number;
     endMonth: number;
+}
+export interface GifterSetting {
+    map: string;
+    zones: string;
+    spawnChance: number;
 }

@@ -5,6 +5,7 @@ import { IGetBodyResponseData } from "../models/eft/httpResponse/IGetBodyRespons
 import { INullResponseData } from "../models/eft/httpResponse/INullResponseData";
 import { IGetMiniProfileRequestData } from "../models/eft/launcher/IGetMiniProfileRequestData";
 import { GetProfileStatusResponseData } from "../models/eft/profile/GetProfileStatusResponseData";
+import { IGetProfileSettingsRequest } from "../models/eft/profile/IGetProfileSettingsRequest";
 import { IProfileChangeNicknameRequestData } from "../models/eft/profile/IProfileChangeNicknameRequestData";
 import { IProfileChangeVoiceRequestData } from "../models/eft/profile/IProfileChangeVoiceRequestData";
 import { IProfileCreateRequestData } from "../models/eft/profile/IProfileCreateRequestData";
@@ -64,6 +65,7 @@ export declare class ProfileCallbacks {
      * @returns
      */
     getProfileStatus(url: string, info: IEmptyRequestData, sessionID: string): IGetBodyResponseData<GetProfileStatusResponseData>;
+    getProfileSettings(url: string, info: IGetProfileSettingsRequest, sessionId: string): IGetBodyResponseData<string>;
     searchFriend(url: string, info: ISearchFriendRequestData, sessionID: string): IGetBodyResponseData<ISearchFriendResponse[]>;
     getMiniProfile(url: string, info: IGetMiniProfileRequestData, sessionID: string): string;
     getAllMiniProfiles(url: string, info: any, sessionID: string): string;

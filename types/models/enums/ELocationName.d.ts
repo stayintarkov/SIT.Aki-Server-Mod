@@ -8,5 +8,6 @@ export declare enum ELocationName {
     LIGHTHOUSE = "Lighthouse",
     LABORATORY = "laboratory",
     RESERVE = "RezervBase",
+    STREETS = "TarkovStreets",
     ANY = "any"
 }

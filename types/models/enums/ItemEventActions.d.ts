@@ -15,5 +15,6 @@ export declare enum ItemEventActions {
     CREATE_MAP_MARKER = "CreateMapMarker",
     DELETE_MAP_MARKER = "DeleteMapMarker",
     EDIT_MAP_MARKER = "EditMapMarker",
-    OPEN_RANDOM_LOOT_CONTAINER = "OpenRandomLootContainer"
+    OPEN_RANDOM_LOOT_CONTAINER = "OpenRandomLootContainer",
+    HIDEOUT_QTE_EVENT = "HideoutQuickTimeEvent"
 }

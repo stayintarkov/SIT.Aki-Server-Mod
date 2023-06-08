@@ -2,7 +2,7 @@ import { BotDifficultyHelper } from "../helpers/BotDifficultyHelper";
 import { BotHelper } from "../helpers/BotHelper";
 import { ProfileHelper } from "../helpers/ProfileHelper";
 import { WeightedRandomHelper } from "../helpers/WeightedRandomHelper";
-import { Health as PmcHealth, IBotBase, Skills } from "../models/eft/common/tables/IBotBase";
+import { IBaseJsonSkills, IBaseSkill, IBotBase, Info, Health as PmcHealth, Skills as botSkills } from "../models/eft/common/tables/IBotBase";
 import { Health, IBotType } from "../models/eft/common/tables/IBotType";
 import { BotGenerationDetails } from "../models/spt/bots/BotGenerationDetails";
 import { IBotConfig } from "../models/spt/config/IBotConfig";
@@ -14,12 +14,14 @@ import { SeasonalEventService } from "../services/SeasonalEventService";
 import { HashUtil } from "../utils/HashUtil";
 import { JsonUtil } from "../utils/JsonUtil";
 import { RandomUtil } from "../utils/RandomUtil";
+import { TimeUtil } from "../utils/TimeUtil";
 import { BotInventoryGenerator } from "./BotInventoryGenerator";
 import { BotLevelGenerator } from "./BotLevelGenerator";
 export declare class BotGenerator {
     protected logger: ILogger;
     protected hashUtil: HashUtil;
     protected randomUtil: RandomUtil;
+    protected timeUtil: TimeUtil;
     protected jsonUtil: JsonUtil;
     protected profileHelper: ProfileHelper;
     protected databaseServer: DatabaseServer;
@@ -32,7 +34,7 @@ export declare class BotGenerator {
     protected seasonalEventService: SeasonalEventService;
     protected configServer: ConfigServer;
     protected botConfig: IBotConfig;
-    constructor(logger: ILogger, hashUtil: HashUtil, randomUtil: RandomUtil, jsonUtil: JsonUtil, profileHelper: ProfileHelper, databaseServer: DatabaseServer, botInventoryGenerator: BotInventoryGenerator, botLevelGenerator: BotLevelGenerator, botEquipmentFilterService: BotEquipmentFilterService, weightedRandomHelper: WeightedRandomHelper, botHelper: BotHelper, botDifficultyHelper: BotDifficultyHelper, seasonalEventService: SeasonalEventService, configServer: ConfigServer);
+    constructor(logger: ILogger, hashUtil: HashUtil, randomUtil: RandomUtil, timeUtil: TimeUtil, jsonUtil: JsonUtil, profileHelper: ProfileHelper, databaseServer: DatabaseServer, botInventoryGenerator: BotInventoryGenerator, botLevelGenerator: BotLevelGenerator, botEquipmentFilterService: BotEquipmentFilterService, weightedRandomHelper: WeightedRandomHelper, botHelper: BotHelper, botDifficultyHelper: BotDifficultyHelper, seasonalEventService: SeasonalEventService, configServer: ConfigServer);
     /**
      * Generate a player scav bot object
      * @param role e.g. assault / pmcbot
@@ -82,7 +84,19 @@ export declare class BotGenerator {
      * @returns PmcHealth object
      */
     protected generateHealth(healthObj: Health, playerScav?: boolean): PmcHealth;
-    protected generateSkills(skillsObj: Skills): Skills;
+    /**
+     * Get a bots skills with randomsied progress value between the min and max values
+     * @param botSkills Skills that should have their progress value randomised
+     * @returns
+     */
+    protected generateSkills(botSkills: IBaseJsonSkills): botSkills;
+    /**
+     * Randomise the progress value of passed in skills based on the min/max value
+     * @param skills Skills to randomise
+     * @param isCommonSkills Are the skills 'common' skills
+     * @returns Skills with randomised progress values as an array
+     */
+    protected getSkillsWithRandomisedProgressValue(skills: Record<string, IBaseSkill>, isCommonSkills: boolean): IBaseSkill[];
     /**
      * Generate a random Id for a bot and apply to bots _id and aid value
      * @param bot bot to update
@@ -90,6 +104,13 @@ export declare class BotGenerator {
      */
     protected generateId(bot: IBotBase): IBotBase;
     protected generateInventoryID(profile: IBotBase): IBotBase;
+    /**
+     * Randomise a bots game version and account category
+     * Chooses from all the game versions (standard, eod etc)
+     * Chooses account type (default, Sherpa, etc)
+     * @param botInfo bot info object to update
+     */
+    protected getRandomisedGameVersionAndCategory(botInfo: Info): void;
     /**
      * Add a side-specific (usec/bear) dogtag item to a bots inventory
      * @param bot bot to add dogtag to

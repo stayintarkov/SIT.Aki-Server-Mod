@@ -5,5 +5,6 @@ export interface IInsuranceConfig extends IBaseConfig {
     returnChancePercent: Record<string, number>;
     blacklistedEquipment: string[];
     slotIdsWithChanceOfNotReturning: string[];
+    returnTimeOverrideSeconds: number;
     runIntervalSeconds: number;
 }

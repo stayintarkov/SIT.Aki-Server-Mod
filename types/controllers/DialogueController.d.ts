@@ -2,7 +2,7 @@ import { DialogueHelper } from "../helpers/DialogueHelper";
 import { IGetAllAttachmentsResponse } from "../models/eft/dialog/IGetAllAttachmentsResponse";
 import { IGetFriendListDataResponse } from "../models/eft/dialog/IGetFriendListDataResponse";
 import { IGetMailDialogViewResponseData } from "../models/eft/dialog/IGetMailDialogViewResponseData";
-import { DialogueInfo, Message } from "../models/eft/profile/IAkiProfile";
+import { DialogueInfo, IAkiProfile, IUserDialogInfo, Message } from "../models/eft/profile/IAkiProfile";
 import { SaveServer } from "../servers/SaveServer";
 import { TimeUtil } from "../utils/TimeUtil";
 export declare class DialogueController {
@@ -35,6 +35,7 @@ export declare class DialogueController {
      * @returns IGetMailDialogViewResponseData object
      */
     generateDialogueView(dialogueID: string, sessionID: string): IGetMailDialogViewResponseData;
+    protected getProfilesForMail(pmcProfile: IAkiProfile, dialogUsers: IUserDialogInfo[]): IUserDialogInfo[];
     /**
      * Get a count of messages with attachments from a particular dialog
      * @param sessionID Session id
@@ -72,8 +73,20 @@ export declare class DialogueController {
      */
     protected getMessagesWithAttachments(messages: Message[]): Message[];
     /**
-     * Delete expired items. triggers when updating traders.
-     * @param sessionID Session id
+     * Delete expired items from all messages in player profile. triggers when updating traders.
+     * @param sessionId Session id
      */
-    protected removeExpiredItems(sessionID: string): void;
+    protected removeExpiredItemsFromMessages(sessionId: string): void;
+    /**
+     * Removes expired items from a message in player profile
+     * @param sessionId Session id
+     * @param dialogueId Dialog id
+     */
+    protected removeExpiredItemsFromMessage(sessionId: string, dialogueId: string): void;
+    /**
+     * Has a dialog message expired
+     * @param message Message to check expiry of
+     * @returns true or false
+     */
+    protected messageHasExpired(message: Message): boolean;
 }

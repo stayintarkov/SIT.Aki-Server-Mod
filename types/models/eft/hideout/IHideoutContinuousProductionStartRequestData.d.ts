@@ -1,4 +1,4 @@
-export interface IHideoutContinousProductionStartRequestData {
+export interface IHideoutContinuousProductionStartRequestData {
     Action: "HideoutContinuousProductionStart";
     recipeId: string;
     timestamp: number;

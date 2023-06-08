@@ -21,6 +21,7 @@ export interface IBotBase {
     Hideout: Hideout;
     Quests: Quest[];
     TradersInfo: Record<string, TraderInfo>;
+    UnlockedInfo: IUnlockedInfo;
     RagfairInfo: RagfairInfo;
     RepeatableQuests: IPmcDataRepeatableQuest[];
     Bonuses: Bonus[];
@@ -30,6 +31,9 @@ export interface IBotBase {
     WishList: string[];
     /** SPT specific property used during bot generation in raid */
     sptIsPmc?: boolean;
+}
+export interface IUnlockedInfo {
+    unlockedProductionRecipe: string[];
 }
 export interface Info {
     EntryPoint: string;
@@ -100,7 +104,10 @@ export interface BodyPartsHealth {
 }
 export interface BodyPartHealth {
     Health: CurrentMax;
-    Effects?: Record<string, number>;
+    Effects?: Record<string, BodyPartEffectProperties>;
+}
+export interface BodyPartEffectProperties {
+    Time: number;
 }
 export interface CurrentMax {
     Current: number;
@@ -113,29 +120,29 @@ export interface Inventory {
     sortingTable: string;
     questRaidItems: string;
     questStashItems: string;
-    fastPanel: FastPanel;
+    fastPanel: Record<string, string>;
 }
-export interface FastPanel {
+export interface IBaseJsonSkills {
+    Common: Record<string, Common>;
+    Mastering: Record<string, Mastering>;
+    Points: number;
 }
 export interface Skills {
     Common: Common[];
     Mastering: Mastering[];
-    Bonuses?: any[];
     Points: number;
 }
-export interface Common {
+export interface IBaseSkill {
     Id: string;
     Progress: number;
-    PointsEarnedDuringSession?: number;
-    LastAccess?: number;
     max?: number;
     min?: number;
 }
-export interface Mastering {
-    Id: string;
-    Progress: number;
-    max?: number;
-    min?: number;
+export interface Common extends IBaseSkill {
+    PointsEarnedDuringSession?: number;
+    LastAccess?: number;
+}
+export interface Mastering extends IBaseSkill {
 }
 export interface Stats {
     CarriedQuestItems: string[];
@@ -251,7 +258,7 @@ export interface LastPlayerStateInfo {
     Nickname: string;
     Side: string;
     Level: number;
-    MemberCategory: string;
+    MemberCategory: MemberCategory;
 }
 export interface BackendCounter {
     id: string;
@@ -265,12 +272,25 @@ export interface InsuredItem {
 export interface Hideout {
     Production: Record<string, Productive>;
     Areas: HideoutArea[];
+    Improvements: Record<string, IHideoutImprovement>;
+    Seed: number;
+    sptUpdateLastRunTimestamp: number;
+}
+export interface IHideoutImprovement {
+    completed: boolean;
+    improveCompleteTimestamp: number;
 }
 export interface Productive {
     Products: Product[];
+    /** Seconds passed of production */
     Progress?: number;
+    /** Is craft in some state of being worked on by client (crafting/ready to pick up) */
     inProgress?: boolean;
     StartTimestamp?: number;
+    SkipTime?: number;
+    /** Seconds needed to fully craft */
+    ProductionTime?: number;
+    sptIsScavCase?: boolean;
 }
 export interface Production extends Productive {
     RecipeId: string;
@@ -327,10 +347,12 @@ export interface Quest {
     statusTimers?: Record<string, number>;
     /** SPT specific property */
     completedConditions?: string[];
+    availableAfter?: number;
 }
 export interface TraderInfo {
     loyaltyLevel: number;
     salesSum: number;
+    disabled: boolean;
     standing: number;
     nextResupply: number;
     unlocked: boolean;

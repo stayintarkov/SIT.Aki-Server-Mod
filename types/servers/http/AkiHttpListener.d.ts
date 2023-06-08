@@ -13,16 +13,18 @@ export declare class AkiHttpListener implements IHttpListener {
     protected httpRouter: HttpRouter;
     protected serializers: Serializer[];
     protected logger: ILogger;
+    protected requestsLogger: ILogger;
     protected jsonUtil: JsonUtil;
     protected httpResponse: HttpResponseUtil;
     protected localisationService: LocalisationService;
     protected httpBufferHandler: HttpBufferHandler;
     constructor(httpRouter: HttpRouter, // TODO: delay required
-    serializers: Serializer[], logger: ILogger, jsonUtil: JsonUtil, httpResponse: HttpResponseUtil, localisationService: LocalisationService, httpBufferHandler: HttpBufferHandler);
+    serializers: Serializer[], logger: ILogger, requestsLogger: ILogger, jsonUtil: JsonUtil, httpResponse: HttpResponseUtil, localisationService: LocalisationService, httpBufferHandler: HttpBufferHandler);
     canHandle(_: string, req: IncomingMessage): boolean;
     handle(sessionId: string, req: IncomingMessage, resp: ServerResponse): void;
     sendResponse(sessionID: string, req: IncomingMessage, resp: ServerResponse, body: Buffer, output: string): void;
     getResponse(sessionID: string, req: IncomingMessage, body: Buffer): string;
-    protected getBodyInfo(body: Buffer): string;
-    sendZlibJson(resp: ServerResponse, output: any, sessionID: string): void;
+    protected getBodyInfo(body: Buffer): any;
+    sendJson(resp: ServerResponse, output: string, sessionID: string): void;
+    sendZlibJson(resp: ServerResponse, output: string, sessionID: string): void;
 }

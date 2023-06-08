@@ -1,3 +1,4 @@
+import { MemberCategory } from "../../../models/enums/MemberCategory";
 import { MessageType } from "../../enums/MessageType";
 import { IPmcData } from "../common/IPmcData";
 import { Item } from "../common/tables/IItem";
@@ -36,19 +37,32 @@ export interface WeaponBuild {
     items: Item[];
 }
 export interface Dialogue {
-    _id: string;
-    messages: Message[];
-    pinned: boolean;
-    new: number;
     attachmentsNew: number;
+    type: MessageType;
+    new: number;
+    _id: string;
+    Users?: IUserDialogInfo[];
+    pinned: boolean;
+    messages: Message[];
+}
+export interface IUserDialogInfo {
+    _id: string;
+    info: IUserDialogDetails;
+}
+export interface IUserDialogDetails {
+    Nickname: string;
+    Side: string;
+    Level: number;
+    MemberCategory: MemberCategory;
 }
 export interface DialogueInfo {
     attachmentsNew: number;
     new: number;
+    _id: string;
     type: MessageType;
     pinned: boolean;
+    Users?: any[];
     message: MessagePreview;
-    _id: string;
 }
 export interface Message {
     _id: string;
@@ -57,7 +71,7 @@ export interface Message {
     dt: number;
     UtcDateTime?: number;
     Member?: IUpdatableChatMember;
-    templateId: string;
+    templateId?: string;
     text?: string;
     hasRewards: boolean;
     rewardCollected: boolean;
@@ -72,6 +86,7 @@ export interface MessagePreview {
     dt: number;
     templateId: string;
     text?: string;
+    systemData?: ISystemData;
 }
 export interface MessageItems {
     stash?: string;
@@ -89,7 +104,7 @@ export interface IUpdatableChatMember {
     Nickname: string;
     Side: string;
     Level: number;
-    MemberCategory: string;
+    MemberCategory: MemberCategory;
     Ignored: boolean;
     Banned: boolean;
 }

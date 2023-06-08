@@ -1,6 +1,6 @@
 import { OnLoad } from "../di/OnLoad";
 import { HttpServer } from "../servers/HttpServer";
-export declare class HttpCallbacks extends OnLoad {
+export declare class HttpCallbacks implements OnLoad {
     protected httpServer: HttpServer;
     constructor(httpServer: HttpServer);
     onLoad(): Promise<void>;

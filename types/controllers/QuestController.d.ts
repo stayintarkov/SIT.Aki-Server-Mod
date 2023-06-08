@@ -4,7 +4,8 @@ import { ProfileHelper } from "../helpers/ProfileHelper";
 import { QuestConditionHelper } from "../helpers/QuestConditionHelper";
 import { QuestHelper } from "../helpers/QuestHelper";
 import { IPmcData } from "../models/eft/common/IPmcData";
-import { IQuest, Reward } from "../models/eft/common/tables/IQuest";
+import { Item } from "../models/eft/common/tables/IItem";
+import { AvailableForConditions, IQuest, Reward } from "../models/eft/common/tables/IQuest";
 import { IRepeatableQuest } from "../models/eft/common/tables/IRepeatableQuests";
 import { IItemEventRouterResponse } from "../models/eft/itemEvent/IItemEventRouterResponse";
 import { IAcceptQuestRequestData } from "../models/eft/quests/IAcceptQuestRequestData";
@@ -46,10 +47,10 @@ export declare class QuestController {
     getClientQuests(sessionID: string): IQuest[];
     /**
      * Is the quest for the opposite side the player is on
-     * @param side player side (usec/bear)
-     * @param questId questId to check
+     * @param playerSide Player side (usec/bear)
+     * @param questId QuestId to check
      */
-    protected questIsForOtherSide(side: string, questId: string): boolean;
+    protected questIsForOtherSide(playerSide: string, questId: string): boolean;
     /**
      * Handle the client accepting a quest and starting it
      * Send starting rewards if any to player and
@@ -60,13 +61,6 @@ export declare class QuestController {
      * @returns client response
      */
     acceptQuest(pmcData: IPmcData, acceptedQuest: IAcceptQuestRequestData, sessionID: string): IItemEventRouterResponse;
-    /**
-     * Get a quests startedMessageText key from db, if no startedMessageText key found, use description key instead
-     * @param startedMessageTextId startedMessageText property from IQuest
-     * @param questDescriptionId description property from IQuest
-     * @returns message id
-     */
-    protected getMessageIdForQuestStart(startedMessageTextId: string, questDescriptionId: string): string;
     /**
      * Handle the client accepting a repeatable quest and starting it
      * Send starting rewards if any to player and
@@ -103,6 +97,13 @@ export declare class QuestController {
      */
     protected sendSuccessDialogMessageOnQuestComplete(sessionID: string, pmcData: IPmcData, completedQuestId: string, questRewards: Reward[]): void;
     /**
+     * Look for newly available quests after completing a quest with a requirement to wait x minutes (time-locked) before being available and add data to profile
+     * @param pmcData Player profile to update
+     * @param quests Quests to look for wait conditions in
+     * @param completedQuestId Quest just completed
+     */
+    protected addTimeLockedQuestsToProfile(pmcData: IPmcData, quests: IQuest[], completedQuestId: string): void;
+    /**
      * Returns a list of quests that should be failed when a quest is completed
      * @param completedQuestId quest completed id
      * @returns array of quests
@@ -116,7 +117,30 @@ export declare class QuestController {
      * @param questsToFail quests to fail
      */
     protected failQuests(sessionID: string, pmcData: IPmcData, questsToFail: IQuest[]): void;
-    handoverQuest(pmcData: IPmcData, body: IHandoverQuestRequestData, sessionID: string): IItemEventRouterResponse;
+    /**
+     *
+     * @param pmcData Player profile
+     * @param handoverQuestRequest handover item request
+     * @param sessionID Session id
+     * @returns IItemEventRouterResponse
+     */
+    handoverQuest(pmcData: IPmcData, handoverQuestRequest: IHandoverQuestRequestData, sessionID: string): IItemEventRouterResponse;
+    /**
+     * Show warning to user and write to log that repeatable quest failed a condition check
+     * @param handoverQuestRequest Quest request
+     * @param output Response to send to user
+     * @returns IItemEventRouterResponse
+     */
+    protected showRepeatableQuestInvalidConditionError(handoverQuestRequest: IHandoverQuestRequestData, output: IItemEventRouterResponse): IItemEventRouterResponse;
+    /**
+     * Show warning to user and write to log quest item handed over did not match what is required
+     * @param handoverQuestRequest Quest request
+     * @param itemHandedOver Non-matching item found
+     * @param handoverRequirements Quest handover requirements
+     * @param output Response to send to user
+     * @returns IItemEventRouterResponse
+     */
+    protected showQuestItemHandoverMatchError(handoverQuestRequest: IHandoverQuestRequestData, itemHandedOver: Item, handoverRequirements: AvailableForConditions, output: IItemEventRouterResponse): IItemEventRouterResponse;
     /**
      * Increment a backend counter stored value by an amount,
      * Create counter if it does not exist

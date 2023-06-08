@@ -1,6 +1,6 @@
 export interface IPackageJsonData {
     incompatibilities?: string[];
-    dependencies?: string[];
+    dependencies?: Record<string, string>;
     modDependencies?: Record<string, string>;
     name: string;
     author: string;
@@ -8,5 +8,6 @@ export interface IPackageJsonData {
     akiVersion: string;
     licence: string;
     main: string;
+    isBundleMod: boolean;
     contributors: string[];
 }

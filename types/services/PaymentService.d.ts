@@ -25,12 +25,12 @@ export declare class PaymentService {
     constructor(logger: ILogger, httpResponse: HttpResponseUtil, databaseServer: DatabaseServer, handbookHelper: HandbookHelper, traderHelper: TraderHelper, itemHelper: ItemHelper, inventoryHelper: InventoryHelper, localisationService: LocalisationService, paymentHelper: PaymentHelper);
     /**
      * Take money and insert items into return to server request
-     * @param {Object} pmcData
-     * @param {Object} body
+     * @param {IPmcData} pmcData Player profile
+     * @param {IProcessBuyTradeRequestData} request
      * @param {string} sessionID
      * @returns Object
      */
-    payMoney(pmcData: IPmcData, body: IProcessBuyTradeRequestData, sessionID: string, output: IItemEventRouterResponse): IItemEventRouterResponse;
+    payMoney(pmcData: IPmcData, request: IProcessBuyTradeRequestData, sessionID: string, output: IItemEventRouterResponse): IItemEventRouterResponse;
     /**
      * Receive money back after selling
      * @param {IPmcData} pmcData
@@ -58,11 +58,26 @@ export declare class PaymentService {
      */
     addPaymentToOutput(pmcData: IPmcData, currencyTpl: string, amountToPay: number, sessionID: string, output: IItemEventRouterResponse): IItemEventRouterResponse;
     /**
+     * Get all money stacks in inventory and prioritse items in stash
+     * @param pmcData
+     * @param currencyTpl
+     * @returns Sorting money items
+     */
+    protected getSortedMoneyItemsInInventory(pmcData: IPmcData, currencyTpl: string): Item[];
+    /**
      * Prioritise player stash first over player inventory
      * Post-raid healing would often take money out of the players pockets/secure container
      * @param a First money stack item
      * @param b Second money stack item
+     * @param inventoryItems players inventory items
      * @returns sort order
      */
-    protected prioritiseStashSort(a: Item, b: Item): number;
+    protected prioritiseStashSort(a: Item, b: Item, inventoryItems: Item[]): number;
+    /**
+     * Recursivly check items parents to see if it is inside the players inventory, not stash
+     * @param itemId item id to check
+     * @param inventoryItems player inventory
+     * @returns true if its in inventory
+     */
+    protected isInInventory(itemId: string, inventoryItems: Item[]): boolean;
 }

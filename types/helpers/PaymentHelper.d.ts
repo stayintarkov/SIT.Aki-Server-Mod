@@ -1,6 +1,11 @@
+import { IInventoryConfig } from "../models/spt/config/IInventoryConfig";
+import { ConfigServer } from "../servers/ConfigServer";
 export declare class PaymentHelper {
+    protected configServer: ConfigServer;
+    protected inventoryConfig: IInventoryConfig;
+    constructor(configServer: ConfigServer);
     /**
-     * Check whether tpl is Money
+     * Is the passed in tpl money (also checks custom currencies in inventoryConfig.customMoneyTpls)
      * @param {string} tpl
      * @returns void
      */

@@ -1,7 +1,7 @@
 /// <reference types="node" />
 /// <reference types="node" />
-import "reflect-metadata";
 import fs from "fs";
+import "reflect-metadata";
 import { IAsyncQueue } from "../models/spt/utils/IAsyncQueue";
 import { IUUidGenerator } from "../models/spt/utils/IUuidGenerator";
 export declare class VFS {
@@ -32,8 +32,9 @@ export declare class VFS {
     createDirAsync(filepath: string): Promise<void>;
     copyDir(filepath: string, target: string, fileExtensions?: string | string[]): void;
     copyDirAsync(filepath: string, target: string, fileExtensions: string | string[]): Promise<void>;
-    readFile(filepath: string): any;
-    readFileAsync(filepath: string): Promise<any>;
+    readFile(...args: Parameters<typeof fs.readFileSync>): string;
+    readFileAsync(path: fs.PathLike): Promise<string>;
+    private isBuffer;
     writeFile(filepath: any, data?: string, append?: boolean, atomic?: boolean): void;
     writeFileAsync(filepath: any, data?: string, append?: boolean, atomic?: boolean): Promise<void>;
     getFiles(filepath: string): string[];

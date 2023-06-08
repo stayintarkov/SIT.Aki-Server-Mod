@@ -5,5 +5,5 @@ export interface IGetGroupStatusRequestData {
     dt: string;
     keyId: string;
     raidMode: RaidMode;
-    startInGroup: boolean;
+    spawnPlace: string;
 }

@@ -1,5 +1,5 @@
 import { ITemplateItem } from "../../eft/common/tables/ITemplateItem";
-export declare class BotLootCache {
+export interface IBotLootCache {
     backpackLoot: ITemplateItem[];
     pocketLoot: ITemplateItem[];
     vestLoot: ITemplateItem[];

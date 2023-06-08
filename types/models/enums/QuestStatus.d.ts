@@ -7,5 +7,6 @@ export declare enum QuestStatus {
     Fail = 5,
     FailRestartable = 6,
     MarkedAsFailed = 7,
-    Expired = 8
+    Expired = 8,
+    AvailableAfter = 9
 }

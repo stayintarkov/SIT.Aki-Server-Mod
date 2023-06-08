@@ -9,10 +9,10 @@ export declare class DurabilityLimitsHelper {
     protected configServer: ConfigServer;
     protected botConfig: IBotConfig;
     constructor(randomUtil: RandomUtil, botHelper: BotHelper, configServer: ConfigServer);
-    getRandomisedMaxWeaponDurability(itemTemplate: ITemplateItem, botRole: string): number;
-    getRandomisedMaxArmorDurability(itemTemplate: ITemplateItem, botRole: string): number;
-    getRandomisedWeaponDurability(itemTemplate: ITemplateItem, botRole: string, maxDurability: number): number;
-    getRandomisedArmorDurability(itemTemplate: ITemplateItem, botRole: string, maxDurability: number): number;
+    getRandomizedMaxWeaponDurability(itemTemplate: ITemplateItem, botRole: string): number;
+    getRandomizedMaxArmorDurability(itemTemplate: ITemplateItem, botRole: string): number;
+    getRandomizedWeaponDurability(itemTemplate: ITemplateItem, botRole: string, maxDurability: number): number;
+    getRandomizedArmorDurability(itemTemplate: ITemplateItem, botRole: string, maxDurability: number): number;
     protected generateMaxWeaponDurability(botRole: string): number;
     protected generateMaxPmcArmorDurability(itemMaxDurability: number): number;
     protected getLowestMaxWeaponFromConfig(botRole: string): number;
@@ -23,4 +23,6 @@ export declare class DurabilityLimitsHelper {
     protected getMaxWeaponDeltaFromConfig(botRole: string): number;
     protected getMinArmorDeltaFromConfig(botRole: string): number;
     protected getMaxArmorDeltaFromConfig(botRole: string): number;
+    protected getMinArmorLimitPercentFromConfig(botRole: string): number;
+    protected getMinWeaponLimitPercentFromConfig(botRole: string): number;
 }

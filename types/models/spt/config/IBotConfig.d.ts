@@ -1,3 +1,4 @@
+import { MinMaxWithWhitelist } from "../../../models/eft/common/tables/IBotType";
 import { MinMax } from "../../common/MinMax";
 import { IBaseConfig } from "./IBaseConfig";
 import { IBotDurability } from "./IBotDurability";
@@ -25,6 +26,7 @@ export interface IBotConfig extends IBaseConfig {
     showTypeInNickname: boolean;
     /** Max number of bots that can be spawned in a raid at any one time */
     maxBotCap: Record<string, number>;
+    chanceAssaultScavHasPlayerScavName: number;
     /** How many stacks of secret ammo should a bot have in its bot secure container */
     secureContainerAmmoStackCount: number;
     /** Batch generation size when type not available in cache */
@@ -68,8 +70,11 @@ export interface EquipmentFilters {
     weaponModLimits: ModLimits;
     weaponSightWhitelist: Record<string, string[]>;
     faceShieldIsActiveChancePercent?: number;
-    lightLaserIsActiveChancePercent?: number;
-    nvgIsActiveChancePercent?: number;
+    lightIsActiveDayChancePercent?: number;
+    lightIsActiveNightChancePercent?: number;
+    laserIsActiveChancePercent?: number;
+    nvgIsActiveChanceDayPercent?: number;
+    nvgIsActiveChanceNightPercent?: number;
     randomisation: RandomisationDetails[];
     blacklist: EquipmentFilterDetails[];
     whitelist: EquipmentFilterDetails[];
@@ -84,6 +89,7 @@ export interface ModLimits {
 }
 export interface RandomisationDetails {
     levelRange: MinMax;
+    generation?: Record<string, MinMaxWithWhitelist>;
     randomisedWeaponModSlots?: string[];
     randomisedArmorSlots?: string[];
     /** Equipment chances */

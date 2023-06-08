@@ -2,7 +2,6 @@ import { ItemHelper } from "../helpers/ItemHelper";
 import { Product } from "../models/eft/common/tables/IBotBase";
 import { ITemplateItem } from "../models/eft/common/tables/ITemplateItem";
 import { IHideoutScavCase } from "../models/eft/hideout/IHideoutScavCase";
-import { IHideoutScavCaseStartRequestData } from "../models/eft/hideout/IHideoutScavCaseStartRequestData";
 import { IScavCaseConfig } from "../models/spt/config/IScavCaseConfig";
 import { RewardCountAndPriceDetails, ScavCaseRewardCountsAndPrices } from "../models/spt/hideout/ScavCaseRewardCountsAndPrices";
 import { ILogger } from "../models/spt/utils/ILogger";
@@ -28,10 +27,10 @@ export declare class ScavCaseRewardGenerator {
     constructor(logger: ILogger, randomUtil: RandomUtil, hashUtil: HashUtil, itemHelper: ItemHelper, databaseServer: DatabaseServer, ragfairPriceService: RagfairPriceService, itemFilterService: ItemFilterService, configServer: ConfigServer);
     /**
      * Create an array of rewards that will be given to the player upon completing their scav case build
-     * @param body client request
+     * @param recipeId recipe of the scav case craft
      * @returns Product array
      */
-    generate(body: IHideoutScavCaseStartRequestData): Product[];
+    generate(recipeId: string): Product[];
     /**
      * Get all db items that are not blacklisted in scavcase config
      * @returns filtered array of db items
@@ -89,7 +88,7 @@ export declare class ScavCaseRewardGenerator {
      */
     protected getFilteredItemsByPrice(dbItems: ITemplateItem[], itemFilters: RewardCountAndPriceDetails): ITemplateItem[];
     /**
-     * Gathers the reward options from config and scavcase.json into a single object
+     * Gathers the reward min and max count params for each reward quality level from config and scavcase.json into a single object
      * @param scavCaseDetails scavcase.json values
      * @returns ScavCaseRewardCountsAndPrices object
      */

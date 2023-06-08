@@ -23,6 +23,7 @@ export interface IRagfairOffer {
     summaryCost: number;
     user: IRagfairOfferUser;
     notAvailable: boolean;
+    /** TODO - implement this value - not currently used */
     CurrentItemCount: number;
     priority: boolean;
 }

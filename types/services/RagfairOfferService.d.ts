@@ -1,4 +1,3 @@
-import { RagfairOfferHolder } from "../utils/RagfairOfferHolder";
 import { ProfileHelper } from "../helpers/ProfileHelper";
 import { RagfairServerHelper } from "../helpers/RagfairServerHelper";
 import { Item } from "../models/eft/common/tables/IItem";
@@ -11,6 +10,7 @@ import { ConfigServer } from "../servers/ConfigServer";
 import { DatabaseServer } from "../servers/DatabaseServer";
 import { SaveServer } from "../servers/SaveServer";
 import { HttpResponseUtil } from "../utils/HttpResponseUtil";
+import { RagfairOfferHolder } from "../utils/RagfairOfferHolder";
 import { TimeUtil } from "../utils/TimeUtil";
 import { LocalisationService } from "./LocalisationService";
 import { RagfairCategoriesService } from "./RagfairCategoriesService";
@@ -53,8 +53,17 @@ export declare class RagfairOfferService {
      * @returns offer exists - true
      */
     doesOfferExist(offerId: string): boolean;
+    /**
+     * Remove an offer from ragfair by offer id
+     * @param offerId Offer id to remove
+     */
     removeOfferById(offerId: string): void;
-    removeOfferStack(offerID: string, amount: number): void;
+    /**
+     * Reduce size of an offer stack by specified amount
+     * @param offerId Offer to adjust stack size of
+     * @param amount How much to deduct from offers stack size
+     */
+    removeOfferStack(offerId: string, amount: number): void;
     removeAllOffersByTrader(traderId: string): void;
     /**
      * Do the trader offers on flea need to be refreshed
@@ -64,6 +73,10 @@ export declare class RagfairOfferService {
     traderOffersNeedRefreshing(traderID: string): boolean;
     addPlayerOffers(): void;
     expireStaleOffers(): void;
+    /**
+     * Remove stale offer from flea
+     * @param staleOffer Stale offer to process
+     */
     protected processStaleOffer(staleOffer: IRagfairOffer): void;
     protected returnPlayerOffer(offer: IRagfairOffer): IItemEventRouterResponse;
 }

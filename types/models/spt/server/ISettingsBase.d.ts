@@ -10,6 +10,7 @@ export interface Config {
     FirstCycleDelaySeconds: number;
     FramerateLimit: FramerateLimit;
     GroupStatusInterval: number;
+    GroupStatusButtonInterval: number;
     KeepAliveInterval: number;
     LobbyKeepAliveInterval: number;
     Mark502and504AsNonImportant: boolean;

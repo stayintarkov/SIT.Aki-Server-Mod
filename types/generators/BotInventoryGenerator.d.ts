@@ -34,7 +34,7 @@ export declare class BotInventoryGenerator {
     /**
      * Add equipment/weapons/loot to bot
      * @param sessionId Session id
-     * @param botJsonTemplate bot/x.json data from db
+     * @param botJsonTemplate Base json db file for the bot having its loot generated
      * @param botRole Role bot has (assault/pmcBot)
      * @param isPmc Is bot being converted into a pmc
      * @param botLevel Level of bot being generated

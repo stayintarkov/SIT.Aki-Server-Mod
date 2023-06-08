@@ -102,6 +102,10 @@ export declare class InventoryController {
     foldItem(pmcData: IPmcData, body: IInventoryFoldRequestData, sessionID: string): IItemEventRouterResponse;
     /**
      * Toggles "Toggleable" items like night vision goggles and face shields.
+     * @param pmcData player profile
+     * @param body Toggle request
+     * @param sessionID Session id
+     * @returns IItemEventRouterResponse
      */
     toggleItem(pmcData: IPmcData, body: IInventoryToggleRequestData, sessionID: string): IItemEventRouterResponse;
     /**
@@ -112,7 +116,14 @@ export declare class InventoryController {
      * @returns client response object
      */
     tagItem(pmcData: IPmcData, body: IInventoryTagRequestData, sessionID: string): IItemEventRouterResponse;
-    bindItem(pmcData: IPmcData, body: IInventoryBindRequestData, sessionID: string): IItemEventRouterResponse;
+    /**
+     * Bind an inventory item to the quick access menu at bottom of player screen
+     * @param pmcData Player profile
+     * @param bindRequest Reqeust object
+     * @param sessionID Session id
+     * @returns IItemEventRouterResponse
+     */
+    bindItem(pmcData: IPmcData, bindRequest: IInventoryBindRequestData, sessionID: string): IItemEventRouterResponse;
     /**
      * Handles examining an item
      * @param pmcData player profile
@@ -129,12 +140,44 @@ export declare class InventoryController {
     protected getExaminedItemTpl(body: IInventoryExamineRequestData): string;
     readEncyclopedia(pmcData: IPmcData, body: IInventoryReadEncyclopediaRequestData, sessionID: string): IItemEventRouterResponse;
     /**
-     * Handles sorting of Inventory.
+     * Handle ApplyInventoryChanges
+     * Sorts supplied items.
+     * @param pmcData Player profile
+     * @param request sort request
+     * @param sessionID Session id
+     * @returns IItemEventRouterResponse
      */
-    sortInventory(pmcData: IPmcData, body: IInventorySortRequestData, sessionID: string): IItemEventRouterResponse;
-    createMapMarker(pmcData: IPmcData, body: IInventoryCreateMarkerRequestData, sessionID: string): IItemEventRouterResponse;
-    deleteMapMarker(pmcData: IPmcData, body: IInventoryDeleteMarkerRequestData, sessionID: string): IItemEventRouterResponse;
-    editMapMarker(pmcData: IPmcData, body: IInventoryEditMarkerRequestData, sessionID: string): IItemEventRouterResponse;
+    sortInventory(pmcData: IPmcData, request: IInventorySortRequestData, sessionID: string): IItemEventRouterResponse;
+    /**
+     * Add note to a map
+     * @param pmcData Player profile
+     * @param request Add marker request
+     * @param sessionID Session id
+     * @returns IItemEventRouterResponse
+     */
+    createMapMarker(pmcData: IPmcData, request: IInventoryCreateMarkerRequestData, sessionID: string): IItemEventRouterResponse;
+    /**
+     * Delete a map marker
+     * @param pmcData Player profile
+     * @param request Delete marker request
+     * @param sessionID Session id
+     * @returns IItemEventRouterResponse
+     */
+    deleteMapMarker(pmcData: IPmcData, request: IInventoryDeleteMarkerRequestData, sessionID: string): IItemEventRouterResponse;
+    /**
+     * Edit an existing map marker
+     * @param pmcData Player profile
+     * @param request Edit marker request
+     * @param sessionID Session id
+     * @returns IItemEventRouterResponse
+     */
+    editMapMarker(pmcData: IPmcData, request: IInventoryEditMarkerRequestData, sessionID: string): IItemEventRouterResponse;
+    /**
+     * Strip out characters from note string that are not: letter/numbers/unicode/spaces
+     * @param mapNoteText Marker text to sanitise
+     * @returns Sanitised map marker text
+     */
+    protected sanitiseMapMarkerText(mapNoteText: string): string;
     /**
      * Handle event fired when a container is unpacked (currently only the halloween pumpkin)
      * @param pmcData Profile data

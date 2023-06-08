@@ -3,7 +3,8 @@ import { Item } from "../../eft/common/tables/IItem";
 import { ITemplateItem } from "../../eft/common/tables/ITemplateItem";
 export declare class GenerateWeaponResult {
     weapon: Item[];
-    chosenAmmo: string;
+    chosenAmmoTpl: string;
+    chosenUbglAmmoTpl: string;
     weaponMods: Mods;
     weaponTemplate: ITemplateItem;
 }

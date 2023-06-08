@@ -13,11 +13,13 @@ export declare enum ConfigTypes {
     LOCATION = "aki-location",
     MATCH = "aki-match",
     PLAYERSCAV = "aki-playerscav",
+    PMC_CHAT_RESPONSE = "aki-pmcchatresponse",
     QUEST = "aki-quest",
     RAGFAIR = "aki-ragfair",
     REPAIR = "aki-repair",
     SCAVCASE = "aki-scavcase",
     TRADER = "aki-trader",
     WEATHER = "aki-weather",
-    SEASONAL_EVENT = "aki-seasonalevents"
+    SEASONAL_EVENT = "aki-seasonalevents",
+    LOST_ON_DEATH = "aki-lostondeath"
 }

@@ -1,3 +1,4 @@
+import { ApplicationContext } from "../context/ApplicationContext";
 import { DurabilityLimitsHelper } from "../helpers/DurabilityLimitsHelper";
 import { Item, Repairable, Upd } from "../models/eft/common/tables/IItem";
 import { ITemplateItem } from "../models/eft/common/tables/ITemplateItem";
@@ -15,15 +16,16 @@ export declare class BotGeneratorHelper {
     protected databaseServer: DatabaseServer;
     protected durabilityLimitsHelper: DurabilityLimitsHelper;
     protected itemHelper: ItemHelper;
+    protected applicationContext: ApplicationContext;
     protected localisationService: LocalisationService;
     protected configServer: ConfigServer;
     protected botConfig: IBotConfig;
-    constructor(logger: ILogger, randomUtil: RandomUtil, databaseServer: DatabaseServer, durabilityLimitsHelper: DurabilityLimitsHelper, itemHelper: ItemHelper, localisationService: LocalisationService, configServer: ConfigServer);
+    constructor(logger: ILogger, randomUtil: RandomUtil, databaseServer: DatabaseServer, durabilityLimitsHelper: DurabilityLimitsHelper, itemHelper: ItemHelper, applicationContext: ApplicationContext, localisationService: LocalisationService, configServer: ConfigServer);
     /**
      * Adds properties to an item
      * e.g. Repairable / HasHinge / Foldable / MaxDurability
      * @param itemTemplate Item extra properties are being generated for
-     * @param botRole Used by weapons to randomise the durability values. Null for non-equipped items
+     * @param botRole Used by weapons to randomize the durability values. Null for non-equipped items
      * @returns Item Upd object with extra properties
      */
     generateExtraPropertiesForItem(itemTemplate: ITemplateItem, botRole?: string): {
@@ -53,10 +55,10 @@ export declare class BotGeneratorHelper {
     protected generateArmorRepairableProperties(itemTemplate: ITemplateItem, botRole: string): Repairable;
     /**
      * Can item be added to another item without conflict
-     * @param items Items to check compatiblilities with
+     * @param items Items to check compatibilities with
      * @param tplToCheck Tpl of the item to check for incompatibilities
      * @param equipmentSlot Slot the item will be placed into
-     * @returns false if no incompatibilties, also has incompatibility reason
+     * @returns false if no incompatibilities, also has incompatibility reason
      */
     isItemIncompatibleWithCurrentItems(items: Item[], tplToCheck: string, equipmentSlot: string): {
         incompatible: boolean;

@@ -4,6 +4,7 @@ import { Item } from "../models/eft/common/tables/IItem";
 import { IRagfairConfig } from "../models/spt/config/IRagfairConfig";
 import { ConfigServer } from "../servers/ConfigServer";
 import { DatabaseServer } from "../servers/DatabaseServer";
+import { SeasonalEventService } from "../services/SeasonalEventService";
 import { HashUtil } from "../utils/HashUtil";
 import { JsonUtil } from "../utils/JsonUtil";
 export declare class RagfairAssortGenerator {
@@ -11,10 +12,11 @@ export declare class RagfairAssortGenerator {
     protected hashUtil: HashUtil;
     protected itemHelper: ItemHelper;
     protected databaseServer: DatabaseServer;
+    protected seasonalEventService: SeasonalEventService;
     protected configServer: ConfigServer;
     protected generatedAssortItems: Item[];
     protected ragfairConfig: IRagfairConfig;
-    constructor(jsonUtil: JsonUtil, hashUtil: HashUtil, itemHelper: ItemHelper, databaseServer: DatabaseServer, configServer: ConfigServer);
+    constructor(jsonUtil: JsonUtil, hashUtil: HashUtil, itemHelper: ItemHelper, databaseServer: DatabaseServer, seasonalEventService: SeasonalEventService, configServer: ConfigServer);
     /**
      * Get an array of unique items that can be sold on the flea
      * @returns array of unique items

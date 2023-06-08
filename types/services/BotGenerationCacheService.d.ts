@@ -25,7 +25,7 @@ export declare class BotGenerationCacheService {
      */
     getBot(key: string): IBotBase;
     /**
-     * Remove all cached bot profiles
+     * Remove all cached bot profiles from memory
      */
     clearStoredBots(): void;
     /**

@@ -1,6 +1,7 @@
 import { IPmcData } from "../models/eft/common/IPmcData";
 import { ITraderAssort } from "../models/eft/common/tables/ITrader";
 import { IItemEventRouterResponse } from "../models/eft/itemEvent/IItemEventRouterResponse";
+import { IAkiProfile } from "../models/eft/profile/IAkiProfile";
 import { IRagfairOffer } from "../models/eft/ragfair/IRagfairOffer";
 import { ISearchRequestData } from "../models/eft/ragfair/ISearchRequestData";
 import { IQuestConfig } from "../models/spt/config/IQuestConfig";
@@ -46,8 +47,37 @@ export declare class RagfairOfferHelper {
     protected ragfairConfig: IRagfairConfig;
     protected questConfig: IQuestConfig;
     constructor(logger: ILogger, timeUtil: TimeUtil, hashUtil: HashUtil, eventOutputHolder: EventOutputHolder, databaseServer: DatabaseServer, traderHelper: TraderHelper, saveServer: SaveServer, dialogueHelper: DialogueHelper, itemHelper: ItemHelper, paymentHelper: PaymentHelper, presetHelper: PresetHelper, profileHelper: ProfileHelper, ragfairServerHelper: RagfairServerHelper, ragfairSortHelper: RagfairSortHelper, ragfairHelper: RagfairHelper, ragfairOfferService: RagfairOfferService, localeService: LocaleService, configServer: ConfigServer);
+    /**
+     * Passthrough to ragfairOfferService.getOffers(), get flea offers a player should see
+     * @param searchRequest
+     * @param itemsToAdd
+     * @param traderAssorts Trader assorts
+     * @param pmcProfile Player profile
+     * @returns Offers the player should see
+     */
     getValidOffers(searchRequest: ISearchRequestData, itemsToAdd: string[], traderAssorts: Record<string, ITraderAssort>, pmcProfile: IPmcData): IRagfairOffer[];
-    getOffersForBuild(info: ISearchRequestData, itemsToAdd: string[], assorts: Record<string, ITraderAssort>, pmcProfile: IPmcData): IRagfairOffer[];
+    /**
+     * Get offers from flea/traders specifically when building weapon preset
+     * @param searchRequest Search request data
+     * @param itemsToAdd string array of item tpls to search for
+     * @param traderAssorts All trader assorts player can access/buy
+     * @param pmcProfile Player profile
+     * @returns IRagfairOffer array
+     */
+    getOffersForBuild(searchRequest: ISearchRequestData, itemsToAdd: string[], traderAssorts: Record<string, ITraderAssort>, pmcProfile: IPmcData): IRagfairOffer[];
+    /**
+     * Check if offer item is quest locked for current player by looking at sptQuestLocked property in traders barter_scheme
+     * @param offer Offer to check is quest locked
+     * @param traderAssorts all trader assorts for player
+     * @returns true if quest locked
+     */
+    traderOfferItemQuestLocked(offer: IRagfairOffer, traderAssorts: Record<string, ITraderAssort>): boolean;
+    /**
+     * Has a traders offer ran out of stock to sell to player
+     * @param offer Offer to check stock of
+     * @returns true if out of stock
+     */
+    protected traderOutOfStock(offer: IRagfairOffer): boolean;
     /**
      * Check if trader offers' BuyRestrictionMax value has been reached
      * @param offer offer to check restriction properties of
@@ -58,11 +88,49 @@ export declare class RagfairOfferHelper {
      * Get an array of flea offers that are inaccessible to player due to their inadequate loyalty level
      * @param offers Offers to check
      * @param pmcProfile Players profile with trader loyalty levels
+     * @returns array of offer ids player cannot see
      */
     protected getLoyaltyLockedOffers(offers: IRagfairOffer[], pmcProfile: IPmcData): string[];
+    /**
+     * Process all player-listed flea offers for a desired profile
+     * @param sessionID Session id to process offers for
+     * @returns true = complete
+     */
     processOffersOnProfile(sessionID: string): boolean;
+    /**
+     * Add amount to players ragfair rating
+     * @param sessionId Profile to update
+     * @param amountToIncrementBy Raw amount to add to players ragfair rating (excluding the reputation gain multiplier)
+     */
+    increaseProfileRagfairRating(profile: IAkiProfile, amountToIncrementBy: number): void;
+    /**
+     * Return all offers a player has listed on a desired profile
+     * @param sessionID Session id
+     * @returns Array of ragfair offers
+     */
     protected getProfileOffers(sessionID: string): IRagfairOffer[];
+    /**
+     * Delete an offer from a desired profile
+     * @param sessionID Session id of profile to delete offer from
+     * @param offerId Offer id to delete
+     */
     protected deleteOfferByOfferId(sessionID: string, offerId: string): void;
+    /**
+     * Complete the selling of players' offer
+     * @param sessionID Session id
+     * @param offer Sold offer details
+     * @param boughtAmount Amount item was purchased for
+     * @returns Client response
+     */
     protected completeOffer(sessionID: string, offer: IRagfairOffer, boughtAmount: number): IItemEventRouterResponse;
+    /**
+     * Should a ragfair offer be visible to the player
+     * @param info Search request
+     * @param itemsToAdd ?
+     * @param traderAssorts Trader assort items
+     * @param offer The flea offer
+     * @param pmcProfile Player profile
+     * @returns True = should be shown to player
+     */
     isDisplayableOffer(info: ISearchRequestData, itemsToAdd: string[], traderAssorts: Record<string, ITraderAssort>, offer: IRagfairOffer, pmcProfile: IPmcData): boolean;
 }

@@ -24,7 +24,12 @@ export declare class RepairHelper {
      * @param applyMaxDurabilityDegradation should item have max durability reduced
      */
     updateItemDurability(itemToRepair: Item, itemToRepairDetails: ITemplateItem, isArmor: boolean, amountToRepair: number, useRepairKit: boolean, traderQualityMultipler: number, applyMaxDurabilityDegradation?: boolean): void;
-    protected getRandomisedArmorRepairDegredationValue(armorMaterial: string, isRepairKit: boolean, armorMax: number, traderQualityMultipler: number): number;
-    protected getRandomisedWeaponRepairDegredationValue(itemProps: Props, isRepairKit: boolean, weaponMax: number, traderQualityMultipler: number): number;
+    protected getRandomisedArmorRepairDegradationValue(armorMaterial: string, isRepairKit: boolean, armorMax: number, traderQualityMultipler: number): number;
+    protected getRandomisedWeaponRepairDegradationValue(itemProps: Props, isRepairKit: boolean, weaponMax: number, traderQualityMultipler: number): number;
+    /**
+     * Is the supplied tpl a weapon
+     * @param tpl tplId to check is a weapon
+     * @returns true if tpl is a weapon
+     */
     isWeaponTemplate(tpl: string): boolean;
 }

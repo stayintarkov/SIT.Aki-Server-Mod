@@ -6,7 +6,13 @@ export interface ProfileData {
     profileid: string;
     profileToken: string;
     status: string;
-    sid: string;
     ip: string;
     port: number;
+    sid: string;
+    version?: string;
+    location?: string;
+    raidMode?: string;
+    mode?: string;
+    shortId?: string;
+    additional_info?: any[];
 }

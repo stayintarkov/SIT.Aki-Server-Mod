@@ -30,7 +30,7 @@ declare class ItemHelper {
     /**
      * Checks if an id is a valid item. Valid meaning that it's an item that be stored in stash
      * @param       {string}    tpl       the template id / tpl
-     * @returns                             boolean; true for items that may be in player posession and not quest items
+     * @returns                             boolean; true for items that may be in player possession and not quest items
      */
     isValidItem(tpl: string, invalidBaseTypes?: string[]): boolean;
     /**
@@ -42,7 +42,7 @@ declare class ItemHelper {
      */
     isOfBaseclass(tpl: string, baseClassTpl: string): boolean;
     /**
-     * Check if item has any of the supplied base clases
+     * Check if item has any of the supplied base classes
      * @param tpl Item to check base classes of
      * @param baseClassTpls base classes to check for
      * @returns true if any supplied base classes match
@@ -105,6 +105,7 @@ declare class ItemHelper {
      * @returns bool - is valid + template item object as array
      */
     getItem(tpl: string): [boolean, ITemplateItem];
+    isItemInDb(tpl: string): boolean;
     /**
      * get normalized value (0-1) based on item condition
      * @param item
@@ -120,7 +121,7 @@ declare class ItemHelper {
      */
     protected getRepairableItemQualityValue(itemDetails: ITemplateItem, repairable: Repairable, item: Item): number;
     /**
-     * Recursive function that looks at every item from parameter and gets their childrens Ids
+     * Recursive function that looks at every item from parameter and gets their childrens Ids + includes parent item in results
      * @param items
      * @param itemID
      * @returns an array of strings
@@ -165,23 +166,25 @@ declare class ItemHelper {
      */
     getChildId(item: Item): string;
     /**
-     * Can the pased in item be stacked
+     * Can the passed in item be stacked
      * @param tpl item to check
      * @returns true if it can be stacked
      */
     isItemTplStackable(tpl: string): boolean;
     /**
-     * split item stack if it exceeds StackMaxSize
+     * split item stack if it exceeds its StackMaxSize property
+     * @param itemToSplit item being split into smaller stacks
+     * @returns Array of split items
      */
-    splitStack(item: Item): Item[];
+    splitStack(itemToSplit: Item): Item[];
     /**
      * Find Barter items in the inventory
-     * @param {string} by
+     * @param {string} by tpl or id
      * @param {Object} pmcData
      * @param {string} barterItemId
      * @returns Array of Item objects
      */
-    findBarterItems(by: string, pmcData: IPmcData, barterItemId: string): Item[];
+    findBarterItems(by: "tpl" | "id", pmcData: IPmcData, barterItemId: string): Item[];
     /**
      *
      * @param pmcData
@@ -192,35 +195,65 @@ declare class ItemHelper {
      */
     replaceIDs(pmcData: IPmcData, items: Item[], insuredItems?: InsuredItem[], fastPanel?: any): any[];
     /**
-     * WARNING, SLOW. Recursivly loop down through an items hierarchy to see if any of the ids match the supplied list, return true if any do
-     * @param {string} tpl
-     * @param {Array} tplsToCheck
-     * @returns boolean
+     * WARNING, SLOW. Recursively loop down through an items hierarchy to see if any of the ids match the supplied list, return true if any do
+     * @param {string} tpl Items tpl to check parents of
+     * @param {Array} tplsToCheck Tpl values to check if parents of item match
+     * @returns boolean Match found
      */
     doesItemOrParentsIdMatch(tpl: string, tplsToCheck: string[]): boolean;
     /**
-     * Return true if item is a quest item
-     * @param {string} tpl
-     * @returns boolean
+     * Check if item is quest item
+     * @param tpl Items tpl to check quest status of
+     * @returns true if item is flagged as quest item
      */
     isQuestItem(tpl: string): boolean;
     /**
      * Get the inventory size of an item
-     * @param items
+     * @param items Item with children
      * @param rootItemId
      * @returns ItemSize object (width and height)
      */
     getItemSize(items: Item[], rootItemId: string): ItemHelper.ItemSize;
     /**
      * Get a random cartridge from an items Filter property
-     * @param item
-     * @returns
+     * @param item Db item template to look up Cartridge filter values from
+     * @returns Caliber of cartridge
      */
     getRandomCompatibleCaliberTemplateId(item: ITemplateItem): string;
-    createRandomMagCartridges(magTemplate: ITemplateItem, parentId: string, staticAmmoDist: Record<string, IStaticAmmoDetails[]>, caliber?: string): Item;
+    /**
+     * Add cartridges to the ammo box with correct max stack sizes
+     * @param ammoBox Box to add cartridges to
+     * @param ammoBoxDetails Item template from items db
+     */
+    addCartridgesToAmmoBox(ammoBox: Item[], ammoBoxDetails: ITemplateItem): void;
+    /**
+     * Add child items (cartridges) to a magazine
+     * @param magazine Magazine to add child items to
+     * @param magTemplate Db template of magazine
+     * @param staticAmmoDist Cartridge distribution
+     * @param caliber Caliber of cartridge to add to magazine
+     * @param minSizePercent % the magazine must be filled to
+     */
+    fillMagazineWithRandomCartridge(magazine: Item[], magTemplate: ITemplateItem, staticAmmoDist: Record<string, IStaticAmmoDetails[]>, caliber?: string, minSizePercent?: number): void;
+    /**
+     * Add child items to a magazine of a specific cartridge
+     * @param magazine Magazine to add child items to
+     * @param magTemplate Db template of magazine
+     * @param cartridgeTpl Cartridge to add to magazine
+     * @param minSizePercent % the magazine must be filled to
+     */
+    fillMagazineWithCartridge(magazine: Item[], magTemplate: ITemplateItem, cartridgeTpl: string, minSizePercent?: number): void;
     protected getRandomValidCaliber(magTemplate: ITemplateItem): string;
     protected drawAmmoTpl(caliber: string, staticAmmoDist: Record<string, IStaticAmmoDetails[]>): string;
-    createCartidges(parentId: string, ammoTpl: string, stackCount: number): Item;
+    /**
+     *
+     * @param parentId container cartridges will be placed in
+     * @param ammoTpl Cartridge to insert
+     * @param stackCount Count of cartridges inside parent
+     * @param location Location inside parent (e.g. 0, 1)
+     * @returns Item
+     */
+    createCartridges(parentId: string, ammoTpl: string, stackCount: number, location: number): Item;
     /**
      * Get the size of a stack, return 1 if no stack object count property found
      * @param item Item to get stack size of

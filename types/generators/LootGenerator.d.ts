@@ -9,6 +9,10 @@ import { ItemFilterService } from "../services/ItemFilterService";
 import { LocalisationService } from "../services/LocalisationService";
 import { HashUtil } from "../utils/HashUtil";
 import { RandomUtil } from "../utils/RandomUtil";
+type ItemLimit = {
+    current: number;
+    max: number;
+};
 export declare class LootGenerator {
     protected logger: ILogger;
     protected hashUtil: HashUtil;
@@ -23,16 +27,13 @@ export declare class LootGenerator {
      * @param options parameters to adjust how loot is generated
      * @returns An array of loot items
      */
-    createRandomloot(options: LootRequest): LootItem[];
+    createRandomLoot(options: LootRequest): LootItem[];
     /**
-     * Construct item limit record to hold max and current item count
+     * Construct item limit record to hold max and current item count for each item type
      * @param limits limits as defined in config
      * @returns record, key: item tplId, value: current/max item count allowed
      */
-    protected initItemLimitCounter(limits: Record<string, number>): Record<string, {
-        current: number;
-        max: number;
-    }>;
+    protected initItemLimitCounter(limits: Record<string, number>): Record<string, ItemLimit>;
     /**
      * Find a random item in items.json and add to result array
      * @param items items to choose from
@@ -65,3 +66,4 @@ export declare class LootGenerator {
         max: number;
     }>, itemBlacklist: string[], result: LootItem[]): boolean;
 }
+export {};

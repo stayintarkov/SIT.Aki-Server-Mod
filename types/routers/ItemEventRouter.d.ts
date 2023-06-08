@@ -12,5 +12,11 @@ export declare class ItemEventRouter {
     protected localisationService: LocalisationService;
     protected eventOutputHolder: EventOutputHolder;
     constructor(logger: ILogger, profileHelper: ProfileHelper, itemEventRouters: ItemEventRouterDefinition[], localisationService: LocalisationService, eventOutputHolder: EventOutputHolder);
+    /**
+     *
+     * @param info Event request
+     * @param sessionID Session id
+     * @returns Item response
+     */
     handleEvents(info: IItemEventRouterRequest, sessionID: string): IItemEventRouterResponse;
 }

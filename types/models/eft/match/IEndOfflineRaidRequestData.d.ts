@@ -1,6 +1,6 @@
 export interface IEndOfflineRaidRequestData {
     crc: number;
     exitStatus: string;
-    exitName: any;
+    exitName: string;
     raidSeconds: number;
 }

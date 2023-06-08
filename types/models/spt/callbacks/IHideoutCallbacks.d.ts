@@ -6,7 +6,7 @@ import { IHideoutPutItemInRequestData } from "../../eft/hideout/IHideoutPutItemI
 import { IHideoutTakeItemOutRequestData } from "../../eft/hideout/IHideoutTakeItemOutRequestData";
 import { IHideoutToggleAreaRequestData } from "../../eft/hideout/IHideoutToggleAreaRequestData";
 import { IHideoutSingleProductionStartRequestData } from "../../eft/hideout/IHideoutSingleProductionStartRequestData";
-import { IHideoutContinousProductionStartRequestData } from "../../eft/hideout/IHideoutContinousProductionStartRequestData";
+import { IHideoutContinuousProductionStartRequestData } from "../../eft/hideout/IHideoutContinuousProductionStartRequestData";
 import { IHideoutTakeProductionRequestData } from "../../eft/hideout/IHideoutTakeProductionRequestData";
 import { IItemEventRouterResponse } from "../../eft/itemEvent/IItemEventRouterResponse";
 export interface IHideoutCallbacks {
@@ -17,7 +17,7 @@ export interface IHideoutCallbacks {
     toggleArea(pmcData: IPmcData, body: IHideoutToggleAreaRequestData, sessionID: string): IItemEventRouterResponse;
     singleProductionStart(pmcData: IPmcData, body: IHideoutSingleProductionStartRequestData, sessionID: string): IItemEventRouterResponse;
     scavCaseProductionStart(pmcData: IPmcData, body: IHideoutScavCaseStartRequestData, sessionID: string): IItemEventRouterResponse;
-    continuousProductionStart(pmcData: IPmcData, body: IHideoutContinousProductionStartRequestData, sessionID: string): IItemEventRouterResponse;
+    continuousProductionStart(pmcData: IPmcData, body: IHideoutContinuousProductionStartRequestData, sessionID: string): IItemEventRouterResponse;
     takeProduction(pmcData: IPmcData, body: IHideoutTakeProductionRequestData, sessionID: string): IItemEventRouterResponse;
     update(timeSinceLastRun: number): boolean;
 }

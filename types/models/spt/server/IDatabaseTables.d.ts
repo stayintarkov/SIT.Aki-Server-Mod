@@ -1,3 +1,4 @@
+import { IQteData } from "../../../models/eft/hideout/IQteData";
 import { IGlobals } from "../../eft/common/IGlobals";
 import { IBotBase } from "../../eft/common/tables/IBotBase";
 import { IBotCore } from "../../eft/common/tables/IBotCore";
@@ -30,6 +31,7 @@ export interface IDatabaseTables {
         production: IHideoutProduction[];
         scavcase: IHideoutScavCase[];
         settings: IHideoutSettingsBase;
+        qte: IQteData[];
     };
     locales?: ILocaleBase;
     locations?: ILocations;
@@ -38,10 +40,8 @@ export interface IDatabaseTables {
     templates?: {
         character: string[];
         items: Record<string, ITemplateItem>;
-        quests: IQuest[];
+        quests: Record<string, IQuest>;
         repeatableQuests: IRepeatableQuestDatabase;
-        /** DEPRECATED - Items file found in the client, massivly out of date compared to templates.items, try not to use this, remove ASAP*/
-        clientItems: Record<string, ITemplateItem>;
         handbook: IHandbookBase;
         customization: Record<string, ICustomizationItem>;
         /** The profile templates listed in the launcher on profile creation, split by account type (e.g. Standard) then side (e.g. bear/usec) */

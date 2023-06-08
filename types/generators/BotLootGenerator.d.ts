@@ -1,10 +1,11 @@
 import { BotGeneratorHelper } from "../helpers/BotGeneratorHelper";
 import { BotWeaponGeneratorHelper } from "../helpers/BotWeaponGeneratorHelper";
 import { HandbookHelper } from "../helpers/HandbookHelper";
+import { ItemHelper } from "../helpers/ItemHelper";
 import { Inventory as PmcInventory } from "../models/eft/common/tables/IBotBase";
-import { Chances, Inventory, ItemMinMax, ModsChances } from "../models/eft/common/tables/IBotType";
+import { IBotType, Inventory, ModsChances } from "../models/eft/common/tables/IBotType";
 import { Item } from "../models/eft/common/tables/IItem";
-import { ITemplateItem, Props } from "../models/eft/common/tables/ITemplateItem";
+import { ITemplateItem } from "../models/eft/common/tables/ITemplateItem";
 import { IBotConfig } from "../models/spt/config/IBotConfig";
 import { ILogger } from "../models/spt/utils/ILogger";
 import { ConfigServer } from "../servers/ConfigServer";
@@ -18,6 +19,7 @@ export declare class BotLootGenerator {
     protected logger: ILogger;
     protected hashUtil: HashUtil;
     protected randomUtil: RandomUtil;
+    protected itemHelper: ItemHelper;
     protected databaseServer: DatabaseServer;
     protected handbookHelper: HandbookHelper;
     protected botGeneratorHelper: BotGeneratorHelper;
@@ -27,19 +29,17 @@ export declare class BotLootGenerator {
     protected localisationService: LocalisationService;
     protected configServer: ConfigServer;
     protected botConfig: IBotConfig;
-    constructor(logger: ILogger, hashUtil: HashUtil, randomUtil: RandomUtil, databaseServer: DatabaseServer, handbookHelper: HandbookHelper, botGeneratorHelper: BotGeneratorHelper, botWeaponGenerator: BotWeaponGenerator, botWeaponGeneratorHelper: BotWeaponGeneratorHelper, botLootCacheService: BotLootCacheService, localisationService: LocalisationService, configServer: ConfigServer);
+    constructor(logger: ILogger, hashUtil: HashUtil, randomUtil: RandomUtil, itemHelper: ItemHelper, databaseServer: DatabaseServer, handbookHelper: HandbookHelper, botGeneratorHelper: BotGeneratorHelper, botWeaponGenerator: BotWeaponGenerator, botWeaponGeneratorHelper: BotWeaponGeneratorHelper, botLootCacheService: BotLootCacheService, localisationService: LocalisationService, configServer: ConfigServer);
     /**
      * Add loot to bots containers
      * @param sessionId Session id
-     * @param templateInventory x.json from database/bots
-     * @param itemCounts Liits on item types to be added as loot
+     * @param botJsonTemplate Base json db file for the bot having its loot generated
      * @param isPmc Will bot be a pmc
      * @param botRole Role of bot, e.g. asssult
      * @param botInventory Inventory to add loot to
-     * @param equipmentChances
      * @param botLevel Level of bot
      */
-    generateLoot(sessionId: string, templateInventory: Inventory, itemCounts: ItemMinMax, isPmc: boolean, botRole: string, botInventory: PmcInventory, equipmentChances: Chances, botLevel: number): void;
+    generateLoot(sessionId: string, botJsonTemplate: IBotType, isPmc: boolean, botRole: string, botInventory: PmcInventory, botLevel: number): void;
     protected getRandomisedCount(min: number, max: number, nValue: number): number;
     /**
      * Take random items from a pool and add to an inventory until totalItemCount or totalValueLimit is reached
@@ -94,19 +94,6 @@ export declare class BotLootGenerator {
      * @returns true if item has reached spawn limit
      */
     protected itemHasReachedSpawnLimit(itemTemplate: ITemplateItem, botRole: string, isPmc: boolean, limitCount: Record<string, number>, itemSpawnLimits: Record<string, number>): boolean;
-    /**
-     * Is the item an ammo box
-     * @param props props of the item to check
-     * @returns true if item is an ammo box
-     */
-    protected isAmmoBox(props: Props): boolean;
-    /**
-     * Create an object that contains the ammo stack for an ammo box
-     * @param parentId ammo box id
-     * @param props ammo box props
-     * @returns Item object
-     */
-    protected createAmmoForAmmoBox(parentId: string, props: Props): Item;
     /**
      * Randomise the stack size of a money object, uses different values for pmc or scavs
      * @param isPmc is this a PMC

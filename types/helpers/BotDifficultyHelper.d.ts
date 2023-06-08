@@ -20,7 +20,7 @@ export declare class BotDifficultyHelper {
     getPmcDifficultySettings(pmcType: "bear" | "usec", difficulty: string, usecType: string, bearType: string): Difficulty;
     /**
      * Get difficulty settings for desired bot type, if not found use assault bot types
-     * @param type bot type to retreive difficulty of
+     * @param type bot type to retrieve difficulty of
      * @param difficulty difficulty to get settings for (easy/normal etc)
      * @returns Difficulty object
      */

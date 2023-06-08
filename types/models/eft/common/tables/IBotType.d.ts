@@ -104,13 +104,17 @@ export interface Generation {
     items: ItemMinMax;
 }
 export interface ItemMinMax {
-    grenades: MinMax;
-    healing: MinMax;
-    drugs: MinMax;
-    stims: MinMax;
-    looseLoot: MinMax;
-    magazines: MinMax;
-    specialItems: MinMax;
+    grenades: MinMaxWithWhitelist;
+    healing: MinMaxWithWhitelist;
+    drugs: MinMaxWithWhitelist;
+    stims: MinMaxWithWhitelist;
+    looseLoot: MinMaxWithWhitelist;
+    magazines: MinMaxWithWhitelist;
+    specialItems: MinMaxWithWhitelist;
+}
+export interface MinMaxWithWhitelist extends MinMax {
+    /** Array of item tpls */
+    whitelist: string[];
 }
 export interface Health {
     BodyParts: BodyPart[];

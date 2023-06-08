@@ -6,6 +6,9 @@ import { IProcessRagfairTradeRequestData } from "../models/eft/trade/IProcessRag
 export declare class TradeCallbacks {
     protected tradeController: TradeController;
     constructor(tradeController: TradeController);
+    /**
+     * Handle client/game/profile/items/moving TradingConfirm
+     */
     processTrade(pmcData: IPmcData, body: IProcessBaseTradeRequestData, sessionID: string): IItemEventRouterResponse;
     processRagfairTrade(pmcData: IPmcData, body: IProcessRagfairTradeRequestData, sessionID: string): IItemEventRouterResponse;
 }

@@ -1,3 +1,4 @@
+import { Message } from "../profile/IAkiProfile";
 export interface INotifierChannel {
     server: string;
     channel_id: string;
@@ -5,7 +6,6 @@ export interface INotifierChannel {
     notifierServer: string;
     ws: string;
 }
-import { Message } from "../profile/IAkiProfile";
 export interface INotification {
     type: "RagfairOfferSold" | "new_message" | "ping";
     eventId: string;

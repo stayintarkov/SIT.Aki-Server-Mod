@@ -103,7 +103,34 @@ export declare class RagfairOfferGenerator {
      * @param traderID Trader to generate offers for
      */
     generateFleaOffersForTrader(traderID: string): void;
-    protected getItemCondition(userID: string, items: Item[], itemDetails: ITemplateItem): Item[];
+    /**
+     * Get array of an item with its mods + condition properties (e.g durability)
+     * Apply randomisation adjustments to condition if item base is found in ragfair.json/dynamic/condition
+     * @param userID id of owner of item
+     * @param itemWithMods Item and mods, get condition of first item (only first array item is used)
+     * @param itemDetails db details of first item
+     * @returns
+     */
+    protected getItemCondition(userID: string, itemWithMods: Item[], itemDetails: ITemplateItem): Item[];
+    /**
+     * Get the relevant condition id if item tpl matches in ragfair.json/condition
+     * @param tpl Item to look for matching condition object
+     * @returns condition id
+     */
+    protected getDynamicConditionIdForTpl(tpl: string): string;
+    /**
+     * Alter an items condition based on its item base type
+     * @param conditionSettingsId also the parentId of item being altered
+     * @param item Item to adjust condition details of
+     * @param itemDetails db item details of first item in array
+     */
+    protected randomiseItemCondition(conditionSettingsId: string, item: Item, itemDetails: ITemplateItem): void;
+    /**
+     * Adjust an items durability/maxDurability value
+     * @param item item (weapon/armor) to adjust
+     * @param multiplier Value to multiple durability by
+     */
+    protected randomiseDurabilityValues(item: Item, multiplier: number): void;
     /**
      * Add missing conditions to an item if needed
      * Durabiltiy for repairable items
@@ -111,7 +138,7 @@ export declare class RagfairOfferGenerator {
      * @param item item to add conditions to
      * @returns Item with conditions added
      */
-    protected addMissingCondition(item: Item): Item;
+    protected addMissingConditions(item: Item): Item;
     /**
      * Create a barter-based barter scheme, if not possible, fall back to making barter scheme currency based
      * @param offerItems Items for sale in offer
