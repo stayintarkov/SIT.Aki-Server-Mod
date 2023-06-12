@@ -21,7 +21,8 @@ export class CoopConfig {
         if(!fs.existsSync(coopConfigFilePath)) {
             console.log(`Coop Config doesn't exist, creating default config.`);
             console.log(`BE AWARE! ExternalIPFinder is ACTIVE! The externalIP config value is ignored!`);
-            fs.writeFileSync(coopConfigFilePath, JSON.stringify(this));
+            const coopcfgString = JSON.stringify(this, null, 4);
+            fs.writeFileSync(coopConfigFilePath, coopcfgString);
         }
         else {
             Object.assign(this, JSON.parse(fs.readFileSync(coopConfigFilePath).toString()))
