@@ -68,6 +68,27 @@ export class WebSocketHandler {
 
         const msgStr = msg.toString();
 
+        this.processMessageString(msgStr);
+    }
+
+    private async processMessageString(msgStr: string) {
+
+        // If is SIT serialized string -- This is NEVER stored.
+        if(msgStr.startsWith("SIT")) {
+            // console.log(`received ${msgStr} and I can't do anything with it, YET!`);
+            const messageWithoutSITPrefix = msgStr.substring(3, msgStr.length);
+            const serverId = messageWithoutSITPrefix.substring(0, 24); // get serverId (MongoIds are 24 characters)
+            // console.log(`server Id is ${serverId}`);
+
+            const messageWithoutSITPrefixes = messageWithoutSITPrefix.substring(24, messageWithoutSITPrefix.length); 
+
+            const match = CoopMatch.CoopMatches[serverId];
+            if(match !== undefined) {
+                match.ProcessData(messageWithoutSITPrefixes, this.logger);
+            }
+            return;
+        }
+
         var jsonArray = this.TryParseJsonArray(msgStr);
         if(jsonArray !== null) {
             for(const key in jsonArray) {

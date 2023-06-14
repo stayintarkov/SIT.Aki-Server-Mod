@@ -134,6 +134,21 @@ export class CoopMatch {
             return;
         }
 
+        if (typeof(info) === "undefined") {
+
+            return;
+        }
+        else if (typeof(info) === "string") {
+            if (info.indexOf("?") !== -1) {
+                // console.log(`coop match wants to process this info ${info}`)
+                const infoMethod = info.split('?')[0];
+                const infoData = info.split('?')[1];
+                const newJObj = { m: infoMethod, data: infoData };
+                this.ProcessData(newJObj, logger);
+            }
+            return;
+        }
+
         if(info.m === "SpawnPointForCoop") {
 
             this.SpawnPoint.x = info.x;
