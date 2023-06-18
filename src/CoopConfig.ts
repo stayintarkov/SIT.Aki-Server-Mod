@@ -3,12 +3,14 @@ import path from "path";
 
 export class CoopConfig {
 
+    public protocol: string;
     public externalIP: string;
     public webSocketPort: number;
     public useExternalIPFinder: boolean;
 
     constructor() {
-        this.externalIP = "http://127.0.0.1:6969";
+        this.protocol = "http";
+        this.externalIP = "127.0.0.1";
         this.webSocketPort = 6970;
         this.useExternalIPFinder = true;
 

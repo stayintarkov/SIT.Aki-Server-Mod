@@ -31,7 +31,9 @@ import { ExternalIPFinder } from "./ExternalIPFinder";
 import { WebSocketHandler } from "./WebSocketHandler";
 
 import { RouteAction } from "@spt-aki/di/Router";
+import { ConfigTypes } from "@spt-aki/models/enums/ConfigTypes";
 import { IPostDBLoadMod } from "@spt-aki/models/external/IPostDBLoadMod";
+import { ConfigServer } from "@spt-aki/servers/ConfigServer";
 import moment from "moment";
 
 @injectable()
@@ -50,6 +52,8 @@ export class Mod implements IPreAkiLoadMod, IPostDBLoadMod
     public coopConfig: CoopConfig;
     locationData: object = {};
     locationData2: object = {};
+    configServer: ConfigServer;
+    httpConfig: any;
 
     public getCoopMatch(serverId: string) : CoopMatch {
 
@@ -68,6 +72,8 @@ export class Mod implements IPreAkiLoadMod, IPostDBLoadMod
 
     public preAkiLoad(container: DependencyContainer): void {
 
+        // ----------------------------------------------------------------
+        // Initialize & resolve variables
         Mod.container = container;
         const logger = container.resolve<ILogger>("WinstonLogger");
         const dynamicRouterModService = container.resolve<DynamicRouterModService>("DynamicRouterModService");
@@ -78,16 +84,12 @@ export class Mod implements IPreAkiLoadMod, IPostDBLoadMod
         this.httpBufferHandler  = container.resolve<HttpBufferHandler>("HttpBufferHandler");
         this.databaseServer = container.resolve<DatabaseServer>("DatabaseServer");
         this.httpResponse = container.resolve<HttpResponseUtil>("HttpResponseUtil");
-
-        
+        this.configServer = container.resolve<ConfigServer>("ConfigServer");
+        // get http.json config
+        this.httpConfig = this.configServer.getConfig(ConfigTypes.HTTP);
         this.coopConfig = new CoopConfig();
         this.webSocketHandler = new WebSocketHandler(this.coopConfig.webSocketPort, logger);
-
-        // 
         this.externalIPFinder = new ExternalIPFinder();
-
-        // ----------------------------------------------------------------
-        // TODO: Coop server needs to save and send same loot pools!
 
         dynamicRouterModService.registerDynamicRouter(
             "sit-coop-loot",
@@ -642,12 +644,16 @@ export class Mod implements IPreAkiLoadMod, IPostDBLoadMod
 
     public getGameConfig(sessionID: string): IGameConfigResponse
     {
-        let externalIp = `${this.coopConfig.externalIP}`;
+        let externalIp = `${this.coopConfig.protocol}://${this.coopConfig.externalIP}:${this.httpConfig.port}`;
 
         if(this.coopConfig.useExternalIPFinder) { 
             console.log(`============================================================`);
             console.log(`COOP: Auto-External-IP-Finder`);
-            externalIp = "http://" + this.externalIPFinder.IP + ":6969";
+            if(this.externalIPFinder === undefined || this.externalIPFinder.IP === undefined || this.externalIPFinder.IP == "undefined") {
+                this.externalIPFinder.IP = this.coopConfig.externalIP;
+                console.warn("ExternalIPFinder failed! Reverted back to ExternalIP in Config");
+            }
+            externalIp = `${this.coopConfig.protocol}://` + this.externalIPFinder.IP + `:${this.httpConfig.port}`;
             console.log(externalIp);
             console.log(`============================================================`);
         }
