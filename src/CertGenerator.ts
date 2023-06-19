@@ -11,6 +11,8 @@ export class CertGenerator {
 
   constructor() {
     this.certDir = process.cwd() + "\\user\\mods\\SITCoop\\config\\certs\\";
+    if(!fs.existsSync(this.certDir))
+      fs.mkdirSync(this.certDir);
     // console.log(this.certDir);
     this.certFile = this.certDir + "cert.pem";
     this.keyFile = this.certDir + "key.pem";
