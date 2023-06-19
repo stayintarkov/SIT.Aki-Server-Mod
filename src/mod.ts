@@ -1,4 +1,4 @@
-import { DependencyContainer, injectable } from "tsyringe";
+import tsyringe = require("tsyringe");
 
 import { LocationCallbacks } from "@spt-aki/callbacks/LocationCallbacks";
 import { DialogueController } from "@spt-aki/controllers/DialogueController";
@@ -11,7 +11,7 @@ import { HttpResponseUtil } from "@spt-aki/utils/HttpResponseUtil";
 
 import { Friend, IGetFriendListDataResponse } from "@spt-aki/models/eft/dialog/IGetFriendListDataResponse";
 import { IGameConfigResponse } from "@spt-aki/models/eft/game/IGameConfigResponse";
-import { MemberCategory } from "@spt-aki/models/enums/MemberCategory";
+import MemberCategory = require("@spt-aki/models/enums/MemberCategory");
 
 import type { IPreAkiLoadMod } from "@spt-aki/models/external/IPreAkiLoadMod";
 import type { ILogger } from "@spt-aki/models/spt/utils/ILogger";
@@ -31,16 +31,22 @@ import { ExternalIPFinder } from "./ExternalIPFinder";
 import { WebSocketHandler } from "./WebSocketHandler";
 
 import { RouteAction } from "@spt-aki/di/Router";
+import { BundleLoader } from "@spt-aki/loaders/BundleLoader";
 import { ConfigTypes } from "@spt-aki/models/enums/ConfigTypes";
 import { IPostDBLoadMod } from "@spt-aki/models/external/IPostDBLoadMod";
 import { ConfigServer } from "@spt-aki/servers/ConfigServer";
-import moment from "moment";
+import { JsonUtil } from "@spt-aki/utils/JsonUtil";
+import { VFS } from "@spt-aki/utils/VFS";
+import { BundleLoaderFixed } from "./BundleLoaderFixed";
+import { SITConfig } from "./SITConfig";
+import moment = require("moment");
+import AzureWAH = require("./AzureWebAppHelper");
 
-@injectable()
+@tsyringe.injectable()
 export class Mod implements IPreAkiLoadMod, IPostDBLoadMod
 {
     
-    private static container: DependencyContainer;
+    private static container: tsyringe.DependencyContainer;
 
     saveServer: SaveServer;
     locationController: LocationController;
@@ -50,10 +56,13 @@ export class Mod implements IPreAkiLoadMod, IPostDBLoadMod
     public webSocketHandler: WebSocketHandler;
     public externalIPFinder: ExternalIPFinder;
     public coopConfig: CoopConfig;
+    public sitConfig: SITConfig;
     locationData: object = {};
     locationData2: object = {};
     configServer: ConfigServer;
     httpConfig: any;
+    bundleLoader: BundleLoader;
+    resolvedExternalIP: string;
 
     public getCoopMatch(serverId: string) : CoopMatch {
 
@@ -70,8 +79,7 @@ export class Mod implements IPreAkiLoadMod, IPostDBLoadMod
         return CoopMatch.CoopMatches[serverId];
     } 
 
-    public preAkiLoad(container: DependencyContainer): void {
-
+    private InitializeVariables(container: tsyringe.DependencyContainer): void { 
         // ----------------------------------------------------------------
         // Initialize & resolve variables
         Mod.container = container;
@@ -88,8 +96,27 @@ export class Mod implements IPreAkiLoadMod, IPostDBLoadMod
         // get http.json config
         this.httpConfig = this.configServer.getConfig(ConfigTypes.HTTP);
         this.coopConfig = new CoopConfig();
+        this.sitConfig = new SITConfig();
         this.webSocketHandler = new WebSocketHandler(this.coopConfig.webSocketPort, logger);
-        this.externalIPFinder = new ExternalIPFinder();
+        this.bundleLoader = container.resolve<BundleLoader>("BundleLoader");
+    }
+
+    public preAkiLoad(container: tsyringe.DependencyContainer): void {
+
+        
+
+        const logger = container.resolve<ILogger>("WinstonLogger");
+        const dynamicRouterModService = container.resolve<DynamicRouterModService>("DynamicRouterModService");
+        const staticRouterModService = container.resolve<StaticRouterModService>("StaticRouterModService");
+        this.InitializeVariables(container);
+     
+        this.externalIPFinder = new ExternalIPFinder(this.coopConfig, this.httpConfig);
+        
+        // ----------------------- Bundle Loader Fixes ------------------------------------------------
+        const bundleLoaderFixed = new BundleLoaderFixed(container.resolve<VFS>("VFS"), container.resolve<JsonUtil>("JsonUtil"), this.externalIPFinder);
+        bundleLoaderFixed.resolveAndOverride(container);
+
+        new AzureWAH.AzureWebAppHelper(this.configServer);
 
         dynamicRouterModService.registerDynamicRouter(
             "sit-coop-loot",
@@ -586,6 +613,8 @@ export class Mod implements IPreAkiLoadMod, IPostDBLoadMod
         //     }
         //      // The modifier Always makes sure this replacement method is ALWAYS replaced
         //  }, {frequency: "Always"});
+
+
     }
 
     public generateNewLootForLocation(locationId:string, sessionID:string) {
@@ -633,7 +662,7 @@ export class Mod implements IPreAkiLoadMod, IPostDBLoadMod
                     Level: accountProfile.characters.pmc.Info.Level,
                     Nickname: accountProfile.info.username,
                     Side: accountProfile.characters.pmc.Info.Side,
-                    MemberCategory: MemberCategory.DEFAULT
+                    MemberCategory: MemberCategory.MemberCategory.DEFAULT
                 }
             };
             friendList.push(friend);
@@ -644,19 +673,7 @@ export class Mod implements IPreAkiLoadMod, IPostDBLoadMod
 
     public getGameConfig(sessionID: string): IGameConfigResponse
     {
-        let externalIp = `${this.coopConfig.protocol}://${this.coopConfig.externalIP}:${this.httpConfig.port}`;
-
-        if(this.coopConfig.useExternalIPFinder) { 
-            console.log(`============================================================`);
-            console.log(`COOP: Auto-External-IP-Finder`);
-            if(this.externalIPFinder === undefined || this.externalIPFinder.IP === undefined || this.externalIPFinder.IP == "undefined") {
-                this.externalIPFinder.IP = this.coopConfig.externalIP;
-                console.warn("ExternalIPFinder failed! Reverted back to ExternalIP in Config");
-            }
-            externalIp = `${this.coopConfig.protocol}://` + this.externalIPFinder.IP + `:${this.httpConfig.port}`;
-            console.log(externalIp);
-            console.log(`============================================================`);
-        }
+        let externalIp = this.externalIPFinder.resolveExternalIP();
 
         const config: IGameConfigResponse = {
             languages: this.databaseServer.getTables().locales.languages,
@@ -771,15 +788,23 @@ export class Mod implements IPreAkiLoadMod, IPostDBLoadMod
                 break;
             }
         }
+
+
+    
     }
 
 
 
-
-    postDBLoad(container: DependencyContainer): void {
+    postDBLoad(container: tsyringe.DependencyContainer): void {
         Mod.container = container;
+
         const locations = Mod.container.resolve<DatabaseServer>("DatabaseServer").getTables().locations;
-        this.updateExtracts(locations);
+
+        // Open All Exfils. This is a SIT >mod< feature. Has nothing to do with the Coop module. Can be turned off in config/SITConfig.json
+        if(this.sitConfig.openAllExfils === true) {
+            console.log("Opening all Exfils");
+            this.updateExtracts(locations);
+        }
     }
 
     private updateExtracts(locations: any):void
