@@ -14,15 +14,12 @@ export class CoopConfig {
         this.webSocketPort = 6970;
         this.useExternalIPFinder = true;
 
-        console.log(`============================================================`);
-        console.log(`COOP MOD: Coop Config Loading`);
-        console.log(`============================================================`);
-
+        console.log(`COOP MOD: Coop Config Loading >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>`);
         var coopConfigFilePath = path.join(__dirname, "..", "config", "coopConfig.json");
-        console.log(coopConfigFilePath);
+        // console.log(coopConfigFilePath);
         if(!fs.existsSync(coopConfigFilePath)) {
-            console.log(`Coop Config doesn't exist, creating default config.`);
-            console.log(`BE AWARE! ExternalIPFinder is ACTIVE! The externalIP config value is ignored!`);
+            console.warn(`Coop Config doesn't exist, creating default config.`);
+            console.warn(`BE AWARE! ExternalIPFinder is ACTIVE! The externalIP config value is ignored!`);
             const coopcfgString = JSON.stringify(this, null, 4);
             fs.writeFileSync(coopConfigFilePath, coopcfgString);
         }
@@ -33,10 +30,7 @@ export class CoopConfig {
                 console.log(`COOP MOD: BE AWARE! ExternalIPFinder is ACTIVE!`);
             }
         }
-        console.log(this);
-
-        console.log(`============================================================`);
-
+        // console.log(this);
     }
 
 }
