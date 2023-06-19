@@ -1,4 +1,5 @@
 import fs = require('fs');
+import path = require('path');
 import selfsigned from 'selfsigned';
 /**
  * Generates a Https Certificate
@@ -10,7 +11,7 @@ export class CertGenerator {
   private keyFile:any;
 
   constructor() {
-    this.certDir = process.cwd() + "\\user\\mods\\SITCoop\\config\\certs\\";
+    this.certDir = path.resolve(process.cwd(), "./user/certs");
     if(!fs.existsSync(this.certDir))
       fs.mkdirSync(this.certDir);
     // console.log(this.certDir);
