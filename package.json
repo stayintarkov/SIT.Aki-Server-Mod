@@ -18,7 +18,8 @@
         "fs-extra": "11.1.0",
         "glob": "8.0.3",
         "moment": "^2.29.4",
-        "tsyringe": "4.7.0",
+    "selfsigned": "^2.0.1",
+    "tsyringe": "4.7.0",
         "typescript": "4.9.4"
     },
     "dependencies": {
