@@ -1,3 +1,4 @@
+import { LootItem } from "@spt-aki/models/spt/services/LootItem";
 import type { ILogger } from "@spt-aki/models/spt/utils/ILogger";
 import { SaveServer } from "@spt-aki/servers/SaveServer";
 import { WebSocketHandler } from "./WebSocketHandler";
@@ -51,6 +52,7 @@ export class CoopMatch {
 
     // A STATIC Dictonary of Coop Matches. The Key is the Account Id of the Player that created it
     public static CoopMatches: Record<string, CoopMatch> = {}; 
+    public static AirdropLoot: LootItem[] = undefined;
 
 
     public static saveServer: SaveServer;

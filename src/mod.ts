@@ -210,7 +210,7 @@ export class Mod implements IPreAkiLoadMod, IPostDBLoadMod
                         let coopMatch = this.getCoopMatch(info.serverId);
                         if(coopMatch == null || coopMatch == undefined)
                         {
-                            output = JSON.stringify({});
+                            output = JSON.stringify([{ notFound: true }]);
                             return output; 
                         }
 
@@ -487,19 +487,11 @@ export class Mod implements IPreAkiLoadMod, IPostDBLoadMod
 
             result.getAirdropLoot = (url: string, info: IEmptyRequestData, sessionID: string) => {
 
-                let generatedLoot = this.locationController.getAirdropLoot();
-                // let coopMatch = CoopMatch.CoopMatches[sessionID];
-                // if(coopMatch !== undefined) {
-                //     coopMatch.AirdropLoot = generatedLoot;
-                // }
-                // // TODO: Find the Coop Match I am in!
-                // else {
-                //     for(const cm in CoopMatch.CoopMatches) {
-                //         generatedLoot = CoopMatch.CoopMatches[cm].AirdropLoot;
-                //     }
-                // }
+                if(CoopMatch.AirdropLoot === undefined) {
+                    CoopMatch.AirdropLoot = this.locationController.getAirdropLoot();
+                }
 
-                return this.httpResponse.noBody(generatedLoot);
+                return this.httpResponse.noBody(CoopMatch.AirdropLoot);
                 
             }
 
@@ -621,11 +613,14 @@ export class Mod implements IPreAkiLoadMod, IPostDBLoadMod
         this.locationData[locationId] = {};
         this.locationData[locationId].Data = this.locationController.get(locationId);
         this.locationData[locationId].Loot = this.locationData[locationId].Data.Loot;
-        this.locationData[locationId].GenerationDate = new Date(Date.now());
+        this.locationData[locationId].GenerationDate = moment();
 
         const ownedCoopMatch = this.getCoopMatch(sessionID);
         if(ownedCoopMatch !== undefined) {
             ownedCoopMatch.Loot = this.locationData[locationId].Loot;
+        }
+        else {
+            console.warn(`Could not save Location Loot for match ${sessionID}. Unable to find Match.`);
         }
     }
 
