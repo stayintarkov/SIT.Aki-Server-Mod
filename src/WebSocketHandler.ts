@@ -60,7 +60,7 @@ export class WebSocketHandler {
            return jsonArray;
         }
 
-        return null;
+        return undefined;
 
     }
 
@@ -90,7 +90,7 @@ export class WebSocketHandler {
         }
 
         var jsonArray = this.TryParseJsonArray(msgStr);
-        if(jsonArray !== null) {
+        if(jsonArray !== undefined) {
             for(const key in jsonArray) {
                 this.processObject(jsonArray[key]);
             }
@@ -121,9 +121,7 @@ export class WebSocketHandler {
     }
 
     public sendToAllWebSockets(data: string) {
-        for(let session in this.webSockets) {
-            this.webSockets[session].send(data);
-        }
+        this.sendToWebSockets(Object.keys(this.webSockets), data);
     }
 
     public sendToWebSockets(sessions: string[], data: string) {
