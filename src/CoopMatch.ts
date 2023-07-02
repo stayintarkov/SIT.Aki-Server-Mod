@@ -94,7 +94,7 @@ export class CoopMatch {
                 //     // TODO: Continue this!
                 // }
 
-                WebSocketHandler.Instance.sendToWebSockets(this.ConnectedPlayers, JSON.stringify(cm.LastDataByAccountId[key]));
+                // WebSocketHandler.Instance.sendToWebSockets(this.ConnectedPlayers, JSON.stringify(cm.LastDataByAccountId[key]));
             }
 
         }, 1000);
@@ -116,7 +116,7 @@ export class CoopMatch {
                 }
     
             }, 5000);
-        }, 3 * 60000);
+        }, 60000);
 
         
     }
