@@ -19,8 +19,12 @@ export class CoopConfig {
         this.webSocketTimeoutSeconds = 5;
         this.webSocketTimeoutCheckStartSeconds = 60;
 
+        const configFilePath = path.join(__dirname, "..", "config");
+        if(!fs.existsSync(configFilePath))
+            fs.mkdirSync(configFilePath, { recursive: true });
+
         console.log(`COOP MOD: Coop Config Loading >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>`);
-        var coopConfigFilePath = path.join(__dirname, "..", "config", "coopConfig.json");
+        var coopConfigFilePath = path.join(configFilePath, "coopConfig.json");
         // console.log(coopConfigFilePath);
         if(!fs.existsSync(coopConfigFilePath)) {
             console.warn(`Coop Config doesn't exist, creating default config.`);
