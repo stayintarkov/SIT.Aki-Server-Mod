@@ -1,10 +1,10 @@
 {
     "name": "SIT Coop",
     "version": "1.0.0",
-    "main": "src/mod.js",
+    "main": "src/StayInTarkovMod.js",
     "license": "MIT",
     "author": "Paulov",
-    "akiVersion": "3.5.8",
+    "akiVersion": "3.6.0",
     "scripts": {
         "setup": "npm i",
         "build": "node ./packageBuild.ts"

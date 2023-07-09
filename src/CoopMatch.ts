@@ -1,6 +1,8 @@
 import { LootItem } from "@spt-aki/models/spt/services/LootItem";
 import type { ILogger } from "@spt-aki/models/spt/utils/ILogger";
 import { SaveServer } from "@spt-aki/servers/SaveServer";
+import { CoopConfig } from "./CoopConfig";
+import { StayInTarkovMod } from "./StayInTarkovMod";
 import { WebSocketHandler } from "./WebSocketHandler";
 
 export enum CoopMatchStatus {
@@ -76,28 +78,28 @@ export class CoopMatch {
         }
 
         let cm = this;
-        this.SendLastDataInterval = setInterval(() => {
+        // this.SendLastDataInterval = setInterval(() => {
 
-            for(const key in cm.LastDataByAccountId) {
+        //     for(const key in cm.LastDataByAccountId) {
                 
-                if(key === undefined)
-                    continue;
+        //         if(key === undefined)
+        //             continue;
                 
-                if(this.ConnectedPlayers[key] === undefined)
-                    continue;
+        //         if(this.ConnectedPlayers[key] === undefined)
+        //             continue;
 
-                // Filter out old data
-                // const LastDataByAccountId2: Record<string, Record<string, Record<string, any>>> = {}
-                // for(const accountKey in this.LastDataByAccountId) {
-                //     LastDataByAccountId2[accountKey] = {};
-                //     const lastD = this.LastDataByAccountId[accountKey];
-                //     // TODO: Continue this!
-                // }
+        //         // Filter out old data
+        //         // const LastDataByAccountId2: Record<string, Record<string, Record<string, any>>> = {}
+        //         // for(const accountKey in this.LastDataByAccountId) {
+        //         //     LastDataByAccountId2[accountKey] = {};
+        //         //     const lastD = this.LastDataByAccountId[accountKey];
+        //         //     // TODO: Continue this!
+        //         // }
 
-                // WebSocketHandler.Instance.sendToWebSockets(this.ConnectedPlayers, JSON.stringify(cm.LastDataByAccountId[key]));
-            }
+        //         // WebSocketHandler.Instance.sendToWebSockets(this.ConnectedPlayers, JSON.stringify(cm.LastDataByAccountId[key]));
+        //     }
 
-        }, 1000);
+        // }, 1000);
 
         this.SendPingInterval = setInterval(() => {
 
@@ -108,6 +110,8 @@ export class CoopMatch {
 
         }, 2000);
 
+
+        // This checks to see if the WebSockets can still be communicated with. If it cannot for any reason. The match/raid/session will close down.
         setTimeout(() => {
             this.CheckStillRunningInterval = setInterval(() => {
 
@@ -115,8 +119,8 @@ export class CoopMatch {
                     this.endSession(CoopMatchEndSessionMessages.HOST_SHUTDOWN_MESSAGE);
                 }
     
-            }, 5000);
-        }, 60000);
+            }, CoopConfig.Instance.webSocketTimeoutSeconds * 1000);
+        }, CoopConfig.Instance.webSocketTimeoutCheckStartSeconds * 1000);
 
         
     }
@@ -243,6 +247,8 @@ export class CoopMatch {
 
         delete CoopMatch.CoopMatches[this.ServerId];
 
+        // Clear out Location Data after match has ended
+        StayInTarkovMod.Instance.locationData = {};
     }
 
     

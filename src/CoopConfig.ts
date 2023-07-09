@@ -7,12 +7,17 @@ export class CoopConfig {
     public externalIP: string;
     public webSocketPort: number;
     public useExternalIPFinder: boolean;
+    public webSocketTimeoutSeconds: number;
+    public webSocketTimeoutCheckStartSeconds: number;
+    public static Instance: CoopConfig;
 
     constructor() {
         this.protocol = "http";
         this.externalIP = "127.0.0.1";
         this.webSocketPort = 6970;
         this.useExternalIPFinder = true;
+        this.webSocketTimeoutSeconds = 5;
+        this.webSocketTimeoutCheckStartSeconds = 60;
 
         console.log(`COOP MOD: Coop Config Loading >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>`);
         var coopConfigFilePath = path.join(__dirname, "..", "config", "coopConfig.json");
@@ -31,6 +36,8 @@ export class CoopConfig {
             }
         }
         // console.log(this);
+
+        CoopConfig.Instance = this;
     }
 
 }

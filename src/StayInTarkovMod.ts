@@ -43,9 +43,9 @@ import moment = require("moment");
 import AzureWAH = require("./AzureWebAppHelper");
 
 @tsyringe.injectable()
-export class Mod implements IPreAkiLoadMod, IPostDBLoadMod
+export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
 {
-    
+    public static Instance: StayInTarkovMod;
     private static container: tsyringe.DependencyContainer;
 
     saveServer: SaveServer;
@@ -82,7 +82,8 @@ export class Mod implements IPreAkiLoadMod, IPostDBLoadMod
     private InitializeVariables(container: tsyringe.DependencyContainer): void { 
         // ----------------------------------------------------------------
         // Initialize & resolve variables
-        Mod.container = container;
+        StayInTarkovMod.container = container;
+        StayInTarkovMod.Instance = this;
         const logger = container.resolve<ILogger>("WinstonLogger");
         const dynamicRouterModService = container.resolve<DynamicRouterModService>("DynamicRouterModService");
         const staticRouterModService = container.resolve<StaticRouterModService>("StaticRouterModService");
@@ -116,6 +117,7 @@ export class Mod implements IPreAkiLoadMod, IPostDBLoadMod
         const bundleLoaderFixed = new BundleLoaderFixed(container.resolve<VFS>("VFS"), container.resolve<JsonUtil>("JsonUtil"), this.externalIPFinder);
         bundleLoaderFixed.resolveAndOverride(container);
 
+        // ----------------------- TODO: Azure WebApp Helper (trying to fix this ASAP) ------------------------------------------------
         new AzureWAH.AzureWebAppHelper(this.configServer);
 
         dynamicRouterModService.registerDynamicRouter(
@@ -133,7 +135,9 @@ export class Mod implements IPreAkiLoadMod, IPostDBLoadMod
                         var spawnPoint = { x: 0, y: 0, z: 0 };
                         if(matchId !== undefined) {
                             // console.log("matchId:" + matchId);
-                            spawnPoint = this.getCoopMatch(matchId).SpawnPoint;
+                            const coopMatch = this.getCoopMatch(matchId);
+                            if(coopMatch !== undefined)
+                                spawnPoint = coopMatch.SpawnPoint;
                         }
 
 
@@ -465,20 +469,18 @@ export class Mod implements IPreAkiLoadMod, IPostDBLoadMod
 
             result.getLocation = (url: string, info: IGetLocationRequestData, sessionID: string) => {
 
+
                 // This is HACK to test out getting same loot on multiple clients
                 if (this.locationData[info.locationId] === undefined) {
+                    console.log(`No cached locationData found for ${info.locationId}. Creating it now!`);
                     this.generateNewLootForLocation(info.locationId, sessionID);
+                    this.locationData[info.locationId].Loot = this.locationData[info.locationId].Data.Loot;
                 }
 
-                // This is a HACK. For some reason (not figured out yet) the Loot field empties after it has been generated. So refilling it here.
-                if (this.locationData[info.locationId].Data.Loot.length === 0
-                    && this.locationData[info.locationId].GenerationDate > moment().add(-10, "minutes")
-                    ) 
+                // // This is a HACK. For some reason (not figured out yet) the Loot field empties after it has been generated. So refilling it here.
+                if (this.locationData[info.locationId].Data.Loot.length === 0) 
                 {
                     this.locationData[info.locationId].Data.Loot = this.locationData[info.locationId].Loot;
-                }
-                else {
-                    this.generateNewLootForLocation(info.locationId, sessionID);
                 }
 
                 return this.httpResponse.getBody(this.locationData[info.locationId].Data);
@@ -551,76 +553,21 @@ export class Mod implements IPreAkiLoadMod, IPostDBLoadMod
         }, {frequency: "Always"});
 
 
-        /**
-         * MUST HAVE: WEB SOCKET ON CONNECTION
-         * wsOnConnection is "protected", need to get SPT-Aki to release it! *facepalm*
-         */
-        // container.afterResolution("WebSocketServer", (_t, result: WebSocketServer) => 
-        // {
-        //     const originalMethod = result.wsOnConnection;
-
-        //     // We want to replace the original method logic with something different
-        //     result.wsOnConnection = (ws: WebSocket, req: IncomingMessage) => 
-        //     {
-        //         // Strip request and break it into sections
-        //         const splitUrl = req.url.substring(0, req.url.indexOf("?")).split("/");
-        //         const sessionID = splitUrl.pop();
-
-        //         ws.on("message", function message(msg) 
-        //         {
-        //             logger.info(`message from ${sessionID} ${msg}`);
-        //         });
-
-        //         // this.logger.info(this.localisationService.getText("websocket-player_connected", sessionID));
-
-        //         // const logger = this.logger;
-        //         // const msgToLog = this.localisationService.getText("websocket-received_message", sessionID);
-        //         // ws.on("message", function message(msg) 
-        //         // {
-        //         //     logger.info(`${msgToLog} ${msg}`);
-        //         // });
-
-        //         // this.webSockets[sessionID] = ws;
-
-        //         // if (this.websocketPingHandler) 
-        //         // {
-        //         //     clearInterval(this.websocketPingHandler);
-        //         // }
-
-        //         // this.websocketPingHandler = setInterval(() => 
-        //         // {
-        //         //     this.logger.debug(this.localisationService.getText("websocket-pinging_player", sessionID));
-
-        //         //     if (ws.readyState === WebSocket.OPEN) 
-        //         //     {
-        //         //         ws.send(JSON.stringify(this.defaultNotification));
-        //         //     }
-        //         //     else 
-        //         //     {
-        //         //         this.logger.debug(this.localisationService.getText("websocket-socket_lost_deleting_handle"));
-        //         //         clearInterval(this.websocketPingHandler);
-        //         //         delete this.webSockets[sessionID];
-        //         //     }
-        //         // }, this.httpConfig.webSocketPingDelayMs);
-        //     }
-        //      // The modifier Always makes sure this replacement method is ALWAYS replaced
-        //  }, {frequency: "Always"});
-
-
     }
 
     public generateNewLootForLocation(locationId:string, sessionID:string) {
-        this.locationData[locationId] = {};
-        this.locationData[locationId].Data = this.locationController.get(locationId);
-        this.locationData[locationId].Loot = this.locationData[locationId].Data.Loot;
-        this.locationData[locationId].GenerationDate = moment();
 
+        if(this.locationData[locationId] === undefined)
+            this.locationData[locationId] = {};
+
+        this.locationData[locationId].Data = this.locationController.get(locationId);
+        
         const ownedCoopMatch = this.getCoopMatch(sessionID);
         if(ownedCoopMatch !== undefined) {
             ownedCoopMatch.Loot = this.locationData[locationId].Loot;
         }
         else {
-            console.warn(`Could not save Location Loot for match ${sessionID}. Unable to find Match.`);
+            // console.warn(`Could not save Location Loot for match ${sessionID}. Unable to find Match.`);
         }
     }
 
@@ -791,9 +738,9 @@ export class Mod implements IPreAkiLoadMod, IPostDBLoadMod
 
 
     postDBLoad(container: tsyringe.DependencyContainer): void {
-        Mod.container = container;
+        StayInTarkovMod.container = container;
 
-        const locations = Mod.container.resolve<DatabaseServer>("DatabaseServer").getTables().locations;
+        const locations = StayInTarkovMod.container.resolve<DatabaseServer>("DatabaseServer").getTables().locations;
 
         // Open All Exfils. This is a SIT >mod< feature. Has nothing to do with the Coop module. Can be turned off in config/SITConfig.json
         if(this.sitConfig.openAllExfils === true) {
@@ -881,4 +828,4 @@ export class Mod implements IPreAkiLoadMod, IPostDBLoadMod
     }
 
 }
-module.exports = {mod: new Mod()}
+module.exports = {mod: new StayInTarkovMod()}
