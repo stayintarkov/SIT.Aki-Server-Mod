@@ -23,7 +23,6 @@ import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
 import { IncomingMessage, ServerResponse } from "http";
 import zlib from "zlib";
 
-import { IEmptyRequestData } from "@spt-aki/models/eft/common/IEmptyRequestData";
 import { IGetLocationRequestData } from "@spt-aki/models/eft/location/IGetLocationRequestData";
 import { CoopConfig } from "./CoopConfig";
 import { CoopMatch, CoopMatchEndSessionMessages, CoopMatchStatus } from "./CoopMatch";
@@ -64,6 +63,8 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
     bundleLoader: BundleLoader;
     resolvedExternalIP: string;
 
+    public traders: any[] = [];
+
     public getCoopMatch(serverId: string) : CoopMatch {
 
         if(serverId === undefined) {
@@ -100,16 +101,23 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         this.sitConfig = new SITConfig();
         this.webSocketHandler = new WebSocketHandler(this.coopConfig.webSocketPort, logger);
         this.bundleLoader = container.resolve<BundleLoader>("BundleLoader");
+
+        // this.traders.push(new CoopGroupTrader());
     }
 
     public preAkiLoad(container: tsyringe.DependencyContainer): void {
 
-        
 
         const logger = container.resolve<ILogger>("WinstonLogger");
         const dynamicRouterModService = container.resolve<DynamicRouterModService>("DynamicRouterModService");
         const staticRouterModService = container.resolve<StaticRouterModService>("StaticRouterModService");
         this.InitializeVariables(container);
+        this.sitConfig.routeHandler(staticRouterModService, dynamicRouterModService);
+
+        // Initialize Custom Traders
+        for(const t of this.traders) {
+            t.preAkiLoad(container);
+        }
      
         this.externalIPFinder = new ExternalIPFinder(this.coopConfig, this.httpConfig);
         
@@ -487,15 +495,15 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
 
             }
 
-            result.getAirdropLoot = (url: string, info: IEmptyRequestData, sessionID: string) => {
+            // result.getAirdropLoot = (url: string, info: IEmptyRequestData, sessionID: string) => {
 
-                if(CoopMatch.AirdropLoot === undefined) {
-                    CoopMatch.AirdropLoot = this.locationController.getAirdropLoot();
-                }
+            //     if(CoopMatch.AirdropLoot === undefined) {
+            //         CoopMatch.AirdropLoot = this.locationController.getAirdropLoot();
+            //     }
 
-                return this.httpResponse.noBody(CoopMatch.AirdropLoot);
+            //     return this.httpResponse.noBody(CoopMatch.AirdropLoot);
                 
-            }
+            // }
 
         }, {frequency: "Always"});
 
@@ -746,6 +754,11 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         if(this.sitConfig.openAllExfils === true) {
             console.log("Opening all Exfils");
             this.updateExtracts(locations);
+        }
+
+         // Initialize Custom Traders
+         for(const t of this.traders) {
+            t.postDBLoad(container);
         }
     }
 
