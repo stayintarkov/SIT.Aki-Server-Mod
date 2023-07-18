@@ -13,7 +13,7 @@ import { ConfigServer } from "@spt-aki/servers/ConfigServer";
 import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
 import { JsonUtil } from "@spt-aki/utils/JsonUtil";
 import { DependencyContainer } from "tsyringe";
-import * as baseJson from "./Db/CoopGroupTraderBase.json";
+import * as baseJson from "../../Traders/db/CoopGroupTraderBase.json";
 
 
 
@@ -24,7 +24,6 @@ export class CoopGroupTrader implements IPreAkiLoadMod, IPostDBLoadMod
 
     public preAkiLoad(container: DependencyContainer): void {
         this.logger = container.resolve<ILogger>("WinstonLogger");
-        this.logger.debug(`[${this.mod}] preAki Loading... `);
 
         const preAkiModLoader: PreAkiModLoader = container.resolve<PreAkiModLoader>("PreAkiModLoader");
         const imageRouter: ImageRouter = container.resolve<ImageRouter>("ImageRouter");
@@ -34,8 +33,6 @@ export class CoopGroupTrader implements IPreAkiLoadMod, IPostDBLoadMod
         this.registerProfileImage(preAkiModLoader, imageRouter);
         
         this.setupTraderUpdateTime(traderConfig);
-        
-        this.logger.debug(`[${this.mod}] preAki Loaded`);
     }
     
     /**
@@ -43,7 +40,6 @@ export class CoopGroupTrader implements IPreAkiLoadMod, IPostDBLoadMod
      * @param container Dependency container
      */
     public postDBLoad(container: DependencyContainer): void {
-        this.logger.debug(`[${this.mod}] postDb Loading... `);
 
         // Resolve SPT classes we'll use
         const databaseServer: DatabaseServer = container.resolve<DatabaseServer>("DatabaseServer");
@@ -57,9 +53,8 @@ export class CoopGroupTrader implements IPreAkiLoadMod, IPostDBLoadMod
         // Add new trader to the trader dictionary in DatabaseServer
         this.addTraderToDb(baseJson, tables, jsonUtil);
 
-        this.addTraderToLocales(tables, baseJson.name, "Cat", baseJson.nickname, baseJson.location, "This is the cat shop");
+        this.addTraderToLocales(tables, baseJson.name, "Coop Trader", baseJson.nickname, baseJson.location, "");
 
-        this.logger.debug(`[${this.mod}] postDb Loaded`);
     }
 
     /**
@@ -70,10 +65,10 @@ export class CoopGroupTrader implements IPreAkiLoadMod, IPostDBLoadMod
     private registerProfileImage(preAkiModLoader: PreAkiModLoader, imageRouter: ImageRouter): void
     {
         // Reference the mod "res" folder
-        const imageFilepath = `./res`;
+         const imageFilepath = `./${preAkiModLoader.getModPath("SITCoop")}Traders/res`;
 
         // Register a route to point to the profile picture
-        imageRouter.addRoute(baseJson.avatar.replace(".jpg", ""), `${imageFilepath}/cat.jpg`);
+        imageRouter.addRoute(baseJson.avatar.replace(".jpg", ""), `${imageFilepath}/coop.jpg`);
     }
 
     /**

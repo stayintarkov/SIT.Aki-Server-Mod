@@ -41,6 +41,14 @@ import { SITConfig } from "./SITConfig";
 import moment = require("moment");
 import AzureWAH = require("./AzureWebAppHelper");
 
+// -------------------------------------------------------------------------
+// Custom Traders (needs to be refactored into SITCustomTraders.ts)
+import { BearTrader } from "./Traders/BearTrader";
+import { CoopGroupTrader } from "./Traders/CoopGroupTrader";
+import { UsecTrader } from "./Traders/UsecTrader";
+// -------------------------------------------------------------------------
+
+
 @tsyringe.injectable()
 export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
 {
@@ -102,7 +110,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         this.webSocketHandler = new WebSocketHandler(this.coopConfig.webSocketPort, logger);
         this.bundleLoader = container.resolve<BundleLoader>("BundleLoader");
 
-        // this.traders.push(new CoopGroupTrader());
+        this.traders.push(new CoopGroupTrader(), new UsecTrader(), new BearTrader());
     }
 
     public preAkiLoad(container: tsyringe.DependencyContainer): void {
@@ -112,7 +120,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         const dynamicRouterModService = container.resolve<DynamicRouterModService>("DynamicRouterModService");
         const staticRouterModService = container.resolve<StaticRouterModService>("StaticRouterModService");
         this.InitializeVariables(container);
-        this.sitConfig.routeHandler(staticRouterModService, dynamicRouterModService);
+        this.sitConfig.routeHandler(container);
 
         // Initialize Custom Traders
         for(const t of this.traders) {
@@ -160,6 +168,14 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         staticRouterModService.registerStaticRouter(
             "MyStaticModRouter",
             [
+                // {
+                //     url: "/SIT/Config",
+                //     action: (url, info: any, sessionId, output) => {
+                //         console.log(SITConfig.Instance)
+                //         output = JSON.stringify(this.sitConfig);
+                //         return output;
+                //     }
+                // },
                 {
                     url: "/coop/server/create",
                     action: (url, info: any, sessionId, output) => {

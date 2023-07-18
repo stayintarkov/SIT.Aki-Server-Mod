@@ -1,3 +1,4 @@
+import tsyringe = require("tsyringe");
 import { DynamicRouterModService } from "@spt-aki/services/mod/dynamicRouter/DynamicRouterModService";
 import { StaticRouterModService } from "@spt-aki/services/mod/staticRouter/StaticRouterModService";
 import fs from "fs";
@@ -38,12 +39,16 @@ export class SITConfig {
         }
         // console.log(this);
 
+        SITConfig.Instance = this;
     }
 
-    public routeHandler(staticRouterModService: StaticRouterModService, dynamicRouterModService: DynamicRouterModService) {
+    public routeHandler(container: tsyringe.DependencyContainer) {
+
+        const dynamicRouterModService = container.resolve<DynamicRouterModService>("DynamicRouterModService");
+        const staticRouterModService = container.resolve<StaticRouterModService>("StaticRouterModService");
 
          staticRouterModService.registerStaticRouter(
-            "sit-config-service",
+            "MyStaticModRouterSITConfig",
             [
                 {
                     url: "/SIT/Config",

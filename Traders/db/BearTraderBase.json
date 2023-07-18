@@ -1,5 +1,5 @@
 {
-    "_id": "cat",
+    "_id": "bearTrader",
     "working": true,
     "availableInRaid": false,
     "items_buy": {
@@ -15,11 +15,11 @@
     "surname": " ",
     "nickname": "Bear Shop",
     "location": "Bear land",
-    "avatar": "/files/trader/avatar/coop.jpg",
+    "avatar": "/files/trader/avatar/bear.jpg",
     "balance_rub": 5000000,
     "balance_dol": 0,
     "balance_eur": 0,
-    "unlockedByDefault": true,
+    "unlockedByDefault": false,
     "discount": 0,
     "discount_end": 0,
     "buyer_up": true,
