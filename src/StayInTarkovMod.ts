@@ -513,8 +513,9 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
 
                 if (this.locationData2[location] === undefined) {
 
-                    const name = location.toLowerCase().replace(" ", "");
-                    this.locationData2[location] = result.generate(name);
+                    // const name = location.toLowerCase().replace(" ", "");
+                    // this.locationData2[location] = result.generate(name);
+                    this.locationData2[location] = result.get(location);
                 }
                 
                 return this.locationData2[location];
