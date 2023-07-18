@@ -1,14 +1,28 @@
+import { DynamicRouterModService } from "@spt-aki/services/mod/dynamicRouter/DynamicRouterModService";
+import { StaticRouterModService } from "@spt-aki/services/mod/staticRouter/StaticRouterModService";
 import fs from "fs";
 import path from "path";
 
 export class SITConfig {
 
-    public openAllExfils: boolean;
     public runAzureWebAppHelper: boolean;
 
+
+    public openAllExfils: boolean;
+
+    // Player Names
+    public showPlayerNameTags: boolean;
+    public showPlayerNameTagsOnlyWhenVisible: boolean;
+
+    public static Instance: SITConfig;
+
     constructor() {
-        this.openAllExfils = true;
         this.runAzureWebAppHelper = false;
+
+        this.openAllExfils = true;
+        
+        this.showPlayerNameTags = false;
+        this.showPlayerNameTagsOnlyWhenVisible = false;
 
         // console.log(`SIT Config Loading >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>`);
 
@@ -23,6 +37,26 @@ export class SITConfig {
             // console.log(`SIT Config loaded.`);
         }
         // console.log(this);
+
+    }
+
+    public routeHandler(staticRouterModService: StaticRouterModService, dynamicRouterModService: DynamicRouterModService) {
+
+         staticRouterModService.registerStaticRouter(
+            "sit-config-service",
+            [
+                {
+                    url: "/SIT/Config",
+                    action: (url, info: any, sessionId, output) => {
+                        console.log(SITConfig.Instance)
+                        output = JSON.stringify(SITConfig.Instance);
+                        return output;
+                    }
+                }
+            ]
+            ,"aki"
+        )
+
     }
 
 }

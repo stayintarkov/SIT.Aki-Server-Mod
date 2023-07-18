@@ -15,6 +15,7 @@ This is the SERVER modification of [SPT-Aki](https://www.sp-tarkov.com/) to allo
 * Download and Install the latest SPT-Aki Server
 * Download this repo (see the Code button above)
 * Install this repo into the server /user/mods/ folder
+* Rename the folder SITCoop
 
 ## How do I set up this mod?
 
