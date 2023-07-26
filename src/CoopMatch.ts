@@ -104,7 +104,7 @@ export class CoopMatch {
         this.SendPingInterval = setInterval(() => {
 
             var dateOfPing = new Date(Date.now());
-            var dateOfPingString = `${dateOfPing.getHours()}:${dateOfPing.getMinutes()}:${dateOfPing.getSeconds()}:${dateOfPing.getMilliseconds()}`;
+            var dateOfPingString = dateOfPing.toISOString();
             // console.log(dateOfPingString);
             WebSocketHandler.Instance.sendToWebSockets(this.ConnectedPlayers, JSON.stringify({ ping: dateOfPingString }));
 
