@@ -144,6 +144,11 @@ export class CoopMatch {
             return;
         }
 
+        if(info.m === "Ping" && info.t !== undefined && info.accountId !== undefined) {
+            this.Ping(info.accountId, info.t);
+            return;
+        }
+
         if(info.m === "SpawnPointForCoop") {
 
             this.SpawnPoint.x = info.x;
@@ -158,12 +163,6 @@ export class CoopMatch {
 
             if(this.ConnectedPlayers.length == 0)
                 this.endSession(CoopMatchEndSessionMessages.HOST_SHUTDOWN_MESSAGE);
-
-            return;
-        }
-
-        if(info.t !== undefined && info.accountId !== undefined && info.m === "Ping") {
-            this.Ping(info.accountId, info.t);
 
             return;
         }
