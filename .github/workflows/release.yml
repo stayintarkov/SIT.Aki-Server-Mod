@@ -14,15 +14,10 @@ jobs:
       - name: Checkout master Branch
         uses: actions/checkout@v2
         with:
-          ref: 'master'      
-      - name: Get current date
-        id: date
-        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
-      - name: Test with environment variables
-        run: echo $TAG_NAME - $RELEASE_NAME
-        env:
-          TAG_NAME: nightly-tag-${{ steps.date.outputs.date }}
-          RELEASE_NAME: nightly-release-${{ steps.date.outputs.date }}
+          ref: 'master'    
+      - name: Build project # This would actually build your project, using zip for an example artifact
+        run: |
+          zip --junk-paths sit-coop *.*
       - name: Create Release
         id: nightly-snapshot
         uses: actions/create-release@latest
@@ -33,3 +28,12 @@ jobs:
           release_name: ${{ github.event.repository.updated_at }}
           draft: true
           prerelease: false
+      - name: Upload Release Asset
+        id: upload-release-asset 
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          asset_path: ./sit-coop.zip
+          asset_name: sit-coop.zip
+          asset_content_type: application/zip
