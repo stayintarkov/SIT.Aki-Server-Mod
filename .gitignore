@@ -2,3 +2,4 @@ coopConfig*.json
 SITConfig*.json
 *.pem
 mod.js
+dist/
