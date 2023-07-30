@@ -13,6 +13,7 @@ import { ConfigServer } from "../servers/ConfigServer";
 import { DatabaseServer } from "../servers/DatabaseServer";
 import { LocaleService } from "../services/LocaleService";
 import { LocalisationService } from "../services/LocalisationService";
+import { MailSendService } from "../services/MailSendService";
 import { HashUtil } from "../utils/HashUtil";
 import { JsonUtil } from "../utils/JsonUtil";
 import { TimeUtil } from "../utils/TimeUtil";
@@ -37,9 +38,10 @@ export declare class QuestHelper {
     protected paymentHelper: PaymentHelper;
     protected localisationService: LocalisationService;
     protected traderHelper: TraderHelper;
+    protected mailSendService: MailSendService;
     protected configServer: ConfigServer;
     protected questConfig: IQuestConfig;
-    constructor(logger: ILogger, jsonUtil: JsonUtil, timeUtil: TimeUtil, hashUtil: HashUtil, itemHelper: ItemHelper, eventOutputHolder: EventOutputHolder, databaseServer: DatabaseServer, localeService: LocaleService, ragfairServerHelper: RagfairServerHelper, dialogueHelper: DialogueHelper, profileHelper: ProfileHelper, paymentHelper: PaymentHelper, localisationService: LocalisationService, traderHelper: TraderHelper, configServer: ConfigServer);
+    constructor(logger: ILogger, jsonUtil: JsonUtil, timeUtil: TimeUtil, hashUtil: HashUtil, itemHelper: ItemHelper, eventOutputHolder: EventOutputHolder, databaseServer: DatabaseServer, localeService: LocaleService, ragfairServerHelper: RagfairServerHelper, dialogueHelper: DialogueHelper, profileHelper: ProfileHelper, paymentHelper: PaymentHelper, localisationService: LocalisationService, traderHelper: TraderHelper, mailSendService: MailSendService, configServer: ConfigServer);
     /**
     * Get status of a quest in player profile by its id
     * @param pmcData Profile to search
@@ -63,6 +65,7 @@ export declare class QuestHelper {
     getDeltaQuests(before: IQuest[], after: IQuest[]): IQuest[];
     /**
      * Increase skill points of a skill on player profile
+     * Dupe of PlayerService.incrementSkillLevel()
      * @param sessionID Session id
      * @param pmcData Player profile
      * @param skillName Name of skill to increase skill points of
@@ -113,7 +116,7 @@ export declare class QuestHelper {
      * Get quests that can be shown to player after failing a quest
      * @param failedQuestId Id of the quest failed by player
      * @param sessionId Session id
-     * @returns
+     * @returns IQuest array
      */
     failedUnlocked(failedQuestId: string, sessionId: string): IQuest[];
     /**

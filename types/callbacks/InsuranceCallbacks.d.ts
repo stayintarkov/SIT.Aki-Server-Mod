@@ -23,7 +23,7 @@ export declare class InsuranceCallbacks implements OnUpdate {
      */
     getInsuranceCost(url: string, info: IGetInsuranceCostRequestData, sessionID: string): IGetBodyResponseData<IGetInsuranceCostResponseData>;
     /**
-     * Handle Insure
+     * Handle Insure event
      * @returns IItemEventRouterResponse
      */
     insure(pmcData: IPmcData, body: IInsureRequestData, sessionID: string): IItemEventRouterResponse;

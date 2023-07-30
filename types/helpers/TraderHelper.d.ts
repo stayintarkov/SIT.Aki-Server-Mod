@@ -1,5 +1,6 @@
 import { IPmcData } from "../models/eft/common/IPmcData";
 import { ITraderAssort, ITraderBase, LoyaltyLevel } from "../models/eft/common/tables/ITrader";
+import { Traders } from "../models/enums/Traders";
 import { ITraderConfig } from "../models/spt/config/ITraderConfig";
 import { ILogger } from "../models/spt/utils/ILogger";
 import { ConfigServer } from "../servers/ConfigServer";
@@ -106,4 +107,10 @@ export declare class TraderHelper {
      * @returns Rouble price
      */
     getHighestSellToTraderPrice(tpl: string): number;
+    /**
+     * Get a trader enum key by its value
+     * @param traderId Traders id
+     * @returns Traders key
+     */
+    getTraderById(traderId: string): Traders;
 }

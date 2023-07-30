@@ -18,7 +18,10 @@ export declare class NotifierCallbacks {
      * and the client would abort the connection due to spam.
      */
     sendNotification(sessionID: string, req: any, resp: any, data: any): void;
+    /** Handle push/notifier/get */
+    /** Handle push/notifier/getwebsocket */
     getNotifier(url: string, info: any, sessionID: string): IGetBodyResponseData<any[]>;
+    /** Handle client/notifier/channel/create */
     createNotifierChannel(url: string, info: IEmptyRequestData, sessionID: string): IGetBodyResponseData<INotifierChannel>;
     /**
      * Handle client/game/profile/select

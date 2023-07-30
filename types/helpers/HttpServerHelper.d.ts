@@ -16,8 +16,17 @@ export declare class HttpServerHelper {
     };
     constructor(configServer: ConfigServer);
     getMimeText(key: string): string;
+    /**
+     * Combine ip and port into url
+     * @returns url
+     */
     buildUrl(): string;
+    /**
+     * Prepend http to the url:port
+     * @returns URI
+     */
     getBackendUrl(): string;
+    /** Get websocket url + port */
     getWebsocketUrl(): string;
     sendTextJson(resp: any, output: any): void;
 }

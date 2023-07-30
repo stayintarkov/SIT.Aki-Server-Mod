@@ -1,6 +1,7 @@
 import { ITraderBase } from "../models/eft/common/tables/ITrader";
 import { DialogueHelper } from "../helpers/DialogueHelper";
 import { HandbookHelper } from "../helpers/HandbookHelper";
+import { ItemHelper } from "../helpers/ItemHelper";
 import { NotificationSendHelper } from "../helpers/NotificationSendHelper";
 import { SecureContainerHelper } from "../helpers/SecureContainerHelper";
 import { TraderHelper } from "../helpers/TraderHelper";
@@ -22,6 +23,7 @@ export declare class InsuranceService {
     protected databaseServer: DatabaseServer;
     protected secureContainerHelper: SecureContainerHelper;
     protected randomUtil: RandomUtil;
+    protected itemHelper: ItemHelper;
     protected timeUtil: TimeUtil;
     protected saveServer: SaveServer;
     protected traderHelper: TraderHelper;
@@ -33,23 +35,25 @@ export declare class InsuranceService {
     protected configServer: ConfigServer;
     protected insured: Record<string, Record<string, Item[]>>;
     protected insuranceConfig: IInsuranceConfig;
-    constructor(logger: ILogger, databaseServer: DatabaseServer, secureContainerHelper: SecureContainerHelper, randomUtil: RandomUtil, timeUtil: TimeUtil, saveServer: SaveServer, traderHelper: TraderHelper, dialogueHelper: DialogueHelper, handbookHelper: HandbookHelper, localisationService: LocalisationService, localeService: LocaleService, notificationSendHelper: NotificationSendHelper, configServer: ConfigServer);
+    constructor(logger: ILogger, databaseServer: DatabaseServer, secureContainerHelper: SecureContainerHelper, randomUtil: RandomUtil, itemHelper: ItemHelper, timeUtil: TimeUtil, saveServer: SaveServer, traderHelper: TraderHelper, dialogueHelper: DialogueHelper, handbookHelper: HandbookHelper, localisationService: LocalisationService, localeService: LocaleService, notificationSendHelper: NotificationSendHelper, configServer: ConfigServer);
     insuranceExists(sessionId: string): boolean;
-    insuranceTraderArrayExists(sessionId: string, traderId: string): boolean;
+    /**
+     * Get all insured items by all traders for a profile
+     * @param sessionId Profile id (session id)
+     * @returns Item array
+     */
     getInsurance(sessionId: string): Record<string, Item[]>;
+    /**
+     * Get insured items by profile id + trader id
+     * @param sessionId Profile id (session id)
+     * @param traderId Trader items were insured with
+     * @returns Item array
+     */
     getInsuranceItems(sessionId: string, traderId: string): Item[];
     resetInsurance(sessionId: string): void;
-    resetInsuranceTraderArray(sessionId: string, traderId: string): void;
-    addInsuranceItemToArray(sessionId: string, traderId: string, itemToAdd: any): void;
-    /**
-     * Get the rouble price for an item by templateId
-     * @param itemTpl item tpl to get handbook price for
-     * @returns handbook price in roubles, Return 0 if not found
-     */
-    getItemPrice(itemTpl: string): number;
     /**
      * Sends stored insured items as message to player
-     * @param pmcData profile to modify
+     * @param pmcData profile to send insured items to
      * @param sessionID SessionId of current player
      * @param mapId Id of the map player died/exited that caused the insurance to be issued on
      */
@@ -59,11 +63,17 @@ export declare class InsuranceService {
      * @param sessionID Session id
      */
     sendLostInsuranceMessage(sessionID: string): void;
+    /**
+     * Check all root insured items and remove location property + set slotId to 'hideout'
+     * @param sessionId Session id
+     * @param traderId Trader id
+     */
     protected removeLocationProperty(sessionId: string, traderId: string): void;
     /**
-     * Get a timestamp of what insurance items should be sent to player based on the type of trader used to insure
+     * Get a timestamp of when insurance items should be sent to player based on trader used to insure
+     * Apply insurance return bonus if found in profile
      * @param pmcData Player profile
-     * @param trader Trader used to insure items
+     * @param trader Trader base used to insure items
      * @returns Timestamp to return items to player in seconds
      */
     protected getInsuranceReturnTimestamp(pmcData: IPmcData, trader: ITraderBase): number;
@@ -90,5 +100,32 @@ export declare class InsuranceService {
      * @param sessionID Session id
      */
     protected addGearToSend(pmcData: IPmcData, insuredItem: InsuredItem, actualItem: Item, sessionID: string): void;
+    /**
+     * Does insurance exist for a player and by trader
+     * @param sessionId Player id (session id)
+     * @param traderId Trader items insured with
+     * @returns True if exists
+     */
+    protected insuranceTraderArrayExists(sessionId: string, traderId: string): boolean;
+    /**
+     * Empty out array holding insured items by sessionid + traderid
+     * @param sessionId Player id (session id)
+     * @param traderId Trader items insured with
+     */
+    resetInsuranceTraderArray(sessionId: string, traderId: string): void;
+    /**
+     * Store insured item
+     * @param sessionId Player id (session id)
+     * @param traderId Trader item insured with
+     * @param itemToAdd Insured item
+     */
+    addInsuranceItemToArray(sessionId: string, traderId: string, itemToAdd: Item): void;
+    /**
+     * Get price of insurance * multiplier from config
+     * @param pmcData Player profile
+     * @param inventoryItem Item to be insured
+     * @param traderId Trader item is insured with
+     * @returns price in roubles
+     */
     getPremium(pmcData: IPmcData, inventoryItem: Item, traderId: string): number;
 }

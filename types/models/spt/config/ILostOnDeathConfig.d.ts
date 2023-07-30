@@ -1,8 +1,11 @@
 import { IBaseConfig } from "./IBaseConfig";
 export interface ILostOnDeathConfig extends IBaseConfig {
     kind: "aki-lostondeath";
+    /** What equipment in each slot should be lost on death */
     equipment: Equipment;
+    /** Should special slot items be removed from quest inventory on death e.g. wifi camera/markers */
     specialSlotItems: boolean;
+    /** Should quest items be removed from quest inventory on death */
     questItems: boolean;
 }
 export interface Equipment {

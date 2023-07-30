@@ -10,6 +10,7 @@ export declare class BotCallbacks {
     constructor(botController: BotController, httpResponse: HttpResponseUtil);
     /**
      * Handle singleplayer/settings/bot/limit
+     * Is called by client to define each bot roles wave limit
      * @returns string
      */
     getBotLimit(url: string, info: IEmptyRequestData, sessionID: string): string;

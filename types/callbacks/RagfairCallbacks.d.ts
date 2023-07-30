@@ -32,16 +32,25 @@ export declare class RagfairCallbacks implements OnLoad, OnUpdate {
     constructor(httpResponse: HttpResponseUtil, jsonUtil: JsonUtil, ragfairServer: RagfairServer, ragfairController: RagfairController, configServer: ConfigServer);
     onLoad(): Promise<void>;
     getRoute(): string;
+    onUpdate(timeSinceLastRun: number): Promise<boolean>;
+    /**
+     * Handle client/ragfair/search
+     * Handle client/ragfair/find
+     */
     search(url: string, info: ISearchRequestData, sessionID: string): IGetBodyResponseData<IGetOffersResult>;
+    /** Handle client/ragfair/itemMarketPrice */
     getMarketPrice(url: string, info: IGetMarketPriceRequestData, sessionID: string): IGetBodyResponseData<IGetItemPriceResult>;
+    /** Handle RagFairAddOffer event */
     addOffer(pmcData: IPmcData, info: IAddOfferRequestData, sessionID: string): IItemEventRouterResponse;
+    /** \Handle RagFairRemoveOffer event */
     removeOffer(pmcData: IPmcData, info: IRemoveOfferRequestData, sessionID: string): IItemEventRouterResponse;
+    /** Handle RagFairRenewOffer event */
     extendOffer(pmcData: IPmcData, info: IExtendOfferRequestData, sessionID: string): IItemEventRouterResponse;
     /**
      * Handle /client/items/prices
      * Called when clicking an item to list on flea
      */
     getFleaPrices(url: string, request: IEmptyRequestData, sessionID: string): IGetBodyResponseData<Record<string, number>>;
-    onUpdate(timeSinceLastRun: number): Promise<boolean>;
+    /** Handle client/reports/ragfair/send */
     sendReport(url: string, info: ISendRagfairReportRequestData, sessionID: string): INullResponseData;
 }

@@ -13,6 +13,9 @@ export declare class BundleCallbacks {
     protected httpConfig: IHttpConfig;
     constructor(logger: ILogger, httpResponse: HttpResponseUtil, httpFileUtil: HttpFileUtil, bundleLoader: BundleLoader, configServer: ConfigServer);
     sendBundle(sessionID: string, req: any, resp: any, body: any): any;
+    /**
+     * Handle singleplayer/bundles
+     */
     getBundles(url: string, info: any, sessionID: string): string;
     getBundle(url: string, info: any, sessionID: string): string;
 }

@@ -45,6 +45,7 @@ export declare class InsuranceController {
      */
     protected itemShouldBeLost(insuredItem: Item, traderId: string, itemsBeingDeleted: string[]): boolean;
     /**
+     * Handle Insure event
      * Add insurance to an item
      * @param pmcData Player profile
      * @param body Insurance request
@@ -53,6 +54,7 @@ export declare class InsuranceController {
      */
     insure(pmcData: IPmcData, body: IInsureRequestData, sessionID: string): IItemEventRouterResponse;
     /**
+     * Handle client/insurance/items/list/cost
      * Calculate insurance cost
      * @param info request object
      * @param sessionID session id

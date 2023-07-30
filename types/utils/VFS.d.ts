@@ -45,9 +45,9 @@ export declare class VFS {
     removeFileAsync(filepath: string): Promise<void>;
     removeDir(filepath: string): void;
     removeDirAsync(filepath: string): Promise<void>;
-    private lockFileSync;
-    private checkFileSync;
-    private unlockFileSync;
+    protected lockFileSync(filepath: any): void;
+    protected checkFileSync(filepath: any): any;
+    protected unlockFileSync(filepath: any): void;
     getFileExtension(filepath: string): string;
     stripExtension(filepath: string): string;
     minifyAllJsonInDirRecursive(filepath: string): Promise<void>;

@@ -28,9 +28,13 @@ export declare class CustomizationController {
      * @returns ISuit array
      */
     getTraderSuits(traderID: string, sessionID: string): ISuit[];
-    /** Equip one to many clothing items to player */
+    /**
+     * Handle CustomizationWear event
+     * Equip one to many clothing items to player
+     */
     wearClothing(pmcData: IPmcData, wearClothingRequest: IWearClothingRequestData, sessionID: string): IItemEventRouterResponse;
     /**
+     * Handle CustomizationBuy event
      * Purchase/unlock a clothing item from a trader
      * @param pmcData Player profile
      * @param buyClothingRequest Request object
@@ -42,8 +46,8 @@ export declare class CustomizationController {
     /**
      * Has an outfit been purchased by a player
      * @param suitId clothing id
-     * @param sessionID Session id
-     * @returns true if purchased already
+     * @param sessionID Session id of profile to check for clothing in
+     * @returns true if already purchased
      */
     protected outfitAlreadyPurchased(suitId: string, sessionID: string): boolean;
     /**
@@ -60,7 +64,6 @@ export declare class CustomizationController {
      * @param pmcData Player profile
      * @param clothingItem Clothing item purchased
      * @param output Client response
-     * @returns
      */
     protected payForClothingItem(sessionId: string, pmcData: IPmcData, clothingItem: ClothingItem, output: IItemEventRouterResponse): void;
     protected getAllTraderSuits(sessionID: string): ISuit[];

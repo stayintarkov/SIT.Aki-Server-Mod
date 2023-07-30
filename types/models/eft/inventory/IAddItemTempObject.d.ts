@@ -4,4 +4,5 @@ export interface IAddItemTempObject {
     count: number;
     isPreset: boolean;
     location?: Location;
+    containerId?: string;
 }

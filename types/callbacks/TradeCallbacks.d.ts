@@ -7,8 +7,9 @@ export declare class TradeCallbacks {
     protected tradeController: TradeController;
     constructor(tradeController: TradeController);
     /**
-     * Handle client/game/profile/items/moving TradingConfirm
+     * Handle client/game/profile/items/moving TradingConfirm event
      */
     processTrade(pmcData: IPmcData, body: IProcessBaseTradeRequestData, sessionID: string): IItemEventRouterResponse;
+    /** Handle RagFairBuyOffer event */
     processRagfairTrade(pmcData: IPmcData, body: IProcessRagfairTradeRequestData, sessionID: string): IItemEventRouterResponse;
 }

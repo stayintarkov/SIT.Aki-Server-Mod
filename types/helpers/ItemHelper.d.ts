@@ -51,11 +51,22 @@ declare class ItemHelper {
     /**
      * Returns the item price based on the handbook or as a fallback from the prices.json if the item is not
      * found in the handbook. If the price can't be found at all return 0
-     *
-     * @param {string}      tpl           the item template to check
-     * @returns {integer}                   The price of the item or 0 if not found
+     * @param tpl Item to look price up of
+     * @returns Price in roubles
      */
     getItemPrice(tpl: string): number;
+    /**
+     * Get the static (handbook) price in roubles for an item by tpl
+     * @param tpl Items tpl id to look up price
+     * @returns Price in roubles (0 if not found)
+     */
+    getStaticItemPrice(tpl: string): number;
+    /**
+     * Get the dynamic (flea) price in roubles for an item by tpl
+     * @param tpl Items tpl id to look up price
+     * @returns Price in roubles (undefined if not found)
+     */
+    getDynamicItemPrice(tpl: string): number;
     fixItemStackCount(item: Item): Item;
     /**
      * AmmoBoxes contain StackSlots which need to be filled for the AmmoBox to have content.
@@ -186,14 +197,14 @@ declare class ItemHelper {
      */
     findBarterItems(by: "tpl" | "id", pmcData: IPmcData, barterItemId: string): Item[];
     /**
-     *
-     * @param pmcData
-     * @param items
+     * Regenerate all guids with new ids, exceptions are for items that cannot be altered (e.g. stash/sorting table)
+     * @param pmcData Player profile
+     * @param items Items to adjust ID values of
      * @param insuredItems insured items to not replace ids for
      * @param fastPanel
-     * @returns
+     * @returns Item[]
      */
-    replaceIDs(pmcData: IPmcData, items: Item[], insuredItems?: InsuredItem[], fastPanel?: any): any[];
+    replaceIDs(pmcData: IPmcData, items: Item[], insuredItems?: InsuredItem[], fastPanel?: any): Item[];
     /**
      * WARNING, SLOW. Recursively loop down through an items hierarchy to see if any of the ids match the supplied list, return true if any do
      * @param {string} tpl Items tpl to check parents of

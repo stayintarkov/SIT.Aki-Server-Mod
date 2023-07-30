@@ -14,6 +14,7 @@ import { ILogger } from "../models/spt/utils/ILogger";
 import { ConfigServer } from "../servers/ConfigServer";
 import { DatabaseServer } from "../servers/DatabaseServer";
 import { RandomUtil } from "../utils/RandomUtil";
+import { LocalisationService } from "./LocalisationService";
 import { PaymentService } from "./PaymentService";
 export declare class RepairService {
     protected logger: ILogger;
@@ -25,9 +26,10 @@ export declare class RepairService {
     protected weightedRandomHelper: WeightedRandomHelper;
     protected paymentService: PaymentService;
     protected repairHelper: RepairHelper;
+    protected localisationService: LocalisationService;
     protected configServer: ConfigServer;
     protected repairConfig: IRepairConfig;
-    constructor(logger: ILogger, databaseServer: DatabaseServer, questHelper: QuestHelper, randomUtil: RandomUtil, itemHelper: ItemHelper, traderHelper: TraderHelper, weightedRandomHelper: WeightedRandomHelper, paymentService: PaymentService, repairHelper: RepairHelper, configServer: ConfigServer);
+    constructor(logger: ILogger, databaseServer: DatabaseServer, questHelper: QuestHelper, randomUtil: RandomUtil, itemHelper: ItemHelper, traderHelper: TraderHelper, weightedRandomHelper: WeightedRandomHelper, paymentService: PaymentService, repairHelper: RepairHelper, localisationService: LocalisationService, configServer: ConfigServer);
     /**
      * Use trader to repair an items durability
      * @param sessionID Session id

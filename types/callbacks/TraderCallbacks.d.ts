@@ -12,7 +12,10 @@ export declare class TraderCallbacks implements OnLoad, OnUpdate {
     onLoad(): Promise<void>;
     onUpdate(): Promise<boolean>;
     getRoute(): string;
+    /** Handle client/trading/api/traderSettings */
     getTraderSettings(url: string, info: IEmptyRequestData, sessionID: string): IGetBodyResponseData<ITraderBase[]>;
+    /** Handle client/trading/api/getTrader */
     getTrader(url: string, info: IEmptyRequestData, sessionID: string): IGetBodyResponseData<ITraderBase>;
+    /** Handle client/trading/api/getTraderAssort */
     getAssort(url: string, info: IEmptyRequestData, sessionID: string): IGetBodyResponseData<ITraderAssort>;
 }

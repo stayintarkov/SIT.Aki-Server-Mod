@@ -1,5 +1,6 @@
 import { ItemHelper } from "../helpers/ItemHelper";
 import { Product } from "../models/eft/common/tables/IBotBase";
+import { Upd } from "../models/eft/common/tables/IItem";
 import { ITemplateItem } from "../models/eft/common/tables/ITemplateItem";
 import { IHideoutScavCase } from "../models/eft/hideout/IHideoutScavCase";
 import { IScavCaseConfig } from "../models/spt/config/IScavCaseConfig";
@@ -78,7 +79,7 @@ export declare class ScavCaseRewardGenerator {
     protected addStackCountToAmmoAndMoney(item: ITemplateItem, resultItem: {
         _id: string;
         _tpl: string;
-        upd: any;
+        upd: Upd;
     }, rarity: string): void;
     /**
      *

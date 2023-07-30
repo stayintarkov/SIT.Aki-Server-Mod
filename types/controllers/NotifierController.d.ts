@@ -18,5 +18,6 @@ export declare class NotifierController {
      */
     notifyAsync(sessionID: string): Promise<unknown>;
     getServer(sessionID: string): string;
+    /** Handle client/notifier/channel/create */
     getChannel(sessionID: string): INotifierChannel;
 }

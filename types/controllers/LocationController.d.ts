@@ -3,9 +3,9 @@ import { LootGenerator } from "../generators/LootGenerator";
 import { WeightedRandomHelper } from "../helpers/WeightedRandomHelper";
 import { ILocationBase } from "../models/eft/common/ILocationBase";
 import { ILocationsGenerateAllResponse } from "../models/eft/common/ILocationsSourceDestinationBase";
+import { IAirdropLootResult } from "../models/eft/location/IAirdropLootResult";
 import { AirdropTypeEnum } from "../models/enums/AirdropType";
 import { IAirdropConfig } from "../models/spt/config/IAirdropConfig";
-import { LootItem } from "../models/spt/services/LootItem";
 import { LootRequest } from "../models/spt/services/LootRequest";
 import { ILogger } from "../models/spt/utils/ILogger";
 import { ConfigServer } from "../servers/ConfigServer";
@@ -27,19 +27,33 @@ export declare class LocationController {
     protected configServer: ConfigServer;
     protected airdropConfig: IAirdropConfig;
     constructor(jsonUtil: JsonUtil, hashUtil: HashUtil, weightedRandomHelper: WeightedRandomHelper, logger: ILogger, locationGenerator: LocationGenerator, localisationService: LocalisationService, lootGenerator: LootGenerator, databaseServer: DatabaseServer, timeUtil: TimeUtil, configServer: ConfigServer);
-    get(location: string): ILocationBase;
-    generate(name: string): ILocationBase;
     /**
+     * Handle client/location/getLocalloot
+     * Get a location (map) with generated loot data
+     * @param location Map to generate loot for
+     * @returns ILocationBase
+     */
+    get(location: string): ILocationBase;
+    /**
+     * Generate a maps base location without loot
+     * @param name Map name
+     * @returns ILocationBase
+     */
+    protected generate(name: string): ILocationBase;
+    /**
+     * Handle client/locations
      * Get all maps base location properties without loot data
+     * @param sessionId Players Id
      * @returns ILocationsGenerateAllResponse
      */
-    generateAll(): ILocationsGenerateAllResponse;
+    generateAll(sessionId: string): ILocationsGenerateAllResponse;
     /**
+     * Handle client/location/getAirdropLoot
      * Get loot for an airdop container
      * Generates it randomly based on config/airdrop.json values
      * @returns Array of LootItem objects
      */
-    getAirdropLoot(): LootItem[];
+    getAirdropLoot(): IAirdropLootResult;
     /**
      * Randomly pick a type of airdrop loot using weighted values from config
      * @returns airdrop type value

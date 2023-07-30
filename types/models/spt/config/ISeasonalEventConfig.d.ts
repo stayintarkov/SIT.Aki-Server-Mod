@@ -1,3 +1,4 @@
+import { SeasonalEventType } from "../../../models/enums/SeasonalEventType";
 import { IBaseConfig } from "./IBaseConfig";
 export interface ISeasonalEventConfig extends IBaseConfig {
     kind: "aki-seasonalevents";
@@ -9,6 +10,7 @@ export interface ISeasonalEventConfig extends IBaseConfig {
 }
 export interface ISeasonalEvent {
     name: string;
+    type: SeasonalEventType;
     startDay: number;
     startMonth: number;
     endDay: number;

@@ -14,6 +14,9 @@ export declare class HandbookHelper {
     protected lookupCacheGenerated: boolean;
     protected handbookPriceCache: LookupCollection;
     constructor(databaseServer: DatabaseServer);
+    /**
+     * Create an in-memory cache of all items with associated handbook price in handbookPriceCache class
+     */
     hydrateLookup(): void;
     /**
      * Get price from internal cache, if cache empty look up price directly in handbook (expensive)
@@ -23,18 +26,23 @@ export declare class HandbookHelper {
      */
     getTemplatePrice(tpl: string): number;
     /**
-     * all items in template with the given parent category
-     * @param x
+     * Get all items in template with the given parent category
+     * @param parentId
      * @returns string array
      */
-    templatesWithParent(x: string): string[];
+    templatesWithParent(parentId: string): string[];
     /**
      * Does category exist in handbook cache
      * @param category
      * @returns true if exists in cache
      */
     isCategory(category: string): boolean;
-    childrenCategories(x: string): string[];
+    /**
+     * Get all items associated with a categories parent
+     * @param categoryParent
+     * @returns string array
+     */
+    childrenCategories(categoryParent: string): string[];
     /**
      * Convert non-roubles into roubles
      * @param nonRoubleCurrencyCount Currency count to convert

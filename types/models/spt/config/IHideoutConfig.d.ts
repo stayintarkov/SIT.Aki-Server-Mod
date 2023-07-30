@@ -4,4 +4,5 @@ export interface IHideoutConfig extends IBaseConfig {
     runIntervalSeconds: number;
     hoursForSkillCrafting: number;
     hideoutWallAppearTimeSeconds: number;
+    expCraftAmount: number;
 }

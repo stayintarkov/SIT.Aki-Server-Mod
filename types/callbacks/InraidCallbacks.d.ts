@@ -12,6 +12,7 @@ export declare class InraidCallbacks {
     constructor(inraidController: InraidController, httpResponse: HttpResponseUtil);
     /**
      * Handle client/location/getLocalloot
+     * Store active map in profile + applicationContext
      * @param url
      * @param info register player request
      * @param sessionID Session id

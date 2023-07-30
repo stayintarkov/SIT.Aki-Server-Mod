@@ -1,3 +1,5 @@
+import { MinMax } from "../../../models/common/MinMax";
+import { Ixyz } from "./Ixyz";
 export interface ILocationBase {
     AccessKeys: string[];
     AirdropParameters: AirdropParameter[];
@@ -35,6 +37,7 @@ export interface ILocationBase {
     IsSecret: boolean;
     Locked: boolean;
     Loot: any[];
+    MatchMakerMinPlayersByWaitTime: MinPlayerWaitTime[];
     MaxBotPerZone: number;
     MaxDistToFreePoint: number;
     MaxPlayers: number;
@@ -49,6 +52,7 @@ export interface ILocationBase {
     OldSpawn: boolean;
     OpenZones: string;
     Preview: Preview;
+    PlayersRequestCount: number;
     RequiredPlayerLevel?: number;
     RequiredPlayerLevelMin?: number;
     RequiredPlayerLevelMax?: number;
@@ -81,9 +85,7 @@ export interface ILocationBase {
     users_summon_seconds: number;
     waves: Wave[];
 }
-export interface ILimit {
-    min: number;
-    max: number;
+export interface ILimit extends MinMax {
     items: any[];
 }
 export interface AirdropParameter {
@@ -140,10 +142,12 @@ export interface BotLocationModifier {
     Scattering: number;
     VisibleDistance: number;
 }
-export interface MinMaxBot {
-    WildSpawnType: WildSpawnType;
-    max: number;
-    min: number;
+export interface MinMaxBot extends MinMax {
+    WildSpawnType: WildSpawnType | string;
+}
+export interface MinPlayerWaitTime {
+    minPlayers: number;
+    time: number;
 }
 export interface Preview {
     path: string;
@@ -160,7 +164,7 @@ export interface SpawnPointParam {
     DelayToCanSpawnSec: number;
     Id: string;
     Infiltration: string;
-    Position: xyz;
+    Position: Ixyz;
     Rotation: number;
     Sides: string[];
 }
@@ -169,13 +173,8 @@ export interface ColliderParams {
     _props: Props;
 }
 export interface Props {
-    Center: xyz;
+    Center: Ixyz;
     Radius: number;
-}
-export interface xyz {
-    x: number;
-    y: number;
-    z: number;
 }
 export interface Exit {
     Chance: number;
@@ -211,5 +210,6 @@ export interface Wave {
 }
 export declare enum WildSpawnType {
     ASSAULT = "assault",
-    MARKSMAN = "marksman"
+    MARKSMAN = "marksman",
+    PMCBOT = "pmcbot"
 }

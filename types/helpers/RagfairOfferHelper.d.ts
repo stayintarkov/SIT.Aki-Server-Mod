@@ -12,6 +12,7 @@ import { ConfigServer } from "../servers/ConfigServer";
 import { DatabaseServer } from "../servers/DatabaseServer";
 import { SaveServer } from "../servers/SaveServer";
 import { LocaleService } from "../services/LocaleService";
+import { LocalisationService } from "../services/LocalisationService";
 import { RagfairOfferService } from "../services/RagfairOfferService";
 import { HashUtil } from "../utils/HashUtil";
 import { TimeUtil } from "../utils/TimeUtil";
@@ -42,11 +43,12 @@ export declare class RagfairOfferHelper {
     protected ragfairHelper: RagfairHelper;
     protected ragfairOfferService: RagfairOfferService;
     protected localeService: LocaleService;
+    protected localisationService: LocalisationService;
     protected configServer: ConfigServer;
     protected static goodSoldTemplate: string;
     protected ragfairConfig: IRagfairConfig;
     protected questConfig: IQuestConfig;
-    constructor(logger: ILogger, timeUtil: TimeUtil, hashUtil: HashUtil, eventOutputHolder: EventOutputHolder, databaseServer: DatabaseServer, traderHelper: TraderHelper, saveServer: SaveServer, dialogueHelper: DialogueHelper, itemHelper: ItemHelper, paymentHelper: PaymentHelper, presetHelper: PresetHelper, profileHelper: ProfileHelper, ragfairServerHelper: RagfairServerHelper, ragfairSortHelper: RagfairSortHelper, ragfairHelper: RagfairHelper, ragfairOfferService: RagfairOfferService, localeService: LocaleService, configServer: ConfigServer);
+    constructor(logger: ILogger, timeUtil: TimeUtil, hashUtil: HashUtil, eventOutputHolder: EventOutputHolder, databaseServer: DatabaseServer, traderHelper: TraderHelper, saveServer: SaveServer, dialogueHelper: DialogueHelper, itemHelper: ItemHelper, paymentHelper: PaymentHelper, presetHelper: PresetHelper, profileHelper: ProfileHelper, ragfairServerHelper: RagfairServerHelper, ragfairSortHelper: RagfairSortHelper, ragfairHelper: RagfairHelper, ragfairOfferService: RagfairOfferService, localeService: LocaleService, localisationService: LocalisationService, configServer: ConfigServer);
     /**
      * Passthrough to ragfairOfferService.getOffers(), get flea offers a player should see
      * @param searchRequest

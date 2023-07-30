@@ -1,10 +1,14 @@
 import { MinMax } from "../../../models/common/MinMax";
+import { SeasonalEventType } from "../../../models/enums/SeasonalEventType";
 import { ELocationName } from "../../enums/ELocationName";
 import { IBaseConfig } from "./IBaseConfig";
 export interface IQuestConfig extends IBaseConfig {
     kind: "aki-quest";
     redeemTime: number;
     questTemplateIds: IPlayerTypeQuestIds;
+    /** Show non-seasonal quests be shown to player */
+    showNonSeasonalEventQuests: boolean;
+    eventQuests: Record<string, IEventQuestData>;
     repeatableQuests: IRepeatableQuestConfig[];
     locationIdMap: Record<string, string>;
     bearOnlyQuests: string[];
@@ -18,6 +22,13 @@ export interface IQuestTypeIds {
     Elimination: string;
     Completion: string;
     Exploration: string;
+}
+export interface IEventQuestData {
+    name: string;
+    season: SeasonalEventType;
+    startTimestamp: number;
+    endTimestamp: number;
+    yearly: boolean;
 }
 export interface IRepeatableQuestConfig {
     name: string;

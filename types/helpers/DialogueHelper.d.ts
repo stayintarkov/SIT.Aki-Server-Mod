@@ -20,21 +20,13 @@ export declare class DialogueHelper {
     protected itemHelper: ItemHelper;
     constructor(logger: ILogger, hashUtil: HashUtil, saveServer: SaveServer, databaseServer: DatabaseServer, notifierHelper: NotifierHelper, notificationSendHelper: NotificationSendHelper, localisationService: LocalisationService, itemHelper: ItemHelper);
     /**
-     * Create basic message context template
-     * @param templateId
-     * @param messageType
-     * @param maxStoreTime
-     * @returns
+     * @deprecated Use MailSendService.sendMessage() or helpers
      */
-    createMessageContext(templateId: string, messageType: MessageType, maxStoreTime: number): MessageContent;
+    createMessageContext(templateId: string, messageType: MessageType, maxStoreTime?: any): MessageContent;
     /**
-     * Add a templated message to the dialogue.
-     * @param dialogueID
-     * @param messageContent
-     * @param sessionID
-     * @param rewards
+     * @deprecated Use MailSendService.sendMessage() or helpers
      */
-    addDialogueMessage(dialogueID: string, messageContent: MessageContent, sessionID: string, rewards?: Item[]): void;
+    addDialogueMessage(dialogueID: string, messageContent: MessageContent, sessionID: string, rewards?: Item[], messageType?: MessageType): void;
     /**
      * Get the preview contents of the last message in a dialogue.
      * @param dialogue

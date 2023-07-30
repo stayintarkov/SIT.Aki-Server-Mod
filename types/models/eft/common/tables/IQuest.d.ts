@@ -1,7 +1,9 @@
 import { QuestRewardType } from "../../../enums/QuestRewardType";
 import { QuestStatus } from "../../../enums/QuestStatus";
+import { QuestTypeEnum } from "../../../enums/QuestTypeEnum";
 import { Item } from "./IItem";
 export interface IQuest {
+    /** SPT addition - human readable quest name */
     QuestName?: string;
     _id: string;
     canShowNotificationsInGame: boolean;
@@ -13,9 +15,10 @@ export interface IQuest {
     traderId: string;
     location: string;
     image: string;
-    type: string;
+    type: QuestTypeEnum;
     isKey: boolean;
-    questStatus: any;
+    /** @deprecated - Likely not used, use 'status' instead */
+    questStatus: QuestStatus;
     restartable: boolean;
     instantComplete: boolean;
     secretQuest: boolean;
@@ -23,9 +26,11 @@ export interface IQuest {
     successMessageText: string;
     templateId: string;
     rewards: Rewards;
+    /** Becomes 'AppearStatus' inside client */
     status: string | number;
     KeyQuest: boolean;
     changeQuestMessageText: string;
+    /** "Pmc" or "Scav" */
     side: string;
 }
 export interface Conditions {
@@ -64,6 +69,7 @@ export interface AvailableForProps {
     zoneId?: string;
     type?: boolean;
     countInRaid?: boolean;
+    globalQuestCounterId?: any;
 }
 export interface AvailableForCounter {
     id: string;

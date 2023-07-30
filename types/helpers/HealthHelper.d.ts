@@ -53,5 +53,7 @@ export declare class HealthHelper {
      * @param duration How long the effect has left in seconds (-1 by default, no duration).
      */
     protected addEffect(pmcData: IPmcData, effectBodyPart: string, effectType: string, duration?: number): void;
-    protected isEmpty(map: any): boolean;
+    protected isEmpty(map: Record<string, {
+        Time: number;
+    }>): boolean;
 }

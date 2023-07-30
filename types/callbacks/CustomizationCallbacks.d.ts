@@ -15,15 +15,21 @@ export declare class CustomizationCallbacks {
     protected httpResponse: HttpResponseUtil;
     constructor(customizationController: CustomizationController, saveServer: SaveServer, httpResponse: HttpResponseUtil);
     /**
-     * Handles client/trading/customization/storage
-     * @returns
+     * Handle client/trading/customization/storage
+     * @returns IGetSuitsResponse
      */
     getSuits(url: string, info: IEmptyRequestData, sessionID: string): IGetBodyResponseData<IGetSuitsResponse>;
     /**
-     * Handles client/trading/customization
+     * Handle client/trading/customization
      * @returns ISuit[]
      */
     getTraderSuits(url: string, info: IEmptyRequestData, sessionID: string): IGetBodyResponseData<ISuit[]>;
+    /**
+     * Handle CustomizationWear event
+     */
     wearClothing(pmcData: IPmcData, body: IWearClothingRequestData, sessionID: string): IItemEventRouterResponse;
+    /**
+     * Handle CustomizationBuy event
+     */
     buyClothing(pmcData: IPmcData, body: IBuyClothingRequestData, sessionID: string): IItemEventRouterResponse;
 }

@@ -53,11 +53,12 @@ export declare class InventoryHelper {
      * @param callback Code to execute later (function)
      * @param foundInRaid Will results added to inventory be set as found in raid
      * @param addUpd Additional upd properties for items being added to inventory
+     * @param useSortingTable Allow items to go into sorting table when stash has no space
      * @returns IItemEventRouterResponse
      */
     addItem(pmcData: IPmcData, request: IAddItemRequestData, output: IItemEventRouterResponse, sessionID: string, callback: {
         (): void;
-    }, foundInRaid?: boolean, addUpd?: any): IItemEventRouterResponse;
+    }, foundInRaid?: boolean, addUpd?: any, useSortingTable?: boolean): IItemEventRouterResponse;
     /**
      * Add ammo to ammo boxes
      * @param itemToAdd Item to check is ammo box
@@ -75,7 +76,7 @@ export declare class InventoryHelper {
      */
     protected splitStackIntoSmallerStacks(assortItems: Item[], requestItem: AddItem, result: IAddItemTempObject[]): void;
     /**
-     * Remove item from player inventory
+     * Remove item from player inventory + insured items array
      * @param pmcData Profile to remove item from
      * @param itemId Items id to remove
      * @param sessionID Session id
@@ -99,8 +100,9 @@ export declare class InventoryHelper {
      * @returns Array
      */
     protected getStashSlotMap(pmcData: IPmcData, sessionID: string): number[][];
-    protected getStashType(sessionID: string): string;
+    protected getSortingTableSlotMap(pmcData: IPmcData): number[][];
     protected getPlayerStashSize(sessionID: string): Record<number, number>;
+    protected getStashType(sessionID: string): string;
     /**
     * Internal helper function to transfer an item from one profile to another.
     * fromProfileData: Profile of the source.
@@ -128,6 +130,7 @@ export declare class InventoryHelper {
      * @returns Reward details
      */
     getRandomLootContainerRewardDetails(itemTpl: string): RewardDetails;
+    getInventoryConfig(): IInventoryConfig;
 }
 declare namespace InventoryHelper {
     interface InventoryItemHash {

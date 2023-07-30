@@ -27,7 +27,9 @@ declare class TradeController {
     protected ragfairConfig: IRagfairConfig;
     protected traderConfig: ITraderConfig;
     constructor(logger: ILogger, eventOutputHolder: EventOutputHolder, tradeHelper: TradeHelper, itemHelper: ItemHelper, profileHelper: ProfileHelper, ragfairServer: RagfairServer, httpResponse: HttpResponseUtil, localisationService: LocalisationService, configServer: ConfigServer);
+    /** Handle TradingConfirm event */
     confirmTrading(pmcData: IPmcData, request: IProcessBaseTradeRequestData, sessionID: string): IItemEventRouterResponse;
+    /** Handle RagFairBuyOffer event */
     confirmRagfairTrading(pmcData: IPmcData, body: IProcessRagfairTradeRequestData, sessionID: string): IItemEventRouterResponse;
     protected confirmTradingInternal(pmcData: IPmcData, body: IProcessBaseTradeRequestData, sessionID: string, foundInRaid?: boolean, upd?: Upd): IItemEventRouterResponse;
 }

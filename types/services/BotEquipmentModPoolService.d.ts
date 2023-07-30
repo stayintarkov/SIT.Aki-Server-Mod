@@ -6,19 +6,21 @@ import { ILogger } from "../models/spt/utils/ILogger";
 import { ConfigServer } from "../servers/ConfigServer";
 import { DatabaseServer } from "../servers/DatabaseServer";
 import { VFS } from "../utils/VFS";
+import { LocalisationService } from "./LocalisationService";
 /** Store a mapping between weapons, their slots and the items that fit those slots */
 export declare class BotEquipmentModPoolService {
     protected logger: ILogger;
     protected vfs: VFS;
     protected itemHelper: ItemHelper;
     protected databaseServer: DatabaseServer;
+    protected localisationService: LocalisationService;
     protected configServer: ConfigServer;
     protected botConfig: IBotConfig;
     protected weaponModPool: Mods;
     protected gearModPool: Mods;
     protected weaponPoolGenerated: boolean;
     protected armorPoolGenerated: boolean;
-    constructor(logger: ILogger, vfs: VFS, itemHelper: ItemHelper, databaseServer: DatabaseServer, configServer: ConfigServer);
+    constructor(logger: ILogger, vfs: VFS, itemHelper: ItemHelper, databaseServer: DatabaseServer, localisationService: LocalisationService, configServer: ConfigServer);
     /**
      * Store dictionary of mods for each item passed in
      * @param items items to find related mods and store in modPool

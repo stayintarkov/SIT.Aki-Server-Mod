@@ -40,6 +40,12 @@ export declare class BotLootGenerator {
      * @param botLevel Level of bot
      */
     generateLoot(sessionId: string, botJsonTemplate: IBotType, isPmc: boolean, botRole: string, botInventory: PmcInventory, botLevel: number): void;
+    /**
+     * Force healing items onto bot to ensure they can heal in-raid
+     * @param botInventory Inventory to add items to
+     * @param botRole Role of bot (sptBear/sptUsec)
+     */
+    protected addForcedMedicalItemsToPmcSecure(botInventory: PmcInventory, botRole: string): void;
     protected getRandomisedCount(min: number, max: number, nValue: number): number;
     /**
      * Take random items from a pool and add to an inventory until totalItemCount or totalValueLimit is reached
@@ -64,6 +70,7 @@ export declare class BotLootGenerator {
      */
     protected addLooseWeaponsToInventorySlot(sessionId: string, botInventory: PmcInventory, equipmentSlot: string, templateInventory: Inventory, modChances: ModsChances, botRole: string, isPmc: boolean, botLevel: number): void;
     /**
+     * @deprecated replaced by getRandomItemFromPoolByRole()
      * Get a random item from the pool parameter using the biasedRandomNumber system
      * @param pool pool of items to pick an item from
      * @param isPmc is the bot being created a pmc
@@ -71,11 +78,25 @@ export declare class BotLootGenerator {
      */
     protected getRandomItemFromPool(pool: ITemplateItem[], isPmc: boolean): ITemplateItem;
     /**
+     * Get a random item from the pool parameter using the biasedRandomNumber system
+     * @param pool pool of items to pick an item from
+     * @param isPmc is the bot being created a pmc
+     * @returns ITemplateItem object
+     */
+    protected getRandomItemFromPoolByRole(pool: ITemplateItem[], botRole: string): ITemplateItem;
+    /**
+     * @deprecated Replaced by getBotLootNValueByRole()
      * Get the loot nvalue from botconfig
      * @param isPmc if true the pmc nvalue is returned
      * @returns nvalue as number
      */
     protected getBotLootNValue(isPmc: boolean): number;
+    /**
+     * Get the loot nvalue from botconfig
+     * @param botRole role of bot e.g. assault/sptBear
+     * @returns nvalue as number
+     */
+    protected getBotLootNValueByRole(botRole: string): number;
     /**
      * Update item limit array to contain items that have a limit
      * All values are set to 0

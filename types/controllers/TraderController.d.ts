@@ -35,6 +35,7 @@ export declare class TraderController {
      */
     update(): boolean;
     /**
+     * Handle client/trading/api/traderSettings
      * Return an array of all traders
      * @param sessionID Session id
      * @returns array if ITraderBase objects
@@ -47,6 +48,8 @@ export declare class TraderController {
      * @returns 1,-1 or 0
      */
     protected sortByTraderId(traderA: ITraderBase, traderB: ITraderBase): number;
+    /** Handle client/trading/api/getTrader */
     getTrader(sessionID: string, traderID: string): ITraderBase;
+    /** Handle client/trading/api/getTraderAssort */
     getAssort(sessionId: string, traderId: string): ITraderAssort;
 }

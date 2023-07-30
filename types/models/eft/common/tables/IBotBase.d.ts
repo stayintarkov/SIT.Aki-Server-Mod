@@ -40,6 +40,7 @@ export interface Info {
     Nickname: string;
     LowerNickname: string;
     Side: string;
+    SquadInviteRestriction: boolean;
     Voice: string;
     Level: number;
     Experience: number;

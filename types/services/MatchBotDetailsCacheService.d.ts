@@ -1,10 +1,12 @@
 import { IBotBase } from "../models/eft/common/tables/IBotBase";
 import { ILogger } from "../models/spt/utils/ILogger";
+import { LocalisationService } from "./LocalisationService";
 /** Cache bots in a dictionary, keyed by the bots name, keying by name isnt idea as its not unique but this is used by the post-raid system which doesnt have any bot ids, only name */
 export declare class MatchBotDetailsCacheService {
     protected logger: ILogger;
+    protected localisationService: LocalisationService;
     protected botDetailsCache: Record<string, IBotBase>;
-    constructor(logger: ILogger);
+    constructor(logger: ILogger, localisationService: LocalisationService);
     /**
      * Store a bot in the cache, keyed by its name
      * @param botToCache Bot details to cache

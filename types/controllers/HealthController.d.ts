@@ -12,6 +12,7 @@ import { ILogger } from "../models/spt/utils/ILogger";
 import { EventOutputHolder } from "../routers/EventOutputHolder";
 import { LocalisationService } from "../services/LocalisationService";
 import { PaymentService } from "../services/PaymentService";
+import { HttpResponseUtil } from "../utils/HttpResponseUtil";
 import { JsonUtil } from "../utils/JsonUtil";
 export declare class HealthController {
     protected logger: ILogger;
@@ -21,8 +22,9 @@ export declare class HealthController {
     protected paymentService: PaymentService;
     protected inventoryHelper: InventoryHelper;
     protected localisationService: LocalisationService;
+    protected httpResponse: HttpResponseUtil;
     protected healthHelper: HealthHelper;
-    constructor(logger: ILogger, jsonUtil: JsonUtil, eventOutputHolder: EventOutputHolder, itemHelper: ItemHelper, paymentService: PaymentService, inventoryHelper: InventoryHelper, localisationService: LocalisationService, healthHelper: HealthHelper);
+    constructor(logger: ILogger, jsonUtil: JsonUtil, eventOutputHolder: EventOutputHolder, itemHelper: ItemHelper, paymentService: PaymentService, inventoryHelper: InventoryHelper, localisationService: LocalisationService, httpResponse: HttpResponseUtil, healthHelper: HealthHelper);
     /**
      * stores in-raid player health
      * @param pmcData Player profile
@@ -40,6 +42,7 @@ export declare class HealthController {
      */
     offraidHeal(pmcData: IPmcData, body: IOffraidHealRequestData, sessionID: string): IItemEventRouterResponse;
     /**
+     * Handle Eat event
      * Consume food/water outside of a raid
      * @param pmcData Player profile
      * @param body request Object
@@ -48,6 +51,7 @@ export declare class HealthController {
      */
     offraidEat(pmcData: IPmcData, body: IOffraidEatRequestData, sessionID: string): IItemEventRouterResponse;
     /**
+     * Handle RestoreHealth event
      * Occurs on post-raid healing page
      * @param pmcData player profile
      * @param healthTreatmentRequest Request data from client

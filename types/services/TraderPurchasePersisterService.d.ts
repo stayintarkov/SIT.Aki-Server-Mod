@@ -4,6 +4,7 @@ import { ITraderConfig } from "../models/spt/config/ITraderConfig";
 import { ILogger } from "../models/spt/utils/ILogger";
 import { ConfigServer } from "../servers/ConfigServer";
 import { TimeUtil } from "../utils/TimeUtil";
+import { LocalisationService } from "./LocalisationService";
 /**
  * Help with storing limited item purchases from traders in profile to persist them over server restarts
  */
@@ -11,9 +12,10 @@ export declare class TraderPurchasePersisterService {
     protected logger: ILogger;
     protected timeUtil: TimeUtil;
     protected profileHelper: ProfileHelper;
+    protected localisationService: LocalisationService;
     protected configServer: ConfigServer;
     protected traderConfig: ITraderConfig;
-    constructor(logger: ILogger, timeUtil: TimeUtil, profileHelper: ProfileHelper, configServer: ConfigServer);
+    constructor(logger: ILogger, timeUtil: TimeUtil, profileHelper: ProfileHelper, localisationService: LocalisationService, configServer: ConfigServer);
     /**
      * Get the purchases made from a trader for this profile before the last trader reset
      * @param sessionId Session id

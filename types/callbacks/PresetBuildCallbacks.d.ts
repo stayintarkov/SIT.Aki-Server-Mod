@@ -10,7 +10,10 @@ export declare class PresetBuildCallbacks {
     protected httpResponse: HttpResponseUtil;
     protected presetBuildController: PresetBuildController;
     constructor(httpResponse: HttpResponseUtil, presetBuildController: PresetBuildController);
+    /** Handle client/handbook/builds/my/list */
     getHandbookUserlist(url: string, info: IEmptyRequestData, sessionID: string): IGetBodyResponseData<WeaponBuild[]>;
+    /** Handle SaveBuild event */
     saveBuild(pmcData: IPmcData, body: IPresetBuildActionRequestData, sessionID: string): IItemEventRouterResponse;
+    /** Handle RemoveBuild event*/
     removeBuild(pmcData: IPmcData, body: IPresetBuildActionRequestData, sessionID: string): IItemEventRouterResponse;
 }

@@ -1,5 +1,5 @@
 import { IPmcData } from "../models/eft/common/IPmcData";
-import { Victim } from "../models/eft/common/tables/IBotBase";
+import { Quest, Victim } from "../models/eft/common/tables/IBotBase";
 import { Item } from "../models/eft/common/tables/IItem";
 import { ISaveProgressRequestData } from "../models/eft/inRaid/ISaveProgressRequestData";
 import { ILostOnDeathConfig } from "../models/spt/config/ILostOnDeathConfig";
@@ -13,6 +13,7 @@ import { JsonUtil } from "../utils/JsonUtil";
 import { InventoryHelper } from "./InventoryHelper";
 import { ItemHelper } from "./ItemHelper";
 import { PaymentHelper } from "./PaymentHelper";
+import { QuestHelper } from "./QuestHelper";
 export declare class InRaidHelper {
     protected logger: ILogger;
     protected saveServer: SaveServer;
@@ -20,14 +21,15 @@ export declare class InRaidHelper {
     protected itemHelper: ItemHelper;
     protected databaseServer: DatabaseServer;
     protected inventoryHelper: InventoryHelper;
+    protected questHelper: QuestHelper;
     protected paymentHelper: PaymentHelper;
     protected localisationService: LocalisationService;
     protected profileFixerService: ProfileFixerService;
     protected configServer: ConfigServer;
     protected lostOnDeathConfig: ILostOnDeathConfig;
-    constructor(logger: ILogger, saveServer: SaveServer, jsonUtil: JsonUtil, itemHelper: ItemHelper, databaseServer: DatabaseServer, inventoryHelper: InventoryHelper, paymentHelper: PaymentHelper, localisationService: LocalisationService, profileFixerService: ProfileFixerService, configServer: ConfigServer);
+    constructor(logger: ILogger, saveServer: SaveServer, jsonUtil: JsonUtil, itemHelper: ItemHelper, databaseServer: DatabaseServer, inventoryHelper: InventoryHelper, questHelper: QuestHelper, paymentHelper: PaymentHelper, localisationService: LocalisationService, profileFixerService: ProfileFixerService, configServer: ConfigServer);
     /**
-     * Should quest items be removed from player inventory on death
+     * Lookup quest item loss from lostOnDeath config
      * @returns True if items should be removed from inventory
      */
     removeQuestItemsOnDeath(): boolean;
@@ -61,6 +63,15 @@ export declare class InRaidHelper {
      * @returns Reset profile object
      */
     updateProfileBaseStats(profileData: IPmcData, saveProgressRequest: ISaveProgressRequestData, sessionID: string): IPmcData;
+    /**
+     * Look for quests not are now status = fail that were not failed pre-raid and run the failQuest() function
+     * @param sessionId Player id
+     * @param pmcData Player profile
+     * @param preRaidQuests Quests prior to starting raid
+     * @param postRaidQuests Quest after raid
+     */
+    protected processFailedQuests(sessionId: string, pmcData: IPmcData, preRaidQuests: Quest[], postRaidQuests: Quest[]): void;
+    protected resetSkillPointsEarnedDuringRaid(profile: IPmcData): void;
     /**
      * Take body part effects from client profile and apply to server profile
      * @param saveProgressRequest post-raid request

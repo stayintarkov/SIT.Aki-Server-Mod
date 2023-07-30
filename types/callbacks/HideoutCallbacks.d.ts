@@ -23,11 +23,11 @@ export declare class HideoutCallbacks implements OnUpdate {
     constructor(hideoutController: HideoutController, // TODO: delay needed
     configServer: ConfigServer);
     /**
-     * Handle HideoutUpgrade
+     * Handle HideoutUpgrade event
      */
     upgrade(pmcData: IPmcData, body: IHideoutUpgradeRequestData, sessionID: string): IItemEventRouterResponse;
     /**
-     * Handle HideoutUpgradeComplete
+     * Handle HideoutUpgradeComplete event
      */
     upgradeComplete(pmcData: IPmcData, body: IHideoutUpgradeCompleteRequestData, sessionID: string): IItemEventRouterResponse;
     /**
@@ -35,19 +35,19 @@ export declare class HideoutCallbacks implements OnUpdate {
      */
     putItemsInAreaSlots(pmcData: IPmcData, body: IHideoutPutItemInRequestData, sessionID: string): IItemEventRouterResponse;
     /**
-     * Handle HideoutTakeItemsFromAreaSlots
+     * Handle HideoutTakeItemsFromAreaSlots event
      */
     takeItemsFromAreaSlots(pmcData: IPmcData, body: IHideoutTakeItemOutRequestData, sessionID: string): IItemEventRouterResponse;
     /**
-     * Handle HideoutToggleArea
+     * Handle HideoutToggleArea event
      */
     toggleArea(pmcData: IPmcData, body: IHideoutToggleAreaRequestData, sessionID: string): IItemEventRouterResponse;
     /**
-     * Handle HideoutSingleProductionStart
+     * Handle HideoutSingleProductionStart event
      */
     singleProductionStart(pmcData: IPmcData, body: IHideoutSingleProductionStartRequestData, sessionID: string): IItemEventRouterResponse;
     /**
-     * Handle HideoutScavCaseProductionStart
+     * Handle HideoutScavCaseProductionStart event
      */
     scavCaseProductionStart(pmcData: IPmcData, body: IHideoutScavCaseStartRequestData, sessionID: string): IItemEventRouterResponse;
     /**
@@ -55,7 +55,7 @@ export declare class HideoutCallbacks implements OnUpdate {
      */
     continuousProductionStart(pmcData: IPmcData, body: IHideoutContinuousProductionStartRequestData, sessionID: string): IItemEventRouterResponse;
     /**
-     * Handle HideoutTakeProduction
+     * Handle HideoutTakeProduction event
      */
     takeProduction(pmcData: IPmcData, body: IHideoutTakeProductionRequestData, sessionID: string): IItemEventRouterResponse;
     /**

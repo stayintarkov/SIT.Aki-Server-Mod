@@ -68,6 +68,13 @@ export declare class BotWeaponGenerator {
      */
     generateWeaponByTpl(sessionId: string, weaponTpl: string, equipmentSlot: string, botTemplateInventory: Inventory, weaponParentId: string, modChances: ModsChances, botRole: string, isPmc: boolean, botLevel: number): GenerateWeaponResult;
     /**
+     * Insert a cartridge into a weapon
+     * @param weaponWithModsArray Weapon and mods
+     * @param ammoTpl Cartridge to add to weapon
+     * @param desiredSlotId name of slot, e.g. patron_in_weapon
+     */
+    protected addCartridgeToChamber(weaponWithModsArray: Item[], ammoTpl: string, desiredSlotId: string): void;
+    /**
      * Create array with weapon base as only element and
      * add additional properties based on weapon type
      * @param weaponTpl Weapon tpl to create item with

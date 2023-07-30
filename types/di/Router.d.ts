@@ -2,10 +2,10 @@ import { IPmcData } from "../models/eft/common/IPmcData";
 import { IItemEventRouterResponse } from "../models/eft/itemEvent/IItemEventRouterResponse";
 import { IAkiProfile } from "../models/eft/profile/IAkiProfile";
 export declare class Router {
-    private handledRoutes;
+    protected handledRoutes: HandledRoute[];
     getTopLevelRoute(): string;
     protected getHandledRoutes(): HandledRoute[];
-    private getInternalHandledRoutes;
+    protected getInternalHandledRoutes(): HandledRoute[];
     canHandle(url: string, partialMatch?: boolean): boolean;
 }
 export declare class StaticRouter extends Router {

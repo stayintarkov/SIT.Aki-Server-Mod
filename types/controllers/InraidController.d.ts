@@ -10,6 +10,7 @@ import { IPmcData } from "../models/eft/common/IPmcData";
 import { Item } from "../models/eft/common/tables/IItem";
 import { IRegisterPlayerRequestData } from "../models/eft/inRaid/IRegisterPlayerRequestData";
 import { ISaveProgressRequestData } from "../models/eft/inRaid/ISaveProgressRequestData";
+import { PlayerRaidEndState } from "../models/enums/PlayerRaidEndState";
 import { IAirdropConfig } from "../models/spt/config/IAirdropConfig";
 import { IInRaidConfig } from "../models/spt/config/IInRaidConfig";
 import { ILogger } from "../models/spt/utils/ILogger";
@@ -52,6 +53,7 @@ export declare class InraidController {
      */
     addPlayer(sessionID: string, info: IRegisterPlayerRequestData): void;
     /**
+     * Handle raid/profile/save
      * Save profile state to disk
      * Handles pmc/pscav
      * @param offraidData post-raid request data
@@ -98,7 +100,7 @@ export declare class InraidController {
      * @param statusOnExit exit value from offraidData object
      * @returns true if dead
      */
-    protected isPlayerDead(statusOnExit: string): boolean;
+    protected isPlayerDead(statusOnExit: PlayerRaidEndState): boolean;
     /**
      * Mark inventory items as FiR if player survived raid, otherwise remove FiR from them
      * @param offraidData Save Progress Request

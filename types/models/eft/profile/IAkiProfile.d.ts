@@ -5,6 +5,7 @@ import { Item } from "../common/tables/IItem";
 export interface IAkiProfile {
     info: Info;
     characters: Characters;
+    /** Clothing purchases */
     suits: string[];
     weaponbuilds: WeaponBuild[];
     dialogues: Record<string, Dialogue>;
@@ -61,7 +62,7 @@ export interface DialogueInfo {
     _id: string;
     type: MessageType;
     pinned: boolean;
-    Users?: any[];
+    Users?: IUserDialogInfo[];
     message: MessagePreview;
 }
 export interface Message {
@@ -75,7 +76,7 @@ export interface Message {
     text?: string;
     hasRewards: boolean;
     rewardCollected: boolean;
-    items: MessageItems;
+    items?: MessageItems;
     maxStorageTime?: number;
     systemData?: ISystemData;
     profileChangeEvents?: any[];
@@ -115,12 +116,17 @@ export interface DateTime {
 export interface Aki {
     version: string;
     mods?: ModDetails[];
+    receivedGifts: ReceivedGift[];
 }
 export interface ModDetails {
     name: string;
     version: string;
     author: string;
     dateAdded: number;
+}
+export interface ReceivedGift {
+    giftId: string;
+    timestampAccepted: number;
 }
 export interface Vitality {
     health: Health;

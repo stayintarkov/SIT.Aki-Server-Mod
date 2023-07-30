@@ -23,6 +23,7 @@ export declare class RepairController {
     protected repairConfig: IRepairConfig;
     constructor(logger: ILogger, eventOutputHolder: EventOutputHolder, databaseServer: DatabaseServer, questHelper: QuestHelper, traderHelper: TraderHelper, paymentService: PaymentService, repairHelper: RepairHelper, repairService: RepairService);
     /**
+     * Handle TraderRepair event
      * Repair with trader
      * @param sessionID session id
      * @param body endpoint request data
@@ -31,6 +32,7 @@ export declare class RepairController {
      */
     traderRepair(sessionID: string, body: ITraderRepairActionDataRequest, pmcData: IPmcData): IItemEventRouterResponse;
     /**
+     * Handle Repair event
      * Repair with repair kit
      * @param sessionID session id
      * @param body endpoint request data

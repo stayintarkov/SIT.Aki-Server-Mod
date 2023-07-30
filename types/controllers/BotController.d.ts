@@ -38,6 +38,7 @@ export declare class BotController {
      */
     getBotPresetGenerationLimit(type: string): number;
     /**
+     * Handle singleplayer/settings/bot/difficulty
      * Get the core.json difficulty settings from database\bots
      * @returns IBotCore
      */

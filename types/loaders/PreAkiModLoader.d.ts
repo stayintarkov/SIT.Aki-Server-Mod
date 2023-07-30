@@ -36,8 +36,8 @@ export declare class PreAkiModLoader implements IModLoader {
     getModPath(mod: string): string;
     protected importMods(): Promise<void>;
     /**
-     * Check for duplciate mods loaded, show error if duplicate mod found
-     * @param modPackageData dictionary of mod package.json data
+     * Check for duplicate mods loaded, show error if any
+     * @param modPackageData Dictionary of mod package.json data
      */
     protected checkForDuplicateMods(modPackageData: Record<string, IPackageJsonData>): void;
     /**

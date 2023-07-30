@@ -3,6 +3,7 @@ import { Inventory } from "../models/eft/common/tables/IBotBase";
 import { Item } from "../models/eft/common/tables/IItem";
 import { Grid, ITemplateItem } from "../models/eft/common/tables/ITemplateItem";
 import { EquipmentSlots } from "../models/enums/EquipmentSlots";
+import { ItemAddedResult } from "../models/enums/ItemAddedResult";
 import { ILogger } from "../models/spt/utils/ILogger";
 import { DatabaseServer } from "../servers/DatabaseServer";
 import { LocalisationService } from "../services/LocalisationService";
@@ -72,7 +73,7 @@ export declare class BotWeaponGeneratorHelper {
      * @param inventory Inventory to add item+children into
      * @returns a `boolean` indicating item was added
      */
-    addItemWithChildrenToEquipmentSlot(equipmentSlots: string[], parentId: string, parentTpl: string, itemWithChildren: Item[], inventory: Inventory): boolean;
+    addItemWithChildrenToEquipmentSlot(equipmentSlots: string[], parentId: string, parentTpl: string, itemWithChildren: Item[], inventory: Inventory): ItemAddedResult;
     /**
      * is the provided item allowed inside a container
      * @param slot location item wants to be placed in

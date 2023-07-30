@@ -1,8 +1,8 @@
 import { IRagfairOffer } from "../models/eft/ragfair/IRagfairOffer";
 export declare class RagfairOfferHolder {
-    private offersById;
-    private offersByTemplate;
-    private offersByTrader;
+    protected offersById: Map<string, IRagfairOffer>;
+    protected offersByTemplate: Map<string, Map<string, IRagfairOffer>>;
+    protected offersByTrader: Map<string, Map<string, IRagfairOffer>>;
     constructor();
     getOfferById(id: string): IRagfairOffer;
     getOffersByTemplate(templateId: string): Array<IRagfairOffer>;
@@ -18,7 +18,7 @@ export declare class RagfairOfferHolder {
      * @returns IRagfairOffer array
      */
     getStaleOffers(time: number): Array<IRagfairOffer>;
-    private addOfferByTemplates;
-    private addOfferByTrader;
+    protected addOfferByTemplates(template: string, offer: IRagfairOffer): void;
+    protected addOfferByTrader(trader: string, offer: IRagfairOffer): void;
     protected isStale(offer: IRagfairOffer, time: number): boolean;
 }

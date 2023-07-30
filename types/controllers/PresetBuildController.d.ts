@@ -12,7 +12,10 @@ export declare class PresetBuildController {
     protected itemHelper: ItemHelper;
     protected saveServer: SaveServer;
     constructor(hashUtil: HashUtil, eventOutputHolder: EventOutputHolder, itemHelper: ItemHelper, saveServer: SaveServer);
+    /** Handle client/handbook/builds/my/list */
     getUserBuilds(sessionID: string): WeaponBuild[];
+    /** Handle SaveBuild event */
     saveBuild(pmcData: IPmcData, body: IPresetBuildActionRequestData, sessionID: string): IItemEventRouterResponse;
+    /** Handle RemoveBuild event*/
     removeBuild(pmcData: IPmcData, body: IPresetBuildActionRequestData, sessionID: string): IItemEventRouterResponse;
 }

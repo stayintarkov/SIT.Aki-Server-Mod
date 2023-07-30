@@ -9,6 +9,7 @@ export declare class WeatherController {
     protected configServer: ConfigServer;
     protected weatherConfig: IWeatherConfig;
     constructor(weatherGenerator: WeatherGenerator, logger: ILogger, configServer: ConfigServer);
+    /** Handle client/weather */
     generate(): IWeatherData;
     /**
      * Get the current in-raid time (MUST HAVE PLAYER LOGGED INTO CLIENT TO WORK)

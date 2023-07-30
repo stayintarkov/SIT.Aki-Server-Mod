@@ -9,9 +9,18 @@ export declare class NotifierHelper {
     protected defaultNotification: INotification;
     constructor(httpServerHelper: HttpServerHelper);
     getDefaultNotification(): INotification;
-    /** Creates a new notification that displays the "Your offer was sold!" prompt and removes sold offer from "My Offers" on clientside */
+    /**
+     * Create a new notification that displays the "Your offer was sold!" prompt and removes sold offer from "My Offers" on clientside
+     * @param dialogueMessage Message from dialog that was sent
+     * @param ragfairData Ragfair data to attach to notification
+     * @returns
+     */
     createRagfairOfferSoldNotification(dialogueMessage: Message, ragfairData: MessageContentRagfair): INotification;
-    /** Creates a new notification with the specified dialogueMessage object. */
+    /**
+     * Create a new notification with the specified dialogueMessage object
+     * @param dialogueMessage
+     * @returns
+     */
     createNewMessageNotification(dialogueMessage: Message): INotification;
     getWebSocketServer(sessionID: string): string;
 }
