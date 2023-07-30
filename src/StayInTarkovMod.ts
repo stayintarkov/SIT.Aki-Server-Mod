@@ -1,7 +1,6 @@
 import tsyringe = require("tsyringe");
 
 import { LocationCallbacks } from "@spt-aki/callbacks/LocationCallbacks";
-import { DialogueController } from "@spt-aki/controllers/DialogueController";
 import { GameController } from "@spt-aki/controllers/GameController";
 import { LocationController } from "@spt-aki/controllers/LocationController";
 import { AkiHttpListener } from "@spt-aki/servers/http/AkiHttpListener";
@@ -9,7 +8,7 @@ import { SaveServer } from "@spt-aki/servers/SaveServer";
 import { HttpResponseUtil } from "@spt-aki/utils/HttpResponseUtil";
 
 
-import { Friend, IGetFriendListDataResponse } from "@spt-aki/models/eft/dialog/IGetFriendListDataResponse";
+// import { Friend, IGetFriendListDataResponse } from "@spt-aki/models/eft/dialog/IGetFriendListDataResponse";
 import { IGameConfigResponse } from "@spt-aki/models/eft/game/IGameConfigResponse";
 import MemberCategory = require("@spt-aki/models/enums/MemberCategory");
 
@@ -543,15 +542,15 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         /**
          * WIP/UNUSED FEATURE: GET FRIENDS LIST
          */
-        container.afterResolution("DialogueController", (_t, result: DialogueController) => 
-        {
-            // We want to replace the original method logic with something different
-            result.getFriendList = (sessionID: string) => 
-            {
-                return this.getFriendsList(sessionID);
-            }
-            // The modifier Always makes sure this replacement method is ALWAYS replaced
-        }, {frequency: "Always"});
+        // container.afterResolution("DialogueController", (_t, result: DialogueController) => 
+        // {
+        //     // We want to replace the original method logic with something different
+        //     result.getFriendList = (sessionID: string) => 
+        //     {
+        //         return this.getFriendsList(sessionID);
+        //     }
+        //     // The modifier Always makes sure this replacement method is ALWAYS replaced
+        // }, {frequency: "Always"});
 
         /**
          * MUST HAVE: REPLACE HTTP REQUEST HANDLER
@@ -596,47 +595,47 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         }
     }
 
-    public getFriendsList(sessionID: string): IGetFriendListDataResponse
-    {
-        console.log("getFriendsList");
-        const friends = this.getFriendsForUser(sessionID);
+    // public getFriendsList(sessionID: string): IGetFriendListDataResponse
+    // {
+    //     console.log("getFriendsList");
+    //     const friends = this.getFriendsForUser(sessionID);
 
-        return {
-            "Friends": friends,
-            "Ignore": [],
-            "InIgnoreList": []
-        };
-    }
+    //     return {
+    //         "Friends": friends,
+    //         "Ignore": [],
+    //         "InIgnoreList": []
+    //     };
+    // }
 
-    public getFriendsForUser(sessionID: string): Friend[]
-    {
-        const allAccounts = this.saveServer.getProfiles();
-		const myAccount = this.saveServer.getProfile(sessionID);
-		if(myAccount === undefined) { 
-			console.log("own account cannot be found");
-			return null;
-		}
-        let friendList: Friend[] = [];
-        // console.log(allAccounts);
-        for (const id in allAccounts)
-        {
-            if(id == sessionID)
-                continue;
-            let accountProfile = this.saveServer.getProfile(id);
-            let friend: Friend = {
-                _id: accountProfile.info.id,
-                Info: {
-                    Level: accountProfile.characters.pmc.Info.Level,
-                    Nickname: accountProfile.info.username,
-                    Side: accountProfile.characters.pmc.Info.Side,
-                    MemberCategory: MemberCategory.MemberCategory.DEFAULT
-                }
-            };
-            friendList.push(friend);
-        }
+    // public getFriendsForUser(sessionID: string): Friend[]
+    // {
+    //     const allAccounts = this.saveServer.getProfiles();
+	// 	const myAccount = this.saveServer.getProfile(sessionID);
+	// 	if(myAccount === undefined) { 
+	// 		console.log("own account cannot be found");
+	// 		return null;
+	// 	}
+    //     let friendList: Friend[] = [];
+    //     // console.log(allAccounts);
+    //     for (const id in allAccounts)
+    //     {
+    //         if(id == sessionID)
+    //             continue;
+    //         let accountProfile = this.saveServer.getProfile(id);
+    //         let friend: Friend = {
+    //             _id: accountProfile.info.id,
+    //             Info: {
+    //                 Level: accountProfile.characters.pmc.Info.Level,
+    //                 Nickname: accountProfile.info.username,
+    //                 Side: accountProfile.characters.pmc.Info.Side,
+    //                 MemberCategory: MemberCategory.MemberCategory.DEFAULT
+    //             }
+    //         };
+    //         friendList.push(friend);
+    //     }
 
-        return friendList;
-    }
+    //     return friendList;
+    // }
 
     public getGameConfig(sessionID: string): IGameConfigResponse
     {

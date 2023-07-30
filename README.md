@@ -13,7 +13,7 @@ This is the SERVER modification of [SPT-Aki](https://www.sp-tarkov.com/) to allo
 
 * Install SIT via the Launcher (or manually)
 * Download and Install the latest SPT-Aki Server
-* Download this repo (see the Code button above)
+* Download the [latest "Source code" release](https://github.com/paulov-t/SIT.Aki-Server-Mod/releases) (preferred) or use the code clone above (if you are feeling brave and like bugs)
 * Install this repo into the server /user/mods/ folder
 * Rename the folder SITCoop
 
@@ -23,12 +23,12 @@ This is the SERVER modification of [SPT-Aki](https://www.sp-tarkov.com/) to allo
 * You must configure the file called coopConfig.json in your SITCoop/config folder. This file is auto generated on first run of the mod.
 
 #### IF you are using PORT FORWARDING
-* In the file you must use the following config, replacing `{enter your external IP here}` with your own IPv4 from https://www.whatismyip.com and set useExternalIPFinder to false 
+* In the file you must use the following config, replacing `127.0.0.1` with your own IPv4 from https://www.whatismyip.com and set useExternalIPFinder to false 
 * OR set useExternalIPFinder to true
 
-#### IF you are using HAMACHI
+#### IF you are using HAMACHI or other VPN service
 * set useExternalIPFinder to false
-* set externalIP to your desired IP
+* set externalIP to your desired IP from the service
 
 ### Http.json
 
