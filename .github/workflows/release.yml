@@ -10,6 +10,9 @@ jobs:
     permissions: write-all
     name: Create Release
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14.x]
     steps:
       - name: Checkout master Branch
         uses: actions/checkout@v2
@@ -25,8 +28,14 @@ jobs:
           release_name: ${{ github.event.repository.updated_at }}
           draft: true
           prerelease: false
-      - name: Zip Folder
-        run: zip -r sitcoop.zip .
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+      - run: npm ci
+      - run: npm run build --if-present
+      - run: npm test
+      - run: node ./packageBuild.ts 
       - name: Upload Release Asset
         id: upload-release-asset 
         uses: actions/upload-release-asset@v1
@@ -34,6 +43,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./sitcoop.zip
+          asset_path: ./dist/Paulov-SITCoop-1.0.0.zip
           asset_name: sitcoop.zip
           asset_content_type: application/zip
