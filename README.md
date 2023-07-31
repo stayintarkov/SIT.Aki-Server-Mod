@@ -5,6 +5,14 @@ A SPT-Aki mod to be used with SPT-Aki Server to allow the Coop Module to communi
 
 ---
 
+<div align=center>
+
+![GitHub all releases](https://img.shields.io/github/downloads/paulov-t/SIT.Aki-Server-Mod/total) ![GitHub release (latest by date)](https://img.shields.io/github/downloads/paulov-t/SIT.Aki-Server-Mod/latest/total)
+
+</div>
+
+---
+
 ## Summary
 
 This is the SERVER modification of [SPT-Aki](https://www.sp-tarkov.com/) to allow the [Coop Module](https://github.com/paulov-t/SIT.Core) to communicate with the SPT-Aki Server.
