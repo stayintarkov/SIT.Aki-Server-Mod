@@ -49,7 +49,6 @@ export class CoopMatch {
     SpawnPoint: any = { x: 0, y:0, z:0 }
 
     private SendLastDataInterval : NodeJS.Timer;
-    private SendPingInterval : NodeJS.Timer;
     private CheckStillRunningInterval: NodeJS.Timer;
 
     // A STATIC Dictonary of Coop Matches. The Key is the Account Id of the Player that created it
@@ -101,16 +100,6 @@ export class CoopMatch {
 
         // }, 1000);
 
-        this.SendPingInterval = setInterval(() => {
-
-            var dateOfPing = new Date(Date.now());
-            var dateOfPingString = `${dateOfPing.getHours()}:${dateOfPing.getMinutes()}:${dateOfPing.getSeconds()}:${dateOfPing.getMilliseconds()}`;
-            // console.log(dateOfPingString);
-            WebSocketHandler.Instance.sendToWebSockets(this.ConnectedPlayers, JSON.stringify({ ping: dateOfPingString }));
-
-        }, 2000);
-
-
         // This checks to see if the WebSockets can still be communicated with. If it cannot for any reason. The match/raid/session will close down.
         setTimeout(() => {
             this.CheckStillRunningInterval = setInterval(() => {
@@ -152,6 +141,11 @@ export class CoopMatch {
                 const newJObj = { m: infoMethod, data: infoData };
                 this.ProcessData(newJObj, logger);
             }
+            return;
+        }
+
+        if(info.m === "Ping" && info.t !== undefined && info.accountId !== undefined) {
+            this.Ping(info.accountId, info.t);
             return;
         }
 
@@ -236,13 +230,16 @@ export class CoopMatch {
         }
     }
 
+    public Ping(accountId: string, timestamp: string) {
+        WebSocketHandler.Instance.sendToWebSockets([accountId], JSON.stringify({ pong: timestamp }));
+    }
+
     public endSession(reason: string) {
         console.log(`COOP SESSION ${this.ServerId} HAS BEEN ENDED`);
         WebSocketHandler.Instance.sendToWebSockets(this.ConnectedPlayers, JSON.stringify({ "endSession": true, reason: reason }));
 
         this.Status = CoopMatchStatus.Complete;
         clearInterval(this.SendLastDataInterval);
-        clearInterval(this.SendPingInterval);
         clearInterval(this.CheckStillRunningInterval);
 
         delete CoopMatch.CoopMatches[this.ServerId];
