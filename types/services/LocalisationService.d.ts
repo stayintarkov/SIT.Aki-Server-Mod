@@ -2,17 +2,19 @@ import { I18n } from "i18n";
 import { ILocaleConfig } from "../models/spt/config/ILocaleConfig";
 import { ILogger } from "../models/spt/utils/ILogger";
 import { DatabaseServer } from "../servers/DatabaseServer";
+import { RandomUtil } from "../utils/RandomUtil";
 import { LocaleService } from "./LocaleService";
 /**
  * Handles translating server text into different langauges
  */
 export declare class LocalisationService {
     protected logger: ILogger;
+    protected randomUtil: RandomUtil;
     protected databaseServer: DatabaseServer;
     protected localeService: LocaleService;
     protected localeConfig: ILocaleConfig;
     protected i18n: I18n;
-    constructor(logger: ILogger, databaseServer: DatabaseServer, localeService: LocaleService);
+    constructor(logger: ILogger, randomUtil: RandomUtil, databaseServer: DatabaseServer, localeService: LocaleService);
     /**
      * Get a localised value using the passed in key
      * @param key Key to loop up locale for
@@ -25,4 +27,10 @@ export declare class LocalisationService {
      * @returns string array of keys
      */
     getKeys(): string[];
+    /**
+     * From the provided partial key, find all keys that start with text and choose a random match
+     * @param partialKey Key to match locale keys on
+     * @returns locale text
+     */
+    getRandomTextThatMatchesPartialKey(partialKey: string): string;
 }

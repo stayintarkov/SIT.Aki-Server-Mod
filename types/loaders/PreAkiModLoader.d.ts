@@ -35,6 +35,7 @@ export declare class PreAkiModLoader implements IModLoader {
     getImportedModDetails(): Record<string, IPackageJsonData>;
     getModPath(mod: string): string;
     protected importMods(): Promise<void>;
+    protected sortMods(prev: string, next: string, missingFromOrderJSON: Record<string, boolean>): number;
     /**
      * Check for duplicate mods loaded, show error if any
      * @param modPackageData Dictionary of mod package.json data

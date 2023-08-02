@@ -1,5 +1,6 @@
 import { HideoutHelper } from "../helpers/HideoutHelper";
 import { InventoryHelper } from "../helpers/InventoryHelper";
+import { ItemHelper } from "../helpers/ItemHelper";
 import { IPmcData } from "../models/eft/common/IPmcData";
 import { Bonus, HideoutSlot } from "../models/eft/common/tables/IBotBase";
 import { IPmcDataRepeatableQuest, IRepeatableQuest } from "../models/eft/common/tables/IRepeatableQuests";
@@ -7,6 +8,7 @@ import { StageBonus } from "../models/eft/hideout/IHideoutArea";
 import { IAkiProfile } from "../models/eft/profile/IAkiProfile";
 import { HideoutAreas } from "../models/enums/HideoutAreas";
 import { ICoreConfig } from "../models/spt/config/ICoreConfig";
+import { IRagfairConfig } from "../models/spt/config/IRagfairConfig";
 import { ILogger } from "../models/spt/utils/ILogger";
 import { ConfigServer } from "../servers/ConfigServer";
 import { DatabaseServer } from "../servers/DatabaseServer";
@@ -18,17 +20,20 @@ export declare class ProfileFixerService {
     protected watermark: Watermark;
     protected hideoutHelper: HideoutHelper;
     protected inventoryHelper: InventoryHelper;
+    protected itemHelper: ItemHelper;
     protected localisationService: LocalisationService;
     protected timeUtil: TimeUtil;
     protected databaseServer: DatabaseServer;
     protected configServer: ConfigServer;
     protected coreConfig: ICoreConfig;
-    constructor(logger: ILogger, watermark: Watermark, hideoutHelper: HideoutHelper, inventoryHelper: InventoryHelper, localisationService: LocalisationService, timeUtil: TimeUtil, databaseServer: DatabaseServer, configServer: ConfigServer);
+    protected ragfairConfig: IRagfairConfig;
+    constructor(logger: ILogger, watermark: Watermark, hideoutHelper: HideoutHelper, inventoryHelper: InventoryHelper, itemHelper: ItemHelper, localisationService: LocalisationService, timeUtil: TimeUtil, databaseServer: DatabaseServer, configServer: ConfigServer);
     /**
      * Find issues in the pmc profile data that may cause issues and fix them
      * @param pmcProfile profile to check and fix
      */
     checkForAndFixPmcProfileIssues(pmcProfile: IPmcData): void;
+    protected adjustUnreasonableModFleaPrices(): void;
     /**
      * Add tag to profile to indicate when it was made
      * @param fullProfile

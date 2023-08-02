@@ -11,9 +11,11 @@ import { IGameConfigResponse } from "../models/eft/game/IGameConfigResponse";
 import { IGameKeepAliveResponse } from "../models/eft/game/IGameKeepAliveResponse";
 import { IServerDetails } from "../models/eft/game/IServerDetails";
 import { IAkiProfile } from "../models/eft/profile/IAkiProfile";
+import { IBotConfig } from "../models/spt/config/IBotConfig";
 import { ICoreConfig } from "../models/spt/config/ICoreConfig";
 import { IHttpConfig } from "../models/spt/config/IHttpConfig";
 import { ILocationConfig } from "../models/spt/config/ILocationConfig";
+import { IRagfairConfig } from "../models/spt/config/IRagfairConfig";
 import { ILogger } from "../models/spt/utils/ILogger";
 import { ConfigServer } from "../servers/ConfigServer";
 import { DatabaseServer } from "../servers/DatabaseServer";
@@ -25,6 +27,7 @@ import { ProfileFixerService } from "../services/ProfileFixerService";
 import { SeasonalEventService } from "../services/SeasonalEventService";
 import { EncodingUtil } from "../utils/EncodingUtil";
 import { JsonUtil } from "../utils/JsonUtil";
+import { RandomUtil } from "../utils/RandomUtil";
 import { TimeUtil } from "../utils/TimeUtil";
 export declare class GameController {
     protected logger: ILogger;
@@ -33,6 +36,7 @@ export declare class GameController {
     protected timeUtil: TimeUtil;
     protected preAkiModLoader: PreAkiModLoader;
     protected httpServerHelper: HttpServerHelper;
+    protected randomUtil: RandomUtil;
     protected encodingUtil: EncodingUtil;
     protected hideoutHelper: HideoutHelper;
     protected profileHelper: ProfileHelper;
@@ -48,7 +52,9 @@ export declare class GameController {
     protected httpConfig: IHttpConfig;
     protected coreConfig: ICoreConfig;
     protected locationConfig: ILocationConfig;
-    constructor(logger: ILogger, databaseServer: DatabaseServer, jsonUtil: JsonUtil, timeUtil: TimeUtil, preAkiModLoader: PreAkiModLoader, httpServerHelper: HttpServerHelper, encodingUtil: EncodingUtil, hideoutHelper: HideoutHelper, profileHelper: ProfileHelper, profileFixerService: ProfileFixerService, localisationService: LocalisationService, customLocationWaveService: CustomLocationWaveService, openZoneService: OpenZoneService, seasonalEventService: SeasonalEventService, giftService: GiftService, applicationContext: ApplicationContext, configServer: ConfigServer);
+    protected ragfairConfig: IRagfairConfig;
+    protected botConfig: IBotConfig;
+    constructor(logger: ILogger, databaseServer: DatabaseServer, jsonUtil: JsonUtil, timeUtil: TimeUtil, preAkiModLoader: PreAkiModLoader, httpServerHelper: HttpServerHelper, randomUtil: RandomUtil, encodingUtil: EncodingUtil, hideoutHelper: HideoutHelper, profileHelper: ProfileHelper, profileFixerService: ProfileFixerService, localisationService: LocalisationService, customLocationWaveService: CustomLocationWaveService, openZoneService: OpenZoneService, seasonalEventService: SeasonalEventService, giftService: GiftService, applicationContext: ApplicationContext, configServer: ConfigServer);
     /**
      * Handle client/game/start
      */
@@ -84,6 +90,7 @@ export declare class GameController {
      * @param pmcProfile Player profile
      */
     protected warnOnActiveBotReloadSkill(pmcProfile: IPmcData): void;
+    protected flagAllItemsInDbAsSellableOnFlea(): void;
     /**
      * When player logs in, iterate over all active effects and reduce timer
      * TODO - add body part HP regen
@@ -118,9 +125,14 @@ export declare class GameController {
     protected validateQuestAssortUnlocksExist(): void;
     /**
      * Add the logged in players name to PMC name pool
-     * @param pmcProfile
+     * @param pmcProfile Profile of player to get name from
      */
     protected addPlayerToPMCNames(pmcProfile: IPmcData): void;
+    /**
+     * Check for a dialog with the key 'undefined', and remove it
+     * @param fullProfile Profile to check for dialog in
+     */
+    protected checkForAndRemoveUndefinedDialogs(fullProfile: IAkiProfile): void;
     /**
      * Blank out the "test" mail message from prapor
      */

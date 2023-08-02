@@ -145,6 +145,8 @@ export class CoopMatch {
         }
 
         if(info.m === "Ping" && info.t !== undefined && info.accountId !== undefined) {
+            // console.log("Ping");
+            // console.log(info.t);
             this.Ping(info.accountId, info.t);
             return;
         }

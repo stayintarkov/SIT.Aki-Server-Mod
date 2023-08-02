@@ -58,16 +58,12 @@ export declare class HideoutHelper {
      * @returns
      */
     isProductionType(productive: Productive): productive is Production;
-    applyPlayerUpgradesBonuses(pmcData: IPmcData, bonus: StageBonus): void;
     /**
-     * TODO:
-     * After looking at the skills there doesnt seem to be a configuration per skill to boost
-     * the XP gain PER skill. I THINK you should be able to put the variable "SkillProgress" (just like health has it)
-     * and be able to tune the skill gain PER skill, but I havent tested it and Im not sure!
-     * @param pmcData
-     * @param bonus
+     * Apply bonus to player profile given after completing hideout upgrades
+     * @param pmcData Profile to add bonus to
+     * @param bonus Bonus to add to profile
      */
-    protected applySkillXPBoost(pmcData: IPmcData, bonus: StageBonus): void;
+    applyPlayerUpgradesBonuses(pmcData: IPmcData, bonus: StageBonus): void;
     /**
      * Process a players hideout, update areas that use resources + increment production timers
      * @param sessionID Session id
@@ -83,6 +79,7 @@ export declare class HideoutHelper {
         isGeneratorOn: boolean;
         waterCollectorHasFilter: boolean;
     };
+    protected doesWaterCollectorHaveFilter(waterCollector: HideoutArea): boolean;
     /**
      * Update progress timer for water collector
      * @param pmcData profile to update
@@ -141,9 +138,8 @@ export declare class HideoutHelper {
         isGeneratorOn: boolean;
         waterCollectorHasFilter: boolean;
     }): void;
-    protected updateWaterCollector(sessionId: string, pmcData: IPmcData, area: HideoutArea, isGeneratorOn: boolean): void;
-    protected doesWaterCollectorHaveFilter(waterCollector: HideoutArea): boolean;
     protected updateFuel(generatorArea: HideoutArea, pmcData: IPmcData): void;
+    protected updateWaterCollector(sessionId: string, pmcData: IPmcData, area: HideoutArea, isGeneratorOn: boolean): void;
     /**
      * Adjust water filter objects resourceValue or delete when they reach 0 resource
      * @param waterFilterArea water filter area to update

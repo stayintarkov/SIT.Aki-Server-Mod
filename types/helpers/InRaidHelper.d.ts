@@ -1,5 +1,5 @@
 import { IPmcData } from "../models/eft/common/IPmcData";
-import { Quest, Victim } from "../models/eft/common/tables/IBotBase";
+import { Quest, TraderInfo, Victim } from "../models/eft/common/tables/IBotBase";
 import { Item } from "../models/eft/common/tables/IItem";
 import { ISaveProgressRequestData } from "../models/eft/inRaid/ISaveProgressRequestData";
 import { ILostOnDeathConfig } from "../models/spt/config/ILostOnDeathConfig";
@@ -78,6 +78,7 @@ export declare class InRaidHelper {
      * @param profileData player profile on server
      */
     protected transferPostRaidLimbEffectsToProfile(saveProgressRequest: ISaveProgressRequestData, profileData: IPmcData): void;
+    protected applyTraderStandingAdjustments(preRaid: Record<string, TraderInfo>, postRaid: Record<string, TraderInfo>): void;
     /**
      * Some maps have one-time-use keys (e.g. Labs
      * Remove the relevant key from an inventory based on the post-raid request data passed in

@@ -71,6 +71,13 @@ export interface Dynamic {
     removeSeasonalItemsWhenNotInEvent: boolean;
     /** Flea blacklist settings */
     blacklist: Blacklist;
+    /** Should prices over the multiplier be adjusted */
+    unreasonableModPrices: IUnreasonableModPrices;
+}
+export interface IUnreasonableModPrices {
+    enabled: boolean;
+    handbookPriceOverMultiplier: number;
+    newPriceHandbookMultiplier: number;
 }
 export interface Barter {
     /** Should barter offers be generated */
