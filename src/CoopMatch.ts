@@ -208,6 +208,15 @@ export class CoopMatch {
             if(!foundExistingPlayer)
                 this.Characters.push(info);
         }
+        
+        if(info.m == "Kill") {
+            for(var c of this.Characters) {
+                if (info.accountId == c.accountId) {
+					c.isDead = true;
+                    break;
+                }
+            }
+        }
 
         this.LastUpdateDateTime = new Date(Date.now());
 
