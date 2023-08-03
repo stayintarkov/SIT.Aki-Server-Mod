@@ -42,6 +42,7 @@ import AzureWAH = require("./AzureWebAppHelper");
 
 // -------------------------------------------------------------------------
 // Custom Traders (needs to be refactored into SITCustomTraders.ts)
+import { CoopMatchResponse } from "./CoopMatchResponse";
 import { BearTrader } from "./Traders/BearTrader";
 import { CoopGroupTrader } from "./Traders/CoopGroupTrader";
 import { UsecTrader } from "./Traders/UsecTrader";
@@ -97,6 +98,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         const staticRouterModService = container.resolve<StaticRouterModService>("StaticRouterModService");
         this.saveServer = container.resolve<SaveServer>("SaveServer");
         CoopMatch.saveServer = this.saveServer;
+        CoopMatch.routeHandler(container);
         this.locationController = container.resolve<LocationController>("LocationController");
         this.httpBufferHandler  = container.resolve<HttpBufferHandler>("HttpBufferHandler");
         this.databaseServer = container.resolve<DatabaseServer>("DatabaseServer");
@@ -106,6 +108,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         this.httpConfig = this.configServer.getConfig(ConfigTypes.HTTP);
         this.coopConfig = new CoopConfig();
         this.sitConfig = new SITConfig();
+        this.sitConfig.routeHandler(container);
         this.webSocketHandler = new WebSocketHandler(this.coopConfig.webSocketPort, logger);
         this.bundleLoader = container.resolve<BundleLoader>("BundleLoader");
 
@@ -119,7 +122,6 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         const dynamicRouterModService = container.resolve<DynamicRouterModService>("DynamicRouterModService");
         const staticRouterModService = container.resolve<StaticRouterModService>("StaticRouterModService");
         this.InitializeVariables(container);
-        this.sitConfig.routeHandler(container);
 
         // Initialize Custom Traders
         for(const t of this.traders) {
@@ -175,6 +177,22 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                 //         return output;
                 //     }
                 // },
+                {
+                    url: "/coop/server/getAllForLocation",
+                    action: (url, info: any, sessionId: string, output) => {
+                        console.log(info);
+                        const matches : CoopMatchResponse[] = [];
+                        for(let itemKey in CoopMatch.CoopMatches) {
+                            const m = CoopMatch.CoopMatches[itemKey];
+                            const matchResponse = new CoopMatchResponse();
+                            matchResponse.Settings = m.Settings;
+                            matchResponse.Location = m.Location;
+                            matches.push(matchResponse);
+                        }
+                        output = JSON.stringify(matches);
+                        return output;
+                    }
+                },
                 {
                     url: "/coop/server/create",
                     action: (url, info: any, sessionId, output) => {

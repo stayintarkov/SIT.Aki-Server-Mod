@@ -1,3 +1,5 @@
+import tsyringe = require("tsyringe");
+
 import { LootItem } from "@spt-aki/models/spt/services/LootItem";
 import type { ILogger } from "@spt-aki/models/spt/utils/ILogger";
 import { SaveServer } from "@spt-aki/servers/SaveServer";
@@ -248,6 +250,32 @@ export class CoopMatch {
 
         // Clear out Location Data after match has ended
         StayInTarkovMod.Instance.locationData = {};
+    }
+
+    public static routeHandler(container: tsyringe.DependencyContainer) {
+
+        // const dynamicRouterModService = container.resolve<DynamicRouterModService>("DynamicRouterModService");
+        // const staticRouterModService = container.resolve<StaticRouterModService>("StaticRouterModService");
+
+        //  staticRouterModService.registerStaticRouter(
+        //     "MyStaticModRouterSITConfig",
+        //     [
+        //         {
+        //             url: "/coop/server/getAllForLocation",
+        //             action: (url, info: any, sessionId: string, output) => {
+        //                 console.log(info);
+        //                 const matches : CoopMatch[] = [];
+        //                 for(let itemKey in CoopMatch.CoopMatches) {
+        //                     matches.push(CoopMatch.CoopMatches[itemKey]);
+        //                 }
+        //                 output = JSON.stringify(matches);
+        //                 return output;
+        //             }
+        //         }
+        //     ]
+        //     ,"aki"
+        // )
+
     }
 
     
