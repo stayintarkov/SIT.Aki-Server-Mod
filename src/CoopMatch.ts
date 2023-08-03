@@ -212,7 +212,7 @@ export class CoopMatch {
         if(info.m == "Kill") {
             for(var c of this.Characters) {
                 if (info.accountId == c.accountId) {
-					c.isDead = true;
+                    c.isDead = true;
                     break;
                 }
             }
