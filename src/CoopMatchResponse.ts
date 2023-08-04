@@ -4,4 +4,5 @@ export class CoopMatchResponse {
     Settings: any = {};
     RaidTime: string;
     Location: string;
+    PlayerCount: number;
 }

@@ -180,12 +180,15 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                 {
                     url: "/coop/server/getAllForLocation",
                     action: (url, info: any, sessionId: string, output) => {
-                        console.log(info);
+                        // console.log(info);
                         const matches : CoopMatchResponse[] = [];
                         for(let itemKey in CoopMatch.CoopMatches) {
                             const m = CoopMatch.CoopMatches[itemKey];
                             const matchResponse = new CoopMatchResponse();
+                            matchResponse.HostProfileId = itemKey;
+                            matchResponse.HostName = this.saveServer.getProfile(itemKey).characters.pmc.Info.Nickname;
                             matchResponse.Settings = m.Settings;
+                            matchResponse.PlayerCount = m.ConnectedPlayers.length;
                             matchResponse.Location = m.Location;
                             matches.push(matchResponse);
                         }
