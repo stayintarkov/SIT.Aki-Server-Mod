@@ -4,7 +4,7 @@
     "main": "src/StayInTarkovMod.js",
     "license": "MIT",
     "author": "Paulov",
-    "akiVersion": "3.6.0",
+    "akiVersion": "3.6.1",
     "scripts": {
         "setup": "npm i",
         "build": "node ./packageBuild.ts"
