@@ -43,9 +43,7 @@ import AzureWAH = require("./AzureWebAppHelper");
 // -------------------------------------------------------------------------
 // Custom Traders (needs to be refactored into SITCustomTraders.ts)
 import { CoopMatchResponse } from "./CoopMatchResponse";
-import { BearTrader } from "./Traders/BearTrader";
-import { CoopGroupTrader } from "./Traders/CoopGroupTrader";
-import { UsecTrader } from "./Traders/UsecTrader";
+import { SITCustomTraders } from "./Traders/SITCustomTraders";
 // -------------------------------------------------------------------------
 
 
@@ -112,7 +110,8 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         this.webSocketHandler = new WebSocketHandler(this.coopConfig.webSocketPort, logger);
         this.bundleLoader = container.resolve<BundleLoader>("BundleLoader");
 
-        this.traders.push(new CoopGroupTrader(), new UsecTrader(), new BearTrader());
+        // this.traders.push(new SITCustomTraders(), new CoopGroupTrader(), new UsecTrader(), new BearTrader());
+        this.traders.push(new SITCustomTraders());
     }
 
     public preAkiLoad(container: tsyringe.DependencyContainer): void {

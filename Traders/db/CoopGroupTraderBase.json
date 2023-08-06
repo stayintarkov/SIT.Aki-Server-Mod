@@ -5,7 +5,14 @@
     "items_buy": {
         "category": [
             "5422acb9af1c889c16000029",
-            "5448e8d04bdc2ddf718b4569"
+            "5485a8684bdc2da71d8b4567",
+            "5448fe124bdc2da5018b4567",
+            "57864a66245977548f04a81f",
+            "57864ee62459775490116fc1",
+            "57864bb7245977548b3b66c2",
+            "5c164d2286f774194c5e69fa",
+            "5447e0e74bdc2d3c308b4567",
+            "616eb7aea207f41933308f46"
         ],
         "id_list": []
     },
@@ -26,13 +33,13 @@
     "currency": "RUB",
     "nextResupply": 1615141448,
     "repair": {
-        "availability": false,
-        "quality": "2",
+        "availability": true,
+        "quality": "1",
         "excluded_id_list": [],
         "excluded_category": [],
         "currency": "5449016a4bdc2d6f028b456f",
         "currency_coefficient": 1,
-        "price_rate": 10
+        "price_rate": 100
     },
     "insurance": {
         "availability": false,
@@ -47,9 +54,9 @@
             "minLevel": 1,
             "minSalesSum": 0,
             "minStanding": 0,
-            "buy_price_coef": 38,
-            "repair_price_coef": 175,
-            "insurance_price_coef": 10,
+            "buy_price_coef": 100,
+            "repair_price_coef": 100,
+            "insurance_price_coef": 100,
             "exchange_price_coef": 0,
             "heal_price_coef": 0
         }

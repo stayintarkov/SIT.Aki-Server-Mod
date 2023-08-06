@@ -13,14 +13,18 @@ import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
 import { JsonUtil } from "@spt-aki/utils/JsonUtil";
 
 // New trader settings
+import { Money } from "@spt-aki/models/enums/Money";
+import { HashUtil } from "@spt-aki/utils/HashUtil";
 import * as baseJson from "../../Traders/db/UsecTraderBase.json";
+import { FluentAssortConstructor } from "./FluentTraderAssortCreator";
 import { TraderHelper } from "./traderHelpers";
 
 export class UsecTrader implements IPreAkiLoadMod, IPostDBLoadMod
 {
     private mod: string
     private logger: ILogger
-    private traderHeper: TraderHelper
+    private traderHelper: TraderHelper
+    private fluentTraderAssortHelper: FluentAssortConstructor;
 
     constructor() {
         this.mod = "SITCoop"; // Set name of mod so we can log it to console later
@@ -40,11 +44,13 @@ export class UsecTrader implements IPreAkiLoadMod, IPostDBLoadMod
         const imageRouter: ImageRouter = container.resolve<ImageRouter>("ImageRouter");
         const configServer = container.resolve<ConfigServer>("ConfigServer");
         const traderConfig: ITraderConfig = configServer.getConfig<ITraderConfig>(ConfigTypes.TRADER);
+        const hashUtil: HashUtil = container.resolve<HashUtil>("HashUtil");
 
         // Create helper class and use it to register our traders image/icon + set its stock refresh time
-        this.traderHeper = new TraderHelper();
-        this.traderHeper.registerProfileImage(baseJson, this.mod, preAkiModLoader, imageRouter, "usec.jpg");
-        this.traderHeper.setTraderUpdateTime(traderConfig, baseJson, 3600);
+        this.traderHelper = new TraderHelper();
+        this.fluentTraderAssortHelper = new FluentAssortConstructor(hashUtil, this.logger);
+        this.traderHelper.registerProfileImage(baseJson, this.mod, preAkiModLoader, imageRouter, "usec.jpg");
+        this.traderHelper.setTraderUpdateTime(traderConfig, baseJson, 3600);
 
     }
     
@@ -63,16 +69,21 @@ export class UsecTrader implements IPreAkiLoadMod, IPostDBLoadMod
         const tables = databaseServer.getTables();
 
         // Add new trader to the trader dictionary in DatabaseServer - has no assorts (items) yet
-        this.traderHeper.addTraderToDb(baseJson, tables, jsonUtil);
+        this.traderHelper.addTraderToDb(baseJson, tables, jsonUtil);
 
-        // Add some singular items to trader (items without sub-items e.g. milk/bandage)
-        this.traderHeper.addSingleItemsToTrader(tables, baseJson._id);
+        const MILK_ID = "575146b724597720a27126d5"; // Can find item ids in `database\templates\items.json` or with https://db.sp-tarkov.com/search
+        this.fluentTraderAssortHelper.createSingleAssortItem(MILK_ID)
+                                    .addStackCount(200)
+                                    .addBuyRestriction(10)
+                                    .addMoneyCost(Money.ROUBLES, 2000)
+                                    .addLoyaltyLevel(1)
+                                    .export(tables.traders[baseJson._id]);
 
         // Add more complex items to trader (items with sub-items, e.g. guns)
-        this.traderHeper.addComplexItemsToTrader(tables, baseJson._id, jsonUtil);
+        // this.traderHelper.addComplexItemsToTrader(tables, baseJson._id, jsonUtil);
 
         // Add trader to locale file, ensures trader text shows properly on screen
         // WARNING: adds the same text to ALL locales (e.g. chinese/french/english)
-        this.traderHeper.addTraderToLocales(baseJson, tables, baseJson.name, "Usec Trader", baseJson.nickname, baseJson.location, "");
+        this.traderHelper.addTraderToLocales(baseJson, tables, baseJson.name, "Usec Trader", baseJson.nickname, baseJson.location, "");
     }
 }
