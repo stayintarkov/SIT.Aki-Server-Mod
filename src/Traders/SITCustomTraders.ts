@@ -61,6 +61,7 @@ export class SITCustomTraders implements IPreAkiLoadMod, IPostDBLoadMod
                 if (request.type === "buy_from_trader")
                 {
                     const buyData = <IProcessBuyTradeRequestData>request;
+                    this.buyFromCoopTrader(pmcData, request, sessionID);
                     return this.tradeHelper.buyItem(pmcData, buyData, sessionID, false, null);
                 }
 
@@ -68,65 +69,7 @@ export class SITCustomTraders implements IPreAkiLoadMod, IPostDBLoadMod
                 if (request.type === "sell_to_trader")
                 {
                     const sellData = <IProcessSellTradeRequestData>request;
-                    const itemGroups = sellData.items;
-                    const traderId = request.tid
-                    
-                    // If not the CoopTrader, ignore all other logic                    
-                    if(traderId !== "coopTrader") 
-                        return this.tradeHelper.sellItem(pmcData, sellData, sessionID);
-
-
-
-                    // -------------------------------------------
-                    // Get Dynamic Assort Path
-                    const traderDbPath = path.join( __dirname, traderId);
-                    if(!fs.existsSync(traderDbPath))
-                        fs.mkdirSync(traderDbPath, { recursive: true });
-
-                    // Create dynamic assort file
-                    const dynamicAssortFilePath = path.join(__dirname, traderId, "dynamicAssort.json");
-                    if(!fs.existsSync(dynamicAssortFilePath)) {
-                        const defaultFile = JSON.stringify([], null, 4);
-                        fs.writeFileSync(dynamicAssortFilePath, defaultFile);
-                    }
-                    // -------------------------------------------
-
-                    const currentAssort:[any] = JSON.parse(fs.readFileSync(dynamicAssortFilePath).toString());
-
-                    for(const itemGroup of itemGroups) {
-
-                        const itemIdToFind = itemGroup.id.replace(/\s+/g, ""); // Strip out whitespace
-
-                        // Find item in player inventory, or show error to player if not found
-                        const matchingItemInInventory = pmcData.Inventory.items.find(x => x._id === itemIdToFind);
-                        if (!matchingItemInInventory)
-                            continue;
-
-                        const childItems = this.itemHelper.findAndReturnChildrenAsItems(pmcData.Inventory.items, itemIdToFind);
-                        if (childItems) {
-                            // Add all the childItems
-                            for(const childItem of childItems) {
-                                console.log(childItem);
-                                const indexOfExisting = currentAssort.findIndex(x => x["tpl"] == childItem._tpl);
-
-                                let count = childItem.upd !== undefined && childItem.upd?.StackObjectsCount !== undefined ? childItem.upd.StackObjectsCount : 1;
-
-                                if(indexOfExisting == -1) {
-                                    currentAssort.push({ tpl: childItem._tpl, count: count });
-                                }
-                                else {
-                                    currentAssort[indexOfExisting]["count"] += count;
-                                }
-                                
-                            }
-                        }
-
-                    }
-
-                    fs.writeFileSync(dynamicAssortFilePath, JSON.stringify(currentAssort));
-
-                    // SITCustomTraders.traders[0].createAssort(this.databaseServer);
-
+                    this.sellToCoopTrader(pmcData, request, sessionID);
                     return this.tradeHelper.sellItem(pmcData, sellData, sessionID);
                 }
 
@@ -157,6 +100,119 @@ export class SITCustomTraders implements IPreAkiLoadMod, IPostDBLoadMod
         for(const t of SITCustomTraders.traders) {
             t.postDBLoad(container);
         }
+    }
+
+    buyFromCoopTrader(pmcData: IPmcData, request: IProcessBaseTradeRequestData, sessionID: string): boolean {
+
+        const buyData = <IProcessBuyTradeRequestData>request;
+        const itemGroups = buyData.scheme_items;
+        const traderId = request.tid
+
+        // If not the CoopTrader, ignore all other logic                    
+        if(traderId !== "coopTrader") 
+            return false;
+
+        // -------------------------------------------
+        // Get Dynamic Assort Path
+        const traderDbPath = path.join( __dirname, traderId);
+        if(!fs.existsSync(traderDbPath))
+            fs.mkdirSync(traderDbPath, { recursive: true });
+
+        // Create dynamic assort file
+        const dynamicAssortFilePath = path.join(__dirname, traderId, "dynamicAssort.json");
+        if(!fs.existsSync(dynamicAssortFilePath)) {
+            const defaultFile = JSON.stringify([], null, 4);
+            fs.writeFileSync(dynamicAssortFilePath, defaultFile);
+        }
+        // -------------------------------------------
+
+        const assortItemIndex = this.databaseServer.getTables().traders[traderId].assort.items.findIndex(x=>x._id == buyData.item_id);
+        if (assortItemIndex === -1)
+            return false;
+
+        const currentAssort:[any] = JSON.parse(fs.readFileSync(dynamicAssortFilePath).toString());
+
+        const assortItem = this.databaseServer.getTables().traders[traderId].assort.items[assortItemIndex];
+
+        const storedAssortItemIndex = currentAssort.findIndex(x => x.tpl == assortItem._tpl);
+        if (storedAssortItemIndex === -1)
+            return false;
+
+        if(currentAssort[storedAssortItemIndex].count - buyData.count <= 0) {
+            currentAssort.splice(storedAssortItemIndex, 1);
+        }
+        else {
+            currentAssort[storedAssortItemIndex].count -= buyData.count;
+        }
+
+        // save the change to file
+        fs.writeFileSync(dynamicAssortFilePath, JSON.stringify(currentAssort));
+
+        // regenerage the assort
+        // SITCustomTraders.traders[0].createAssort(this.databaseServer.getTables());
+
+        return true;
+        
+    }
+
+    sellToCoopTrader(pmcData: IPmcData, request: IProcessBaseTradeRequestData, sessionID: string): boolean {
+
+        const sellData = <IProcessSellTradeRequestData>request;
+        const itemGroups = sellData.items;
+        const traderId = request.tid
+
+        // If not the CoopTrader, ignore all other logic                    
+        if(traderId !== "coopTrader") 
+            return false;
+
+        // -------------------------------------------
+        // Get Dynamic Assort Path
+        const traderDbPath = path.join( __dirname, traderId);
+        if(!fs.existsSync(traderDbPath))
+            fs.mkdirSync(traderDbPath, { recursive: true });
+
+        // Create dynamic assort file
+        const dynamicAssortFilePath = path.join(__dirname, traderId, "dynamicAssort.json");
+        if(!fs.existsSync(dynamicAssortFilePath)) {
+            const defaultFile = JSON.stringify([], null, 4);
+            fs.writeFileSync(dynamicAssortFilePath, defaultFile);
+        }
+        // -------------------------------------------
+
+        const currentAssort:[any] = JSON.parse(fs.readFileSync(dynamicAssortFilePath).toString());
+
+        for(const itemGroup of itemGroups) {
+
+            const itemIdToFind = itemGroup.id.replace(/\s+/g, ""); // Strip out whitespace
+
+            // Find item in player inventory, or show error to player if not found
+            const matchingItemInInventory = pmcData.Inventory.items.find(x => x._id === itemIdToFind);
+            if (!matchingItemInInventory)
+                continue;
+
+            const childItems = this.itemHelper.findAndReturnChildrenAsItems(pmcData.Inventory.items, itemIdToFind);
+            if (childItems) {
+                // Add all the childItems
+                for(const childItem of childItems) {
+                    console.log(childItem);
+                    const indexOfExisting = currentAssort.findIndex(x => x["tpl"] == childItem._tpl);
+
+                    let count = childItem.upd !== undefined && childItem.upd?.StackObjectsCount !== undefined ? childItem.upd.StackObjectsCount : 1;
+
+                    if(indexOfExisting == -1) {
+                        currentAssort.push({ tpl: childItem._tpl, count: count });
+                    }
+                    else {
+                        currentAssort[indexOfExisting]["count"] += count;
+                    }
+                    
+                }
+            }
+
+        }
+
+        fs.writeFileSync(dynamicAssortFilePath, JSON.stringify(currentAssort));
+        return true;
     }
 
    
