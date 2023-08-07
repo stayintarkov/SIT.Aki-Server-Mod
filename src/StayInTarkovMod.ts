@@ -136,6 +136,19 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         // ----------------------- TODO: Azure WebApp Helper (trying to fix this ASAP) ------------------------------------------------
         new AzureWAH.AzureWebAppHelper(this.configServer);
 
+        // Connect to this module
+        staticRouterModService.registerStaticRouter(
+            "ConnectionRouter",
+            [
+                {
+                    url: "/coop/connect",
+                    action: (url: string, info: any, sessionID: string, output: string): any => {
+                        output = JSON.stringify({});
+                        return output;
+                    }
+                },
+            ],"aki");
+
         dynamicRouterModService.registerDynamicRouter(
             "sit-coop-loot",
             [
@@ -705,7 +718,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
             }
             case "POST":
             {
-                req.on("data", async (data: any) =>
+                req.on("data", (data: any) =>
                 {
                     if (sessionId === undefined)
                         sessionId = "launcher";
@@ -718,7 +731,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                     }
                 });
 
-                req.on("end", async () =>
+                req.on("end", () =>
                 {
                     if (sessionId === undefined)
                         sessionId = "launcher";
