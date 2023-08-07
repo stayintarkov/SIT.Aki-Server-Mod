@@ -3,17 +3,7 @@
     "working": true,
     "availableInRaid": false,
     "items_buy": {
-        "category": [
-            "5422acb9af1c889c16000029",
-            "5485a8684bdc2da71d8b4567",
-            "5448fe124bdc2da5018b4567",
-            "57864a66245977548f04a81f",
-            "57864ee62459775490116fc1",
-            "57864bb7245977548b3b66c2",
-            "5c164d2286f774194c5e69fa",
-            "5447e0e74bdc2d3c308b4567",
-            "616eb7aea207f41933308f46"
-        ],
+        "category": ["5661632d4bdc2d903d8b456b", "5447e0e74bdc2d3c308b4567", "543be5664bdc2dd4348b4569", "5448e5284bdc2dcb718b4567", "5448e53e4bdc2d60728b4567", "5448fe124bdc2da5018b4567", "543be5f84bdc2dd4348b456a", "5422acb9af1c889c16000029", "543be6674bdc2df1348b4569", "567849dd4bdc2d150f8b456e", "543be6564bdc2df4348b4568", "5447e1d04bdc2dff2f8b4567", "5448eb774bdc2d0a728b4567", "5448ecbe4bdc2d60728b4568", "616eb7aea207f41933308f46"],
         "id_list": []
     },
     "items_buy_prohibited": {},
@@ -49,7 +39,7 @@
         "max_storage_time": 99,
         "excluded_category": []
     },
-    "gridHeight": 150,
+    "gridHeight": 500,
     "loyaltyLevels": [{
             "minLevel": 1,
             "minSalesSum": 0,
