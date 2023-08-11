@@ -18,7 +18,7 @@ export class TraderHelper
      public registerProfileImage(baseJson: any, modName: string, preAkiModLoader: PreAkiModLoader, imageRouter: ImageRouter, traderImageName: string): void
      {
          // Reference the mod "res" folder
-         const imageFilepath = `./${preAkiModLoader.getModPath(modName)}res`;
+         const imageFilepath = `./${preAkiModLoader.getModPath(modName)}/Traders/res`;
  
          // Register a route to point to the profile picture - remember to remove the .jpg from it
          imageRouter.addRoute(baseJson.avatar.replace(".jpg", ""), `${imageFilepath}/${traderImageName}`);
