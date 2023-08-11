@@ -195,12 +195,25 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                         // console.log(info);
                         const matches : CoopMatchResponse[] = [];
                         for(let itemKey in CoopMatch.CoopMatches) {
+
+                            // Get Instance of CoopMatch
                             const m = CoopMatch.CoopMatches[itemKey];
+
+                            // Filter out Raids that have Not Started or Empty
+                            if(m.ConnectedPlayers.length === 0)
+                                continue;
+
+                            // Create the custom CoopMatchResponse with the exact Json values needed by the Client
                             const matchResponse = new CoopMatchResponse();
+                            // Account Id / Server Id
                             matchResponse.HostProfileId = itemKey;
+                            // Player's name for the Host Name
                             matchResponse.HostName = this.saveServer.getProfile(itemKey).characters.pmc.Info.Nickname;
+                            // Raid Settings
                             matchResponse.Settings = m.Settings;
+                            // Number of Players Connected: (FIXME: This seems to be including Bots)
                             matchResponse.PlayerCount = m.ConnectedPlayers.length;
+                            // Location Instance
                             matchResponse.Location = m.Location;
                             matches.push(matchResponse);
                         }
@@ -691,7 +704,8 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                 RagFair: externalIp,
             },
             utc_time: new Date().getTime() / 1000,
-            totalInGame: 1
+            totalInGame: 1,
+            useProtobuf: false
         };
 
         return config;
