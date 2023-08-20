@@ -36,8 +36,11 @@ export class CoopMatch {
 
     // All characters in the game. Including AI
     public Characters: any[] = [];
-    LastDataByAccountId: Record<string, Record<string, Record<string, any>>> = {};
-    LastDataReceivedByAccountId: Record<string, number> = {};
+    // LastDataByAccountId: Record<string, Record<string, Record<string, any>>> = {};
+
+    LastDataByProfileId: Record<string, Record<string, Record<string, any>>> = {};
+
+    // LastDataReceivedByAccountId: Record<string, number> = {};
     LastData: Record<string, Record<string, any>> = {};
     LastMoves: Record<string, any> = {};
     LastRotates: Record<string, any> = {};
@@ -131,6 +134,8 @@ export class CoopMatch {
             return;
         }
 
+        // console.log(info);
+
         if (typeof(info) === "undefined") {
 
             return;
@@ -146,10 +151,8 @@ export class CoopMatch {
             return;
         }
 
-        if(info.m === "Ping" && info.t !== undefined && info.accountId !== undefined) {
-            // console.log("Ping");
-            // console.log(info.t);
-            this.Ping(info.accountId, info.t);
+        if(info.m === "Ping" && info.t !== undefined && info.profileId !== undefined) {
+            this.Ping(info.profileId, info.t);
             return;
         }
 
@@ -162,8 +165,8 @@ export class CoopMatch {
             return;
         }
 
-        if(info.accountId !== undefined && info.m === "PlayerLeft") {
-            this.PlayerLeft(info.accountId);
+        if(info.profileId !== undefined && info.m === "PlayerLeft") {
+            this.PlayerLeft(info.profileId);
 
             if(this.ConnectedPlayers.length == 0)
                 this.endSession(CoopMatchEndSessionMessages.HOST_SHUTDOWN_MESSAGE);
@@ -171,8 +174,11 @@ export class CoopMatch {
             return;
         }
 
-        if(info.accountId !== undefined)
-            this.PlayerJoined(info.accountId);
+        // if(info.accountId !== undefined)
+        //     this.PlayerJoined(info.accountId);
+
+        if(info.profileId !== undefined)
+            this.PlayerJoined(info.profileId);
 
         if(info.m === undefined) { 
             this.LastUpdateDateTime = new Date(Date.now());
@@ -184,10 +190,10 @@ export class CoopMatch {
         if(info.m !== "PlayerSpawn") {
             // this.LastData[info.m] = info;
 
-            if(this.LastDataByAccountId[info.accountId] === undefined)
-                this.LastDataByAccountId[info.accountId] = {};
+            if(this.LastDataByProfileId[info.profileId] === undefined)
+                this.LastDataByProfileId[info.profileId] = {};
 
-            this.LastDataByAccountId[info.accountId][info.m] = info;
+            this.LastDataByProfileId[info.profileId][info.m] = info;
         }
         
         // if(info.m == "Move") {
@@ -200,7 +206,7 @@ export class CoopMatch {
             // console.log(info);
             let foundExistingPlayer = false;
             for(var c of this.Characters) {
-                if(info.accountId == c.accountId) {
+                if(info.profileId == c.profileId) {
                     foundExistingPlayer = true;
                     break;
                 }
@@ -211,7 +217,7 @@ export class CoopMatch {
         
         if(info.m == "Kill") {
             for(var c of this.Characters) {
-                if (info.accountId == c.accountId) {
+                if (info.profileId == c.profileId) {
                     c.isDead = true;
                     break;
                 }
@@ -227,24 +233,24 @@ export class CoopMatch {
         this.Status = inStatus;
     }
 
-    public PlayerJoined(accountId: string) {
-        if(this.ConnectedPlayers.findIndex(x => x == accountId) === -1) {
-            this.ConnectedPlayers.push(accountId);
-            console.log(`${this.ServerId}: ${accountId} has joined`);
+    public PlayerJoined(profileId: string) {
+        if(this.ConnectedPlayers.findIndex(x => x == profileId) === -1) {
+            this.ConnectedPlayers.push(profileId);
+            console.log(`${this.ServerId}: ${profileId} has joined`);
         }
     }
 
-    public PlayerLeft(accountId: string) {
-        this.ConnectedPlayers = this.ConnectedPlayers.filter(x => x != accountId);
-        console.log(`${this.ServerId}: ${accountId} has left`);
+    public PlayerLeft(profileId: string) {
+        this.ConnectedPlayers = this.ConnectedPlayers.filter(x => x != profileId);
+        console.log(`${this.ServerId}: ${profileId} has left`);
         // If the Server Player has died or escaped, end the session
-        if(this.ServerId == accountId) {
+        if(this.ServerId == profileId) {
             this.endSession(CoopMatchEndSessionMessages.HOST_SHUTDOWN_MESSAGE);
         }
     }
 
-    public Ping(accountId: string, timestamp: string) {
-        WebSocketHandler.Instance.sendToWebSockets([accountId], JSON.stringify({ pong: timestamp }));
+    public Ping(profileId: string, timestamp: string) {
+        WebSocketHandler.Instance.sendToWebSockets([profileId], JSON.stringify({ pong: timestamp }));
     }
 
     public endSession(reason: string) {

@@ -224,7 +224,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                 {
                     url: "/coop/server/create",
                     action: (url, info: any, sessionId, output) => {
-                        logger.info(`Start a Coop Server ${sessionId}`);
+                        logger.info(`Start a Coop Server ${info.serverId}`);
                         // logger.info("Coop Data:_________");
                         // logger.info(info);
                         // logger.info("___________________");
@@ -291,7 +291,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                         let charactersToSend:any[] = [];
                         let playersToFilterOut:string[] = info.pL;
                         for(var c of coopMatch.Characters) {
-                            if(!playersToFilterOut.includes(c.accountId)) {
+                            if(!playersToFilterOut.includes(c.profileId)) {
                                 charactersToSend.push(c);
                             }
                         }

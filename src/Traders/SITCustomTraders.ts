@@ -70,7 +70,9 @@ export class SITCustomTraders implements IPreAkiLoadMod, IPostDBLoadMod
                 {
                     const sellData = <IProcessSellTradeRequestData>request;
                     this.sellToCoopTrader(pmcData, request, sessionID);
-                    return this.tradeHelper.sellItem(pmcData, sellData, sessionID);
+                    // return this.tradeHelper.sellItem(pmcData, sellData, sessionID);
+                    return this.tradeHelper.sellItem(pmcData, pmcData, sellData, sessionID);
+                    
                 }
 
                 return null;
