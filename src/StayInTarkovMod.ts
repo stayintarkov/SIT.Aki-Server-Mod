@@ -181,19 +181,12 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         staticRouterModService.registerStaticRouter(
             "MyStaticModRouter",
             [
-                // {
-                //     url: "/SIT/Config",
-                //     action: (url, info: any, sessionId, output) => {
-                //         console.log(SITConfig.Instance)
-                //         output = JSON.stringify(this.sitConfig);
-                //         return output;
-                //     }
-                // },
                 {
                     url: "/coop/server/getAllForLocation",
                     action: (url, info: any, sessionId: string, output) => {
                         // console.log(info);
                         const matches : CoopMatchResponse[] = [];
+                        const profiles = this.saveServer.getProfiles();
                         for(let itemKey in CoopMatch.CoopMatches) {
 
                             // Get Instance of CoopMatch
@@ -207,8 +200,16 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                             const matchResponse = new CoopMatchResponse();
                             // Account Id / Server Id
                             matchResponse.HostProfileId = itemKey;
+
+                            let hostName = "";
                             // Player's name for the Host Name
-                            matchResponse.HostName = this.saveServer.getProfile(itemKey).characters.pmc.Info.Nickname;
+                            for(let profileKey in profiles) {
+                                if(profiles[profileKey].characters.pmc._id === itemKey) {
+                                    hostName = profiles[profileKey].characters.pmc.Info.Nickname;
+                                    break;
+                                }
+                            }
+                            matchResponse.HostName = hostName;
                             // Raid Settings
                             matchResponse.Settings = m.Settings;
                             // Number of Players Connected: (FIXME: This seems to be including Bots)
@@ -632,7 +633,8 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
 
         this.locationData[locationId].Data = this.locationController.get(locationId);
         
-        const ownedCoopMatch = this.getCoopMatch(sessionID);
+        // const ownedCoopMatch = this.getCoopMatch(sessionID);
+        const ownedCoopMatch = this.getCoopMatch(`pmc${sessionID}`);
         if(ownedCoopMatch !== undefined) {
             ownedCoopMatch.Loot = this.locationData[locationId].Loot;
         }
