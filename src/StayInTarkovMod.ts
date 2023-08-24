@@ -212,8 +212,8 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                             matchResponse.HostName = hostName;
                             // Raid Settings
                             matchResponse.Settings = m.Settings;
-                            // Number of Players Connected: (FIXME: This seems to be including Bots)
-                            matchResponse.PlayerCount = m.ConnectedPlayers.length;
+                            // Number of Players Connected
+                            matchResponse.PlayerCount = m.ConnectedUsers.length;
                             // Location Instance
                             matchResponse.Location = m.Location;
                             matches.push(matchResponse);

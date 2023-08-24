@@ -19,32 +19,44 @@ export class CoopMatchEndSessionMessages {
 
 export class CoopMatch {
 
+    /** The ServerId. The ProfileId of the host player. */
     ServerId: string;
+
     /** The time the match was created. Useful for clearing out old matches. */
     CreatedDateTime: Date = new Date();
+
+    /** The time the match was last updated. Useful for clearing out old matches. */
     LastUpdateDateTime: Date = new Date();
 
     /** The state of the match. */
     State: any;
-    /** The IP of the match. */
+    /** The IP of the match. Unused. */
     Ip: string;
-    /** The Port of the match. */
+    /** The Port of the match. Unused. */
     Port: string;
 
+    /** The expected number of players. Used to hold the match before starting. Unused. */
     ExpectedNumberOfPlayers: number = 1;
+
+    /** The Connected Player Profiles. */
     public ConnectedPlayers: string[] = [];
 
-    // All characters in the game. Including AI
+    /** The Connected User Profiles. */
+    public ConnectedUsers: string[] = [];
+
+    /** All characters in the game. Including AI */
     public Characters: any[] = [];
-    // LastDataByAccountId: Record<string, Record<string, Record<string, any>>> = {};
+
 
     LastDataByProfileId: Record<string, Record<string, Record<string, any>>> = {};
 
+    // @TODO: Delete
     // LastDataReceivedByAccountId: Record<string, number> = {};
-    LastData: Record<string, Record<string, any>> = {};
-    LastMoves: Record<string, any> = {};
-    LastRotates: Record<string, any> = {};
-    DamageArray: any[] = [];
+    // LastData: Record<string, Record<string, any>> = {};
+    // LastMoves: Record<string, any> = {};
+    // LastRotates: Record<string, any> = {};
+    // DamageArray: any[] = [];
+
     Status: CoopMatchStatus = CoopMatchStatus.Loading;
     Settings: any = {};
     Loot: any = {};
@@ -56,7 +68,7 @@ export class CoopMatch {
     private SendLastDataInterval : NodeJS.Timer;
     private CheckStillRunningInterval: NodeJS.Timer;
 
-    // A STATIC Dictonary of Coop Matches. The Key is the Account Id of the Player that created it
+    /** A STATIC Dictonary of Coop Matches. The Key is the Account Id of the Player that created it */
     public static CoopMatches: Record<string, CoopMatch> = {}; 
     public static AirdropLoot: LootItem[] = undefined;
 
@@ -80,30 +92,6 @@ export class CoopMatch {
         if(CoopMatch.CoopMatches[inData.serverId] !== undefined) {
             delete CoopMatch.CoopMatches[inData.serverId];
         }
-
-        let cm = this;
-        // this.SendLastDataInterval = setInterval(() => {
-
-        //     for(const key in cm.LastDataByAccountId) {
-                
-        //         if(key === undefined)
-        //             continue;
-                
-        //         if(this.ConnectedPlayers[key] === undefined)
-        //             continue;
-
-        //         // Filter out old data
-        //         // const LastDataByAccountId2: Record<string, Record<string, Record<string, any>>> = {}
-        //         // for(const accountKey in this.LastDataByAccountId) {
-        //         //     LastDataByAccountId2[accountKey] = {};
-        //         //     const lastD = this.LastDataByAccountId[accountKey];
-        //         //     // TODO: Continue this!
-        //         // }
-
-        //         // WebSocketHandler.Instance.sendToWebSockets(this.ConnectedPlayers, JSON.stringify(cm.LastDataByAccountId[key]));
-        //     }
-
-        // }, 1000);
 
         // This checks to see if the WebSockets can still be communicated with. If it cannot for any reason. The match/raid/session will close down.
         setTimeout(() => {
@@ -236,17 +224,27 @@ export class CoopMatch {
     public PlayerJoined(profileId: string) {
         if(this.ConnectedPlayers.findIndex(x => x == profileId) === -1) {
             this.ConnectedPlayers.push(profileId);
+            // console.log(`${this.ServerId}: ${profileId} has joined`);
+        }
+
+        if(profileId.startsWith("pmc") && this.ConnectedUsers.findIndex(x => x == profileId) === -1) {
+            this.ConnectedUsers.push(profileId);
             console.log(`${this.ServerId}: ${profileId} has joined`);
         }
+
     }
 
     public PlayerLeft(profileId: string) {
         this.ConnectedPlayers = this.ConnectedPlayers.filter(x => x != profileId);
-        console.log(`${this.ServerId}: ${profileId} has left`);
-        // If the Server Player has died or escaped, end the session
+        this.ConnectedUsers = this.ConnectedUsers.filter(x => x != profileId);
+
+        // If the Server Player has left, end the session
         if(this.ServerId == profileId) {
             this.endSession(CoopMatchEndSessionMessages.HOST_SHUTDOWN_MESSAGE);
         }
+
+        console.log(`${this.ServerId}: ${profileId} has left`);
+
     }
 
     public Ping(profileId: string, timestamp: string) {
