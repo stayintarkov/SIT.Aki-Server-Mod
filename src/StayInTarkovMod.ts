@@ -196,6 +196,14 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                             if(m.ConnectedPlayers.length === 0)
                                 continue;
 
+                            // Filter out Raids that are on a different time
+                            if (m.Time != info.timeVariant)
+                                continue;
+
+                            // Filter out Raids that are in a different location
+                            if (m.Location != info.location)
+                                continue;
+
                             // Create the custom CoopMatchResponse with the exact Json values needed by the Client
                             const matchResponse = new CoopMatchResponse();
                             // Account Id / Server Id
