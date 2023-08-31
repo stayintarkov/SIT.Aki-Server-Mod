@@ -38,7 +38,6 @@ export class WebSocketHandler {
         const splitUrl = req.url.substring(0, req.url.indexOf("?")).split("/");
         const sessionID = splitUrl.pop();
 
-        console.log(`${sessionID} has connected to Coop Web Socket`);
 
         
         ws.on("message", async function message(msg) 
@@ -49,7 +48,15 @@ export class WebSocketHandler {
 
         });
 
+        ws.on("close", async (code: number, reason: Buffer) =>
+        {
+            wsh.processClose(ws, sessionID);
+
+        });
+
         this.webSockets[sessionID] = ws;
+        console.log(`${sessionID} has connected to Coop Web Socket`);
+
     }
 
     private TryParseJsonArray(msg: string) {
@@ -70,6 +77,18 @@ export class WebSocketHandler {
 
         this.processMessageString(msgStr);
     }
+
+    private async processClose(ws: WebSocket, sessionId: string) {
+
+        // console.log("processClose");
+        // console.log(ws);
+        console.log(`Web Socket ${sessionId} has disconnected`);
+
+        if(this.webSockets[sessionId] === undefined)
+            delete this.webSockets[sessionId];
+
+    }
+
 
     private async processMessageString(msgStr: string) {
 
