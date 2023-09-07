@@ -37,8 +37,6 @@ export class WebSocketHandler {
         // Strip request and break it into sections
         const splitUrl = req.url.substring(0, req.url.indexOf("?")).split("/");
         const sessionID = splitUrl.pop();
-
-
         
         ws.on("message", async function message(msg) 
         {
