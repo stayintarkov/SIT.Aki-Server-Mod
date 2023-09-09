@@ -38,6 +38,12 @@ export class CoopMatch {
     /** The expected number of players. Used to hold the match before starting. Unused. */
     ExpectedNumberOfPlayers: number = 1;
 
+    /** Game Version: To stop users mixing up SIT Versions. Causing significant sync issues. */
+    GameVersion: string;
+
+    /** SIT Version: To stop users mixing up SIT Versions. Causing significant sync issues. */
+    SITVersion: string;
+
     /** The Connected Player Profiles. */
     public ConnectedPlayers: string[] = [];
 

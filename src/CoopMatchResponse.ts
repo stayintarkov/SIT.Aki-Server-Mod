@@ -6,4 +6,6 @@ export class CoopMatchResponse {
     Location: string;
     PlayerCount: number;
     ExpectedPlayerCount: number;
+    GameVersion: string;
+    SITVersion: string;
 }
