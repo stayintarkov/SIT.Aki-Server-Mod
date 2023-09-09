@@ -3,6 +3,7 @@ import tsyringe = require("tsyringe");
 import { LocationCallbacks } from "@spt-aki/callbacks/LocationCallbacks";
 import { GameController } from "@spt-aki/controllers/GameController";
 import { LocationController } from "@spt-aki/controllers/LocationController";
+import { AkiHttpListener } from "@spt-aki/servers/http/AkiHttpListener";
 import { SaveServer } from "@spt-aki/servers/SaveServer";
 import { HttpResponseUtil } from "@spt-aki/utils/HttpResponseUtil";
 
@@ -40,7 +41,9 @@ import AzureWAH = require("./AzureWebAppHelper");
 // -------------------------------------------------------------------------
 // Custom Traders (needs to be refactored into SITCustomTraders.ts)
 import { ProfileHelper } from "@spt-aki/helpers/ProfileHelper";
+import { IncomingMessage, ServerResponse } from "http";
 import { CoopMatchResponse } from "./CoopMatchResponse";
+import { SITCustomHttpHandler } from "./SITCustomHttpHandler";
 import { SITCustomTraders } from "./Traders/SITCustomTraders";
 // -------------------------------------------------------------------------
 
@@ -67,6 +70,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
     bundleLoader: BundleLoader;
     resolvedExternalIP: string;
     profileHelper: ProfileHelper;
+    sitCustomHttpHandler: SITCustomHttpHandler;
 
     public traders: any[] = [];
 
@@ -109,6 +113,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         this.webSocketHandler = new WebSocketHandler(this.coopConfig.webSocketPort, logger);
         this.bundleLoader = container.resolve<BundleLoader>("BundleLoader");
         this.profileHelper = container.resolve<ProfileHelper>("ProfileHelper");
+        this.sitCustomHttpHandler = new SITCustomHttpHandler(container);
 
         // this.traders.push(new SITCustomTraders(), new CoopGroupTrader(), new UsecTrader(), new BearTrader());
         this.traders.push(new SITCustomTraders());
@@ -237,7 +242,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                     action: (url, info: any, sessionId, output) => {
                         logger.info(`Start a Coop Server ${info.serverId}`);
                         // logger.info("Coop Data:_________");
-                        // logger.info(info);
+                        logger.info(info);
                         // logger.info("___________________");
                         let currentCoopMatch = CoopMatch.CoopMatches[info.serverId];
                         if(currentCoopMatch !== undefined && currentCoopMatch !== null) {
@@ -252,6 +257,8 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                         CoopMatch.CoopMatches[info.serverId].Time = info.settings.timeVariant;
                         CoopMatch.CoopMatches[info.serverId].WeatherSettings = info.settings.timeAndWeatherSettings;
                         CoopMatch.CoopMatches[info.serverId].ExpectedNumberOfPlayers = info.expectedNumberOfPlayers;
+                        CoopMatch.CoopMatches[info.serverId].GameVersion = info.gameVersion;
+                        CoopMatch.CoopMatches[info.serverId].SITVersion = info.sitVersion;
                         output = JSON.stringify({ serverId:  info.serverId });
                         return output;
                     }
@@ -281,7 +288,13 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                         }
                         logger.info(coopMatch !== null ? "match exists" : "match doesn't exist!");
 
-                        output = JSON.stringify(coopMatch !== null ? { ServerId: coopMatch.ServerId, expectedNumberOfPlayers: coopMatch.ExpectedNumberOfPlayers } : null);
+                        output = JSON.stringify(coopMatch !== null ? 
+                            { 
+                                ServerId: coopMatch.ServerId
+                                , expectedNumberOfPlayers: coopMatch.ExpectedNumberOfPlayers 
+                                , sitVersion: coopMatch.SITVersion 
+                                , gameVersion: coopMatch.GameVersion
+                            } : null);
                         return output;
                     }
                 },
@@ -613,13 +626,13 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         /**
          * MUST HAVE: REPLACE HTTP REQUEST HANDLER
          */
-        // container.afterResolution("AkiHttpListener", (_t, result: AkiHttpListener) => 
-        // {
-        //     result.handle = (sessionId: string, req: IncomingMessage, resp: ServerResponse) => 
-        //     {
-        //         return this.sitHttpHandler(sessionId, req, resp, result);
-        //     }
-        // }, {frequency: "Always"});
+        container.afterResolution("AkiHttpListener", (_t, result: AkiHttpListener) => 
+        {
+            result.handle = (sessionId: string, req: IncomingMessage, resp: ServerResponse) => 
+            {
+                return this.sitCustomHttpHandler.sitHttpHandler(sessionId, req, resp, result);
+            }
+        }, {frequency: "Always"});
         
         /**
          * MUST HAVE: REPLACE GAME CONFIG SO IP CAN BE EXTERNAL
@@ -727,96 +740,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
     }
 
 
-    /**
-     * This replaces Aki's Http Handler with a much better one that can asyncronously handle large POST requests without an error
-     * @param sessionId 
-     * @param req 
-     * @param resp 
-     * @param result 
-     */
-    // public sitHttpHandler(sessionId: string, req: IncomingMessage, resp: ServerResponse, result: AkiHttpListener)
-    // {
-    //     // TODO: cleanup into interface IVerbHandler
-    //     switch (req.method)
-    //     {
-    //         case "GET":
-    //         {
-    //             const response = result.getResponse(sessionId, req, null);
-    //             result.sendResponse(sessionId, req, resp, null, response);
-    //             break;
-    //         }
-    //         case "POST":
-    //         {
-    //             req.on("data", (data: any) =>
-    //             {
-    //                 if (sessionId === undefined)
-    //                     sessionId = "launcher";
-
-    //                 const requestLength = parseInt(req.headers["content-length"]);
-                            
-    //                 if (!this.httpBufferHandler.putInBuffer(sessionId, data, requestLength))
-    //                 {
-    //                     resp.writeContinue();
-    //                 }
-    //             });
-
-    //             req.on("end", () =>
-    //             {
-    //                 if (sessionId === undefined)
-    //                     sessionId = "launcher";
-
-    //                 const data = this.httpBufferHandler.getFromBuffer(sessionId);
-    //                 const value = (req.headers["debug"] === "1") ? data.toString() : zlib.inflateSync(data);
-    //                 if (req.headers["debug"] === "1") 
-    //                 {
-    //                     console.log(value.toString());
-    //                 }
-    //                 this.httpBufferHandler.resetBuffer(sessionId);
-                    
-    //                 const response = result.getResponse(sessionId, req, value);
-    //                 result.sendResponse(sessionId, req, resp, value, response);
-    //             });
-
-                
-    //             break;
-    //         }
-    //         case "PUT":
-    //         {
-    //             req.on("data", (data) =>
-    //             {
-    //                 // receive data
-    //                 //if ("expect" in req.headers)
-    //                 {
-    //                     const requestLength = parseInt(req.headers["content-length"]);
-                            
-    //                     if (!this.httpBufferHandler.putInBuffer(req.headers.sessionid, data, requestLength))
-    //                     {
-    //                         resp.writeContinue();
-    //                     }
-    //                 }
-    //             });
-                    
-    //             req.on("end", async () =>
-    //             {
-    //                 const data = this.httpBufferHandler.getFromBuffer(sessionId);
-    //                 this.httpBufferHandler.resetBuffer(sessionId);
-                    
-    //                 let value = zlib.inflateSync(data);
-    //                 if (!value)
-    //                 {
-    //                     value = data;
-    //                 }
-    //                 const response = result.getResponse(sessionId, req, value);
-    //                 result.sendResponse(sessionId, req, resp, value, response);
-    //             });
-    //             break;
-    //         }
-    //         default:
-    //         {
-    //             break;
-    //         }
-    //     }
-    // }
+    
 
 
 
