@@ -8,4 +8,5 @@ export class CoopMatchResponse {
     ExpectedPlayerCount: number;
     GameVersion: string;
     SITVersion: string;
+    IsPasswordLocked: boolean;
 }

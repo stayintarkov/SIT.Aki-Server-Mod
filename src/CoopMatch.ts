@@ -44,6 +44,9 @@ export class CoopMatch {
     /** SIT Version: To stop users mixing up SIT Versions. Causing significant sync issues. */
     SITVersion: string;
 
+    /** Plain text password. Handled server side. */
+    Password: string = undefined;
+
     /** The Connected Player Profiles. */
     public ConnectedPlayers: string[] = [];
 
