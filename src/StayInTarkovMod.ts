@@ -231,6 +231,13 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                             matchResponse.ExpectedPlayerCount = m.ExpectedNumberOfPlayers;
                             // Location Instance
                             matchResponse.Location = m.Location;
+                            // Passworded
+                            matchResponse.IsPasswordLocked = m.Password !== undefined;
+                            // Game Version
+                            matchResponse.GameVersion = m.GameVersion;
+                            // SIT Version
+                            matchResponse.SITVersion = m.SITVersion;
+
                             matches.push(matchResponse);
                         }
                         output = JSON.stringify(matches);
@@ -252,13 +259,13 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                         }
 
                         CoopMatch.CoopMatches[info.serverId] = new CoopMatch(info);
-                        // this.CoopMatches[info.serverId].Settings = info.settings;
                         CoopMatch.CoopMatches[info.serverId].Location = info.settings.location;
                         CoopMatch.CoopMatches[info.serverId].Time = info.settings.timeVariant;
                         CoopMatch.CoopMatches[info.serverId].WeatherSettings = info.settings.timeAndWeatherSettings;
                         CoopMatch.CoopMatches[info.serverId].ExpectedNumberOfPlayers = info.expectedNumberOfPlayers;
                         CoopMatch.CoopMatches[info.serverId].GameVersion = info.gameVersion;
                         CoopMatch.CoopMatches[info.serverId].SITVersion = info.sitVersion;
+                        CoopMatch.CoopMatches[info.serverId].Password = info.password !== undefined ? info.password : undefined;
                         output = JSON.stringify({ serverId:  info.serverId });
                         return output;
                     }
@@ -282,6 +289,12 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                                 continue;
 
                             if (CoopMatch.CoopMatches[cm].LastUpdateDateTime < new Date(Date.now() - (1000 * 5)))
+                                continue;
+
+                            if (
+                                CoopMatch.CoopMatches[cm].Password !== undefined
+                                && CoopMatch.CoopMatches[cm].Password !== info.password
+                                )
                                 continue;
 
                             coopMatch = CoopMatch.CoopMatches[cm];
@@ -721,7 +734,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
             reportAvailable: false,
             twitchEventMember: false,
             lang: "en",
-            aid: sessionID,
+            aid: profile.aid,
             taxonomy: 6,
             activeProfileId: `pmc${sessionID}`,
             backend: {
