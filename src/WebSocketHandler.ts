@@ -37,9 +37,6 @@ export class WebSocketHandler {
         // Strip request and break it into sections
         const splitUrl = req.url.substring(0, req.url.indexOf("?")).split("/");
         const sessionID = splitUrl.pop();
-
-        console.log(`${sessionID} has connected to Coop Web Socket`);
-
         
         ws.on("message", async function message(msg) 
         {
@@ -49,7 +46,15 @@ export class WebSocketHandler {
 
         });
 
+        ws.on("close", async (code: number, reason: Buffer) =>
+        {
+            wsh.processClose(ws, sessionID);
+
+        });
+
         this.webSockets[sessionID] = ws;
+        console.log(`${sessionID} has connected to Coop Web Socket`);
+
     }
 
     private TryParseJsonArray(msg: string) {
@@ -71,16 +76,29 @@ export class WebSocketHandler {
         this.processMessageString(msgStr);
     }
 
+    private async processClose(ws: WebSocket, sessionId: string) {
+
+        // console.log("processClose");
+        // console.log(ws);
+        console.log(`Web Socket ${sessionId} has disconnected`);
+
+        if(this.webSockets[sessionId] === undefined)
+            delete this.webSockets[sessionId];
+
+    }
+
+
     private async processMessageString(msgStr: string) {
 
         // If is SIT serialized string -- This is NEVER stored.
         if(msgStr.startsWith("SIT")) {
-            // console.log(`received ${msgStr} and I can't do anything with it, YET!`);
+            // console.log(`received ${msgStr}`);
             const messageWithoutSITPrefix = msgStr.substring(3, msgStr.length);
-            const serverId = messageWithoutSITPrefix.substring(0, 24); // get serverId (MongoIds are 24 characters)
+            // const serverId = messageWithoutSITPrefix.substring(0, 24); // get serverId (MongoIds are 24 characters)
+            const serverId = messageWithoutSITPrefix.substring(0, 27); // get serverId post 0.13.5.0.* these are 27 (pmc{Id})
             // console.log(`server Id is ${serverId}`);
 
-            const messageWithoutSITPrefixes = messageWithoutSITPrefix.substring(24, messageWithoutSITPrefix.length); 
+            const messageWithoutSITPrefixes = messageWithoutSITPrefix.substring(27, messageWithoutSITPrefix.length); 
 
             const match = CoopMatch.CoopMatches[serverId];
             if(match !== undefined) {
@@ -105,11 +123,12 @@ export class WebSocketHandler {
     }
 
     private async processObject(jsonObject: any) {
+
         const match = CoopMatch.CoopMatches[jsonObject["serverId"]];
         if(match !== undefined) {
 
             if(jsonObject["connect"] == true) {
-                match.PlayerJoined(jsonObject["accountId"]);
+                match.PlayerJoined(jsonObject["profileId"]);
             }
             else {
                 // console.log("found match");

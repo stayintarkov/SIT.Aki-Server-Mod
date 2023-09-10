@@ -19,8 +19,6 @@ import type { DynamicRouterModService } from "@spt-aki/services/mod/dynamicRoute
 import type { StaticRouterModService } from "@spt-aki/services/mod/staticRouter/StaticRouterModService";
 
 import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
-import { IncomingMessage, ServerResponse } from "http";
-import zlib from "zlib";
 
 import { IGetLocationRequestData } from "@spt-aki/models/eft/location/IGetLocationRequestData";
 import { CoopConfig } from "./CoopConfig";
@@ -42,7 +40,10 @@ import AzureWAH = require("./AzureWebAppHelper");
 
 // -------------------------------------------------------------------------
 // Custom Traders (needs to be refactored into SITCustomTraders.ts)
+import { ProfileHelper } from "@spt-aki/helpers/ProfileHelper";
+import { IncomingMessage, ServerResponse } from "http";
 import { CoopMatchResponse } from "./CoopMatchResponse";
+import { SITCustomHttpHandler } from "./SITCustomHttpHandler";
 import { SITCustomTraders } from "./Traders/SITCustomTraders";
 // -------------------------------------------------------------------------
 
@@ -68,6 +69,8 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
     httpConfig: any;
     bundleLoader: BundleLoader;
     resolvedExternalIP: string;
+    profileHelper: ProfileHelper;
+    sitCustomHttpHandler: SITCustomHttpHandler;
 
     public traders: any[] = [];
 
@@ -109,6 +112,8 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         this.sitConfig.routeHandler(container);
         this.webSocketHandler = new WebSocketHandler(this.coopConfig.webSocketPort, logger);
         this.bundleLoader = container.resolve<BundleLoader>("BundleLoader");
+        this.profileHelper = container.resolve<ProfileHelper>("ProfileHelper");
+        this.sitCustomHttpHandler = new SITCustomHttpHandler(container);
 
         // this.traders.push(new SITCustomTraders(), new CoopGroupTrader(), new UsecTrader(), new BearTrader());
         this.traders.push(new SITCustomTraders());
@@ -181,19 +186,12 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         staticRouterModService.registerStaticRouter(
             "MyStaticModRouter",
             [
-                // {
-                //     url: "/SIT/Config",
-                //     action: (url, info: any, sessionId, output) => {
-                //         console.log(SITConfig.Instance)
-                //         output = JSON.stringify(this.sitConfig);
-                //         return output;
-                //     }
-                // },
                 {
                     url: "/coop/server/getAllForLocation",
                     action: (url, info: any, sessionId: string, output) => {
                         // console.log(info);
                         const matches : CoopMatchResponse[] = [];
+                        const profiles = this.saveServer.getProfiles();
                         for(let itemKey in CoopMatch.CoopMatches) {
 
                             // Get Instance of CoopMatch
@@ -203,18 +201,43 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                             if(m.ConnectedPlayers.length === 0)
                                 continue;
 
+                            // Filter out Raids that are on a different time
+                            if (m.Time != info.timeVariant)
+                                continue;
+
+                            // Filter out Raids that are in a different location
+                            if (m.Location != info.location)
+                                continue;
+
                             // Create the custom CoopMatchResponse with the exact Json values needed by the Client
                             const matchResponse = new CoopMatchResponse();
                             // Account Id / Server Id
                             matchResponse.HostProfileId = itemKey;
+
+                            let hostName = "";
                             // Player's name for the Host Name
-                            matchResponse.HostName = this.saveServer.getProfile(itemKey).characters.pmc.Info.Nickname;
+                            for(let profileKey in profiles) {
+                                if(profiles[profileKey].characters.pmc._id === itemKey) {
+                                    hostName = profiles[profileKey].characters.pmc.Info.Nickname;
+                                    break;
+                                }
+                            }
+                            matchResponse.HostName = hostName;
                             // Raid Settings
                             matchResponse.Settings = m.Settings;
-                            // Number of Players Connected: (FIXME: This seems to be including Bots)
-                            matchResponse.PlayerCount = m.ConnectedPlayers.length;
+                            // Number of Players Connected
+                            matchResponse.PlayerCount = m.ConnectedUsers.length;
+                            // Numebr of Players Expected
+                            matchResponse.ExpectedPlayerCount = m.ExpectedNumberOfPlayers;
                             // Location Instance
                             matchResponse.Location = m.Location;
+                            // Passworded
+                            matchResponse.IsPasswordLocked = m.Password !== undefined;
+                            // Game Version
+                            matchResponse.GameVersion = m.GameVersion;
+                            // SIT Version
+                            matchResponse.SITVersion = m.SITVersion;
+
                             matches.push(matchResponse);
                         }
                         output = JSON.stringify(matches);
@@ -224,9 +247,9 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                 {
                     url: "/coop/server/create",
                     action: (url, info: any, sessionId, output) => {
-                        logger.info(`Start a Coop Server ${sessionId}`);
+                        logger.info(`Start a Coop Server ${info.serverId}`);
                         // logger.info("Coop Data:_________");
-                        // logger.info(info);
+                        logger.info(info);
                         // logger.info("___________________");
                         let currentCoopMatch = CoopMatch.CoopMatches[info.serverId];
                         if(currentCoopMatch !== undefined && currentCoopMatch !== null) {
@@ -236,10 +259,13 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                         }
 
                         CoopMatch.CoopMatches[info.serverId] = new CoopMatch(info);
-                        // this.CoopMatches[info.serverId].Settings = info.settings;
                         CoopMatch.CoopMatches[info.serverId].Location = info.settings.location;
                         CoopMatch.CoopMatches[info.serverId].Time = info.settings.timeVariant;
                         CoopMatch.CoopMatches[info.serverId].WeatherSettings = info.settings.timeAndWeatherSettings;
+                        CoopMatch.CoopMatches[info.serverId].ExpectedNumberOfPlayers = info.expectedNumberOfPlayers;
+                        CoopMatch.CoopMatches[info.serverId].GameVersion = info.gameVersion;
+                        CoopMatch.CoopMatches[info.serverId].SITVersion = info.sitVersion;
+                        CoopMatch.CoopMatches[info.serverId].Password = info.password !== undefined ? info.password : undefined;
                         output = JSON.stringify({ serverId:  info.serverId });
                         return output;
                     }
@@ -265,11 +291,23 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                             if (CoopMatch.CoopMatches[cm].LastUpdateDateTime < new Date(Date.now() - (1000 * 5)))
                                 continue;
 
+                            if (
+                                CoopMatch.CoopMatches[cm].Password !== undefined
+                                && CoopMatch.CoopMatches[cm].Password !== info.password
+                                )
+                                continue;
+
                             coopMatch = CoopMatch.CoopMatches[cm];
                         }
                         logger.info(coopMatch !== null ? "match exists" : "match doesn't exist!");
 
-                        output = JSON.stringify(coopMatch !== null ? { ServerId: coopMatch.ServerId } : null);
+                        output = JSON.stringify(coopMatch !== null ? 
+                            { 
+                                ServerId: coopMatch.ServerId
+                                , expectedNumberOfPlayers: coopMatch.ExpectedNumberOfPlayers 
+                                , sitVersion: coopMatch.SITVersion 
+                                , gameVersion: coopMatch.GameVersion
+                            } : null);
                         return output;
                     }
                 },
@@ -291,7 +329,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                         let charactersToSend:any[] = [];
                         let playersToFilterOut:string[] = info.pL;
                         for(var c of coopMatch.Characters) {
-                            if(!playersToFilterOut.includes(c.accountId)) {
+                            if(!playersToFilterOut.includes(c.profileId)) {
                                 charactersToSend.push(c);
                             }
                         }
@@ -605,7 +643,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         {
             result.handle = (sessionId: string, req: IncomingMessage, resp: ServerResponse) => 
             {
-                return this.sitHttpHandler(sessionId, req, resp, result);
+                return this.sitCustomHttpHandler.sitHttpHandler(sessionId, req, resp, result);
             }
         }, {frequency: "Always"});
         
@@ -632,7 +670,8 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
 
         this.locationData[locationId].Data = this.locationController.get(locationId);
         
-        const ownedCoopMatch = this.getCoopMatch(sessionID);
+        // const ownedCoopMatch = this.getCoopMatch(sessionID);
+        const ownedCoopMatch = this.getCoopMatch(`pmc${sessionID}`);
         if(ownedCoopMatch !== undefined) {
             ownedCoopMatch.Loot = this.locationData[locationId].Loot;
         }
@@ -685,6 +724,8 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
 
     public getGameConfig(sessionID: string): IGameConfigResponse
     {
+        const profile = this.profileHelper.getPmcProfile(sessionID);
+
         let externalIp = this.externalIPFinder.resolveExternalIP();
 
         const config: IGameConfigResponse = {
@@ -693,7 +734,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
             reportAvailable: false,
             twitchEventMember: false,
             lang: "en",
-            aid: sessionID,
+            aid: profile.aid,
             taxonomy: 6,
             activeProfileId: `pmc${sessionID}`,
             backend: {
@@ -703,108 +744,16 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                 Main: externalIp,
                 RagFair: externalIp,
             },
+            useProtobuf: false,
             utc_time: new Date().getTime() / 1000,
-            totalInGame: 1,
-            useProtobuf: false
+            totalInGame: profile.Stats?.Eft?.TotalInGameTime ?? 0
         };
 
         return config;
     }
 
 
-    /**
-     * This replaces Aki's Http Handler with a much better one that can asyncronously handle large POST requests without an error
-     * @param sessionId 
-     * @param req 
-     * @param resp 
-     * @param result 
-     */
-    public sitHttpHandler(sessionId: string, req: IncomingMessage, resp: ServerResponse, result: AkiHttpListener)
-    {
-        // TODO: cleanup into interface IVerbHandler
-        switch (req.method)
-        {
-            case "GET":
-            {
-                const response = result.getResponse(sessionId, req, null);
-                result.sendResponse(sessionId, req, resp, null, response);
-                break;
-            }
-            case "POST":
-            {
-                req.on("data", (data: any) =>
-                {
-                    if (sessionId === undefined)
-                        sessionId = "launcher";
-
-                    const requestLength = parseInt(req.headers["content-length"]);
-                            
-                    if (!this.httpBufferHandler.putInBuffer(sessionId, data, requestLength))
-                    {
-                        resp.writeContinue();
-                    }
-                });
-
-                req.on("end", () =>
-                {
-                    if (sessionId === undefined)
-                        sessionId = "launcher";
-
-                    const data = this.httpBufferHandler.getFromBuffer(sessionId);
-                    const value = (req.headers["debug"] === "1") ? data.toString() : zlib.inflateSync(data);
-                    if (req.headers["debug"] === "1") 
-                    {
-                        console.log(value.toString());
-                    }
-                    this.httpBufferHandler.resetBuffer(sessionId);
-                    
-                    const response = result.getResponse(sessionId, req, value);
-                    result.sendResponse(sessionId, req, resp, value, response);
-                });
-
-                
-                break;
-            }
-            case "PUT":
-            {
-                req.on("data", (data) =>
-                {
-                    // receive data
-                    //if ("expect" in req.headers)
-                    {
-                        const requestLength = parseInt(req.headers["content-length"]);
-                            
-                        if (!this.httpBufferHandler.putInBuffer(req.headers.sessionid, data, requestLength))
-                        {
-                            resp.writeContinue();
-                        }
-                    }
-                });
-                    
-                req.on("end", async () =>
-                {
-                    const data = this.httpBufferHandler.getFromBuffer(sessionId);
-                    this.httpBufferHandler.resetBuffer(sessionId);
-                    
-                    let value = zlib.inflateSync(data);
-                    if (!value)
-                    {
-                        value = data;
-                    }
-                    const response = result.getResponse(sessionId, req, value);
-                    result.sendResponse(sessionId, req, resp, value, response);
-                });
-                break;
-            }
-            default:
-            {
-                break;
-            }
-        }
-
-
     
-    }
 
 
 

@@ -5,4 +5,8 @@ export class CoopMatchResponse {
     RaidTime: string;
     Location: string;
     PlayerCount: number;
+    ExpectedPlayerCount: number;
+    GameVersion: string;
+    SITVersion: string;
+    IsPasswordLocked: boolean;
 }
