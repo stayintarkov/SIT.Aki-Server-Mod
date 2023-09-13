@@ -17,7 +17,7 @@ export class CoopConfig {
         this.webSocketPort = 6970;
         this.useExternalIPFinder = true;
         this.webSocketTimeoutSeconds = 5;
-        this.webSocketTimeoutCheckStartSeconds = 60;
+        this.webSocketTimeoutCheckStartSeconds = 120;
 
         const configFilePath = path.join(__dirname, "..", "config");
         if(!fs.existsSync(configFilePath))

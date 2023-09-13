@@ -14,7 +14,9 @@ export enum CoopMatchStatus {
 }
 
 export class CoopMatchEndSessionMessages {
-    static HOST_SHUTDOWN_MESSAGE: "host-shutdown"
+    static HOST_SHUTDOWN_MESSAGE: string = "host-shutdown"
+    static WEBSOCKET_TIMEOUT_MESSAGE: string = "websocket-timeout"
+    static NO_PLAYERS_MESSAGE: string = "no-players"
 }
 
 export class CoopMatch {
@@ -107,7 +109,7 @@ export class CoopMatch {
             this.CheckStillRunningInterval = setInterval(() => {
 
                 if(!WebSocketHandler.Instance.areThereAnyWebSocketsOpen(this.ConnectedPlayers)) {
-                    this.endSession(CoopMatchEndSessionMessages.HOST_SHUTDOWN_MESSAGE);
+                    this.endSession(CoopMatchEndSessionMessages.WEBSOCKET_TIMEOUT_MESSAGE);
                 }
     
             }, CoopConfig.Instance.webSocketTimeoutSeconds * 1000);
@@ -166,7 +168,7 @@ export class CoopMatch {
             this.PlayerLeft(info.profileId);
 
             if(this.ConnectedPlayers.length == 0)
-                this.endSession(CoopMatchEndSessionMessages.HOST_SHUTDOWN_MESSAGE);
+                this.endSession(CoopMatchEndSessionMessages.NO_PLAYERS_MESSAGE);
 
             return;
         }
@@ -261,7 +263,7 @@ export class CoopMatch {
     }
 
     public endSession(reason: string) {
-        console.log(`COOP SESSION ${this.ServerId} HAS BEEN ENDED`);
+        console.log(`COOP SESSION ${this.ServerId} HAS BEEN ENDED: ${reason}`);
         WebSocketHandler.Instance.sendToWebSockets(this.ConnectedPlayers, JSON.stringify({ "endSession": true, reason: reason }));
 
         this.Status = CoopMatchStatus.Complete;
