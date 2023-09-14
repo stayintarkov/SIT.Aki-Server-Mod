@@ -66,6 +66,9 @@ export class CoopMatch {
     // LastRotates: Record<string, any> = {};
     // DamageArray: any[] = [];
 
+    PreviousSentData: string[] = [];
+
+
     Status: CoopMatchStatus = CoopMatchStatus.Loading;
     Settings: any = {};
     Loot: any = {};
@@ -223,7 +226,13 @@ export class CoopMatch {
 
         this.LastUpdateDateTime = new Date(Date.now());
 
-        WebSocketHandler.Instance.sendToWebSockets(this.ConnectedPlayers, JSON.stringify(info));
+        const serializedData = JSON.stringify(info);
+        if (this.PreviousSentData.findIndex(x => x == serializedData) !== -1)
+            return;
+
+        this.PreviousSentData.push(serializedData);
+
+        WebSocketHandler.Instance.sendToWebSockets(this.ConnectedUsers, serializedData);
     }
 
     public UpdateStatus(inStatus: CoopMatchStatus) {
