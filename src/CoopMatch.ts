@@ -69,7 +69,7 @@ export class CoopMatch {
     // DamageArray: any[] = [];
 
     PreviousSentData: string[] = [];
-
+	PreviousSentDataMaxSize: int = 128;
 
     Status: CoopMatchStatus = CoopMatchStatus.Loading;
     Settings: any = {};
@@ -229,9 +229,13 @@ export class CoopMatch {
         this.LastUpdateDateTime = new Date(Date.now());
 
         const serializedData = JSON.stringify(info);
-        if (this.PreviousSentData.findIndex(x => x == serializedData) !== -1)
-            return;
-
+        
+		if (this.PreviousSentData.findIndex(x => x == serializedData) !== -1)
+			return;
+			
+		if(this.PreviousSentData.length >= this.PreviousSentDataMaxSize)
+			this.PreviousSentData = [];
+		
         this.PreviousSentData.push(serializedData);
 
         WebSocketHandler.Instance.sendToWebSockets(this.ConnectedUsers, serializedData);
