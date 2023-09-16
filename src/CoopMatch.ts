@@ -230,11 +230,11 @@ export class CoopMatch {
 
         const serializedData = JSON.stringify(info);
         
-		if (this.PreviousSentData.findIndex(x => x == serializedData) !== -1)
+	    if (this.PreviousSentData.findIndex(x => x == serializedData) !== -1)
 			return;
 			
-		if(this.PreviousSentData.length >= this.PreviousSentDataMaxSize)
-			this.PreviousSentData = [];
+	    if(this.PreviousSentData.length >= this.PreviousSentDataMaxSize)
+		    this.PreviousSentData = [];
 		
         this.PreviousSentData.push(serializedData);
 
