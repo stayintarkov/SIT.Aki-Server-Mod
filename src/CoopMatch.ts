@@ -69,7 +69,7 @@ export class CoopMatch {
     // DamageArray: any[] = [];
 
     PreviousSentData: string[] = [];
-	PreviousSentDataMaxSize: int = 128;
+	PreviousSentDataMaxSize: number = 128;
 
     Status: CoopMatchStatus = CoopMatchStatus.Loading;
     Settings: any = {};
