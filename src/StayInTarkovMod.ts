@@ -291,11 +291,28 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                             if (CoopMatch.CoopMatches[cm].LastUpdateDateTime < new Date(Date.now() - (1000 * 5)))
                                 continue;
 
-                            if (
-                                CoopMatch.CoopMatches[cm].Password !== undefined
-                                && CoopMatch.CoopMatches[cm].Password !== info.password
-                                )
-                                continue;
+                            if (CoopMatch.CoopMatches[cm].Password !== "")
+                            {
+                                if(info.password == "")
+                                {
+                                    output = JSON.stringify(
+                                        {
+                                            passwordRequired: true
+                                        }
+                                    )
+                                    return output;
+                                }
+                                
+                                if(CoopMatch.CoopMatches[cm].Password !== info.password)
+                                {
+                                    output = JSON.stringify(
+                                        {
+                                            invalidPassword: true
+                                        }
+                                    )
+                                    return output;
+                                }
+                            } 
 
                             coopMatch = CoopMatch.CoopMatches[cm];
                         }
