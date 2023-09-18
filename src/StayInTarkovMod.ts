@@ -43,6 +43,7 @@ import AzureWAH = require("./AzureWebAppHelper");
 import { ProfileHelper } from "@spt-aki/helpers/ProfileHelper";
 import { IncomingMessage, ServerResponse } from "http";
 import { CoopMatchResponse } from "./CoopMatchResponse";
+import { friendlyAI } from "./FriendlyAI";
 import { SITCustomHttpHandler } from "./SITCustomHttpHandler";
 import { SITCustomTraders } from "./Traders/SITCustomTraders";
 // -------------------------------------------------------------------------
@@ -179,6 +180,28 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                         return output;
                     }
                 ),
+                new RouteAction(
+                    "/coop/server/friendlyAI",
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    (url: string, info: any, sessionID: string, output: string): any =>
+                    {
+
+                        const splitUrl = url.split("/");
+                        const matchId = splitUrl.pop();
+
+                        var friendlyAI: friendlyAI;
+                        if(matchId !== undefined) {
+                            // console.log("matchId:" + matchId);
+                            const coopMatch = this.getCoopMatch(matchId);
+                            if(coopMatch !== undefined)
+                            friendlyAI = coopMatch.friendlyAI;
+                        }
+
+
+                        output = JSON.stringify(friendlyAI);
+                        return output;
+                    }
+                )
             ]
             ,"aki"
         )

@@ -4,6 +4,7 @@ import { LootItem } from "@spt-aki/models/spt/services/LootItem";
 import type { ILogger } from "@spt-aki/models/spt/utils/ILogger";
 import { SaveServer } from "@spt-aki/servers/SaveServer";
 import { CoopConfig } from "./CoopConfig";
+import { friendlyAI } from "./FriendlyAI";
 import { StayInTarkovMod } from "./StayInTarkovMod";
 import { WebSocketHandler } from "./WebSocketHandler";
 
@@ -79,6 +80,8 @@ export class CoopMatch {
     WeatherSettings: any;
     SpawnPoint: any = { x: 0, y:0, z:0 }
 
+    friendlyAI: friendlyAI;
+
     private SendLastDataInterval : NodeJS.Timer;
     private CheckStillRunningInterval: NodeJS.Timer;
 
@@ -102,6 +105,7 @@ export class CoopMatch {
         this.Location = inData.settings.location;
         this.Time = inData.settings.timeVariant;
         this.WeatherSettings = inData.settings.timeAndWeatherSettings;
+        this.friendlyAI = new friendlyAI();
 
         if(CoopMatch.CoopMatches[inData.serverId] !== undefined) {
             delete CoopMatch.CoopMatches[inData.serverId];
