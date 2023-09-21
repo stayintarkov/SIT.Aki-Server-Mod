@@ -1,4 +1,5 @@
 export class CoopMatchResponse {
+    ServerId: string;
     HostProfileId: string;
     HostName: string;
     Settings: any = {};

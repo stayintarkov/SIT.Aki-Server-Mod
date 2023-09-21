@@ -260,6 +260,8 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                             matchResponse.GameVersion = m.GameVersion;
                             // SIT Version
                             matchResponse.SITVersion = m.SITVersion;
+                            // Server Id
+                            matchResponse.ServerId = itemKey;
 
                             matches.push(matchResponse);
                         }
@@ -311,7 +313,8 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                             if (CoopMatch.CoopMatches[cm].Status == CoopMatchStatus.Complete)
                                 continue;
 
-                            if (CoopMatch.CoopMatches[cm].LastUpdateDateTime < new Date(Date.now() - (1000 * 5)))
+                            // Player starting the server has 5 minutes to load into a raid
+                            if (CoopMatch.CoopMatches[cm].LastUpdateDateTime < new Date(Date.now() - ((1000 * 60) * 5)))
                                 continue;
 
                             if (CoopMatch.CoopMatches[cm].Password !== "")
@@ -344,6 +347,53 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                         output = JSON.stringify(coopMatch !== null ? 
                             { 
                                 ServerId: coopMatch.ServerId
+                                , expectedNumberOfPlayers: coopMatch.ExpectedNumberOfPlayers 
+                                , sitVersion: coopMatch.SITVersion 
+                                , gameVersion: coopMatch.GameVersion
+                            } : null);
+                        return output;
+                    }
+                },
+                {
+                    url: "/coop/server/join",
+                    action: (url, info, sessionId, output) => {
+                        
+                        let coopMatch: CoopMatch = CoopMatch.CoopMatches[info.serverId];
+                        logger.info(coopMatch !== null ? "match exists" : "match doesn't exist!");
+
+                        if(coopMatch === null || coopMatch === undefined) {
+
+                            output = JSON.stringify(null);
+                            return output;
+                        }
+
+
+                        if (coopMatch.Password !== "") {
+                            if(info.password == "")
+                            {
+                                output = JSON.stringify(
+                                    {
+                                        passwordRequired: true
+                                    }
+                                )
+                                return output;
+                            }
+                            
+                            if(coopMatch.Password !== info.password)
+                            {
+                                output = JSON.stringify(
+                                    {
+                                        invalidPassword: true
+                                    }
+                                )
+                                return output;
+                            }
+                        } 
+
+
+                        output = JSON.stringify(coopMatch !== null ? 
+                            { 
+                                serverId: coopMatch.ServerId
                                 , expectedNumberOfPlayers: coopMatch.ExpectedNumberOfPlayers 
                                 , sitVersion: coopMatch.SITVersion 
                                 , gameVersion: coopMatch.GameVersion
