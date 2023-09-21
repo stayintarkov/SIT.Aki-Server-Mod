@@ -103,12 +103,13 @@ export class CoopGroupTrader implements IPreAkiLoadMod, IPostDBLoadMod
 
         // -------------------------------------------
         // Get Dynamic Assort Path
-        const traderDbPath = path.join( __dirname, this.traderId);
+        // const traderDbPath = path.join( __dirname, this.traderId);
+        const traderDbPath = path.join( process.cwd(), "user", "cache", "SITCoop", this.traderId);
         if(!fs.existsSync(traderDbPath))
             fs.mkdirSync(traderDbPath, { recursive: true });
 
         // Create dynamic assort file
-        const dynamicAssortFilePath = path.join(__dirname, this.traderId, "dynamicAssort.json");
+        const dynamicAssortFilePath = path.join(traderDbPath, "dynamicAssort.json");
         if(!fs.existsSync(dynamicAssortFilePath)) {
             const defaultFile = JSON.stringify([], null, 4);
             fs.writeFileSync(dynamicAssortFilePath, defaultFile);
