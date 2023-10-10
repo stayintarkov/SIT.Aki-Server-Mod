@@ -670,7 +670,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                 // This is HACK to test out getting same loot on multiple clients
                 if (this.locationData[info.locationId] === undefined) {
                     console.log(`No cached locationData found for ${info.locationId}. Creating it now!`);
-                    this.generateNewLootForLocation(info.locationId, sessionID);
+                    this.generateNewLootForLocation(sessionID, info);
                     this.locationData[info.locationId].Loot = this.locationData[info.locationId].Data.Loot;
                 }
 
@@ -698,16 +698,16 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
 
         container.afterResolution("LocationController", (_t, result: LocationController) => {
 
-            result.get = (location: string) => {
+            result.get = (sessionId: string, request: IGetLocationRequestData) => {
 
-                if (this.locationData2[location] === undefined) {
+                if (this.locationData2[request.locationId] === undefined) {
 
                     // const name = location.toLowerCase().replace(" ", "");
                     // this.locationData2[location] = result.generate(name);
-                    this.locationData2[location] = result.get(location);
+                    this.locationData2[request.locationId] = result.get(sessionId, request);
                 }
                 
-                return this.locationData2[location];
+                return this.locationData2[request.locationId];
             }
 
 
@@ -753,17 +753,17 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
 
     }
 
-    public generateNewLootForLocation(locationId:string, sessionID:string) {
+    public generateNewLootForLocation(sessionID: string, request: IGetLocationRequestData) {
 
-        if(this.locationData[locationId] === undefined)
-            this.locationData[locationId] = {};
+        if(this.locationData[request.locationId] === undefined)
+            this.locationData[request.locationId] = {};
 
-        this.locationData[locationId].Data = this.locationController.get(locationId);
+        this.locationData[request.locationId].Data = this.locationController.get(sessionID, request);
         
         // const ownedCoopMatch = this.getCoopMatch(sessionID);
         const ownedCoopMatch = this.getCoopMatch(`pmc${sessionID}`);
         if(ownedCoopMatch !== undefined) {
-            ownedCoopMatch.Loot = this.locationData[locationId].Loot;
+            ownedCoopMatch.Loot = this.locationData[request.locationId].Loot;
         }
         else {
             // console.warn(`Could not save Location Loot for match ${sessionID}. Unable to find Match.`);
