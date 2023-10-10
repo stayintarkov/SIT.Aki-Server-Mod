@@ -9,9 +9,9 @@ import { IGetProfileRequestData } from "../models/eft/match/IGetProfileRequestDa
 import { IGetRaidConfigurationRequestData } from "../models/eft/match/IGetRaidConfigurationRequestData";
 import { IJoinMatchRequestData } from "../models/eft/match/IJoinMatchRequestData";
 import { IJoinMatchResult } from "../models/eft/match/IJoinMatchResult";
-import { IBotConfig } from "../models/spt/config/IBotConfig";
 import { IInRaidConfig } from "../models/spt/config/IInRaidConfig";
 import { IMatchConfig } from "../models/spt/config/IMatchConfig";
+import { IPmcConfig } from "../models/spt/config/IPmcConfig";
 import { ILogger } from "../models/spt/utils/ILogger";
 import { ConfigServer } from "../servers/ConfigServer";
 import { SaveServer } from "../servers/SaveServer";
@@ -32,7 +32,7 @@ export declare class MatchController {
     protected applicationContext: ApplicationContext;
     protected matchConfig: IMatchConfig;
     protected inraidConfig: IInRaidConfig;
-    protected botConfig: IBotConfig;
+    protected pmcConfig: IPmcConfig;
     constructor(logger: ILogger, saveServer: SaveServer, profileHelper: ProfileHelper, matchLocationService: MatchLocationService, traderHelper: TraderHelper, botLootCacheService: BotLootCacheService, configServer: ConfigServer, profileSnapshotService: ProfileSnapshotService, botGenerationCacheService: BotGenerationCacheService, applicationContext: ApplicationContext);
     getEnabled(): boolean;
     /** Handle raid/profile/list */

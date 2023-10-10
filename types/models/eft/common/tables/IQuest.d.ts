@@ -32,6 +32,8 @@ export interface IQuest {
     changeQuestMessageText: string;
     /** "Pmc" or "Scav" */
     side: string;
+    /** Status of quest to player */
+    sptStatus?: QuestStatus;
 }
 export interface Conditions {
     Started: AvailableForConditions[];

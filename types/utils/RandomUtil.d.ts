@@ -18,7 +18,8 @@ import { MathUtil } from "./MathUtil";
      */
 export declare class ProbabilityObjectArray<K, V = undefined> extends Array<ProbabilityObject<K, V>> {
     private mathUtil;
-    constructor(mathUtil: MathUtil, ...items: ProbabilityObject<K, V>[]);
+    private jsonUtil;
+    constructor(mathUtil: MathUtil, jsonUtil: JsonUtil, ...items: ProbabilityObject<K, V>[]);
     filter(callbackfn: (value: ProbabilityObject<K, V>, index: number, array: ProbabilityObject<K, V>[]) => any): ProbabilityObjectArray<K, V>;
     /**
      * Calculates the normalized cumulative probability of the ProbabilityObjectArray's elements normalized to 1
@@ -78,11 +79,10 @@ export declare class ProbabilityObjectArray<K, V = undefined> extends Array<Prob
     /**
      * Draw random element of the ProbabilityObject N times to return an array of N keys.
      * Drawing can be with or without replacement
-     *
-     * @param       {integer}                       count                   The number of times we want to draw
-     * @param       {boolean}                       replacement             Draw with or without replacement from the input dict
-     * @param       {array}                         locklist                list keys which shall be replaced even if drawing without replacement
-     * @return      {array}                                                 Array consisting of N random keys for this ProbabilityObjectArray
+     * @param count The number of times we want to draw
+     * @param replacement Draw with or without replacement from the input dict (true = dont remove after drawing)
+     * @param locklist list keys which shall be replaced even if drawing without replacement
+     * @returns Array consisting of N random keys for this ProbabilityObjectArray
      */
     draw(count?: number, replacement?: boolean, locklist?: Array<K>): K[];
 }

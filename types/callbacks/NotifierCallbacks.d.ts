@@ -6,11 +6,13 @@ import { INotifierChannel } from "../models/eft/notifier/INotifier";
 import { ISelectProfileRequestData } from "../models/eft/notifier/ISelectProfileRequestData";
 import { ISelectProfileResponse } from "../models/eft/notifier/ISelectProfileResponse";
 import { HttpResponseUtil } from "../utils/HttpResponseUtil";
+import { JsonUtil } from "../utils/JsonUtil";
 export declare class NotifierCallbacks {
     protected httpServerHelper: HttpServerHelper;
     protected httpResponse: HttpResponseUtil;
+    protected jsonUtil: JsonUtil;
     protected notifierController: NotifierController;
-    constructor(httpServerHelper: HttpServerHelper, httpResponse: HttpResponseUtil, notifierController: NotifierController);
+    constructor(httpServerHelper: HttpServerHelper, httpResponse: HttpResponseUtil, jsonUtil: JsonUtil, notifierController: NotifierController);
     /**
      * If we don't have anything to send, it's ok to not send anything back
      * because notification requests can be long-polling. In fact, we SHOULD wait

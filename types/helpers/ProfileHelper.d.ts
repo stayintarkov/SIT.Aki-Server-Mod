@@ -21,11 +21,11 @@ export declare class ProfileHelper {
     protected profileSnapshotService: ProfileSnapshotService;
     constructor(logger: ILogger, jsonUtil: JsonUtil, watermark: Watermark, timeUtil: TimeUtil, saveServer: SaveServer, databaseServer: DatabaseServer, itemHelper: ItemHelper, profileSnapshotService: ProfileSnapshotService);
     /**
-     * Remove/reset started quest condtions in player profile
+     * Remove/reset a completed quest condtion from players profile quest data
      * @param sessionID Session id
-     * @param conditionIds Condition ids that need to be reset/removed
+     * @param questConditionId Quest with condition to remove
      */
-    resetProfileQuestCondition(sessionID: string, conditionIds: string[]): void;
+    removeCompletedQuestConditionFromProfile(pmcData: IPmcData, questConditionId: Record<string, string>): void;
     /**
      * Get all profiles from server
      * @returns Dictionary of profiles

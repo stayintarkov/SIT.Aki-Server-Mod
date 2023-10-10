@@ -16,11 +16,12 @@ export interface SpawnpointsForced {
 }
 export interface SpawnpointTemplate {
     Id: string;
-    IsStatic: boolean;
+    IsContainer: boolean;
     useGravity: boolean;
     randomRotation: boolean;
     Position: Ixyz;
     Rotation: Ixyz;
+    IsAlwaysSpawn: boolean;
     IsGroupPosition: boolean;
     GroupPositions: any[];
     Root: string;

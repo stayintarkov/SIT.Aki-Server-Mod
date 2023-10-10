@@ -29,6 +29,7 @@ export interface IConfig {
     TradingUnlimitedItems: boolean;
     MaxLoyaltyLevelForAll: boolean;
     GlobalLootChanceModifier: number;
+    GraphicSettings: IGraphicSettings;
     TimeBeforeDeploy: number;
     TimeBeforeDeployLocal: number;
     TradingSetting: number;
@@ -79,6 +80,7 @@ export interface IConfig {
     SkillExpPerLevel: number;
     GameSearchingTimeout: number;
     WallContusionAbsorption: Ixyz;
+    WeaponFastDrawSettings: IWeaponFastDrawSettings;
     SkillsSettings: ISkillsSettings;
     AzimuthPanelShowsPlayerOrientation: boolean;
     Aiming: IAiming;
@@ -89,6 +91,19 @@ export interface IConfig {
     Inertia: IInertia;
     Ballistic: IBallistic;
     RepairSettings: IRepairSettings;
+}
+export interface IWeaponFastDrawSettings {
+    HandShakeCurveFrequency: number;
+    HandShakeCurveIntensity: number;
+    HandShakeMaxDuration: number;
+    HandShakeTremorIntensity: number;
+    WeaponFastSwitchMaxSpeedMult: number;
+    WeaponFastSwitchMinSpeedMult: number;
+    WeaponPistolFastSwitchMaxSpeedMult: number;
+    WeaponPistolFastSwitchMinSpeedMult: number;
+}
+export interface IGraphicSettings {
+    ExperimentalFogInCity: boolean;
 }
 export interface IBufferZone {
     CustomerAccessTime: number;
@@ -146,7 +161,11 @@ export interface IKill {
     expOnDamageAllHealth: number;
     longShotDistance: number;
     bloodLossToLitre: number;
+    botExpOnDamageAllHealth: number;
+    botHeadShotMult: number;
     victimBotLevelExp: number;
+    pmcExpOnDamageAllHealth: number;
+    pmcHeadShotMult: number;
 }
 export interface ICombo {
     percent: number;
@@ -756,6 +775,7 @@ export interface IStamina {
     OverweightConsumptionByPose: Ixyz;
     AimingSpeedMultiplier: number;
     WalkVisualEffectMultiplier: number;
+    WeaponFastSwitchConsumption: number;
     HandsCapacity: number;
     HandsRestoration: number;
     ProneConsumption: number;
@@ -1215,6 +1235,11 @@ export interface IFenceLevel {
     ScavAttackSupport: boolean;
     ExfiltrationPriceModifier: number;
     AvailableExits: number;
+    BotApplySilenceChance: number;
+    BotGetInCoverChance: number;
+    BotHelpChance: number;
+    BotSpreadoutChance: number;
+    BotStopChance: number;
 }
 export interface IInertia {
     InertiaLimits: Ixyz;

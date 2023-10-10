@@ -16,5 +16,10 @@ export declare enum ItemEventActions {
     DELETE_MAP_MARKER = "DeleteMapMarker",
     EDIT_MAP_MARKER = "EditMapMarker",
     OPEN_RANDOM_LOOT_CONTAINER = "OpenRandomLootContainer",
-    HIDEOUT_QTE_EVENT = "HideoutQuickTimeEvent"
+    HIDEOUT_QTE_EVENT = "HideoutQuickTimeEvent",
+    SAVE_WEAPON_BUILD = "SaveWeaponBuild",
+    REMOVE_WEAPON_BUILD = "RemoveWeaponBuild",
+    REMOVE_BUILD = "RemoveBuild",
+    SAVE_EQUIPMENT_BUILD = "SaveEquipmentBuild",
+    REMOVE_EQUIPMENT_BUILD = "RemoveEquipmentBuild"
 }

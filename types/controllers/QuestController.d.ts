@@ -5,6 +5,7 @@ import { QuestConditionHelper } from "../helpers/QuestConditionHelper";
 import { QuestHelper } from "../helpers/QuestHelper";
 import { TraderHelper } from "../helpers/TraderHelper";
 import { IPmcData } from "../models/eft/common/IPmcData";
+import { IQuestStatus } from "../models/eft/common/tables/IBotBase";
 import { Item } from "../models/eft/common/tables/IItem";
 import { AvailableForConditions, IQuest, Reward } from "../models/eft/common/tables/IQuest";
 import { IRepeatableQuest } from "../models/eft/common/tables/IRepeatableQuests";
@@ -23,10 +24,12 @@ import { MailSendService } from "../services/MailSendService";
 import { PlayerService } from "../services/PlayerService";
 import { SeasonalEventService } from "../services/SeasonalEventService";
 import { HttpResponseUtil } from "../utils/HttpResponseUtil";
+import { JsonUtil } from "../utils/JsonUtil";
 import { TimeUtil } from "../utils/TimeUtil";
 export declare class QuestController {
     protected logger: ILogger;
     protected timeUtil: TimeUtil;
+    protected jsonUtil: JsonUtil;
     protected httpResponseUtil: HttpResponseUtil;
     protected eventOutputHolder: EventOutputHolder;
     protected databaseServer: DatabaseServer;
@@ -43,7 +46,7 @@ export declare class QuestController {
     protected localisationService: LocalisationService;
     protected configServer: ConfigServer;
     protected questConfig: IQuestConfig;
-    constructor(logger: ILogger, timeUtil: TimeUtil, httpResponseUtil: HttpResponseUtil, eventOutputHolder: EventOutputHolder, databaseServer: DatabaseServer, itemHelper: ItemHelper, dialogueHelper: DialogueHelper, mailSendService: MailSendService, profileHelper: ProfileHelper, traderHelper: TraderHelper, questHelper: QuestHelper, questConditionHelper: QuestConditionHelper, playerService: PlayerService, localeService: LocaleService, seasonalEventService: SeasonalEventService, localisationService: LocalisationService, configServer: ConfigServer);
+    constructor(logger: ILogger, timeUtil: TimeUtil, jsonUtil: JsonUtil, httpResponseUtil: HttpResponseUtil, eventOutputHolder: EventOutputHolder, databaseServer: DatabaseServer, itemHelper: ItemHelper, dialogueHelper: DialogueHelper, mailSendService: MailSendService, profileHelper: ProfileHelper, traderHelper: TraderHelper, questHelper: QuestHelper, questConditionHelper: QuestConditionHelper, playerService: PlayerService, localeService: LocaleService, seasonalEventService: SeasonalEventService, localisationService: LocalisationService, configServer: ConfigServer);
     /**
      * Handle client/quest/list
      * Get all quests visible to player
@@ -58,7 +61,7 @@ export declare class QuestController {
      * @param playerLevel level of player to test against quest
      * @returns true if quest can be seen/accepted by player of defined level
      */
-    protected playerLevelFulfillsQuestRequrement(quest: IQuest, playerLevel: number): boolean;
+    protected playerLevelFulfillsQuestRequirement(quest: IQuest, playerLevel: number): boolean;
     /**
      * Should a quest be shown to the player in trader quest screen
      * @param questId Quest to check
@@ -111,6 +114,13 @@ export declare class QuestController {
      */
     completeQuest(pmcData: IPmcData, body: ICompleteQuestRequestData, sessionID: string): IItemEventRouterResponse;
     /**
+     * Return quests that have different statuses
+     * @param preQuestStatusus Quests before
+     * @param postQuestStatuses Quests after
+     * @returns QuestStatusChange array
+     */
+    protected getQuestsWithDifferentStatuses(preQuestStatusus: IQuestStatus[], postQuestStatuses: IQuestStatus[]): IQuestStatus[];
+    /**
      * Send a popup to player on successful completion of a quest
      * @param sessionID session id
      * @param pmcData Player profile
@@ -137,8 +147,9 @@ export declare class QuestController {
      * @param sessionID session id
      * @param pmcData player profile
      * @param questsToFail quests to fail
+     * @param output Client output
      */
-    protected failQuests(sessionID: string, pmcData: IPmcData, questsToFail: IQuest[]): void;
+    protected failQuests(sessionID: string, pmcData: IPmcData, questsToFail: IQuest[], output: IItemEventRouterResponse): void;
     /**
      * Handle QuestHandover event
      * @param pmcData Player profile

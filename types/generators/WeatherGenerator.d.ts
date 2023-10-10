@@ -52,6 +52,7 @@ export declare class WeatherGenerator {
      */
     protected setCurrentDateTime(weather: IWeather): void;
     protected getWeightedWindDirection(): WindDirection;
+    protected getWeightedClouds(): number;
     protected getWeightedWindSpeed(): number;
     protected getWeightedFog(): number;
     protected getWeightedRain(): number;

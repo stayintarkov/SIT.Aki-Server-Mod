@@ -23,6 +23,7 @@ export declare class VFS {
     }) => Promise<fs.Stats>;
     unlinkPromisify: (path: fs.PathLike) => Promise<void>;
     rmdirPromisify: (path: fs.PathLike) => Promise<void>;
+    renamePromisify: (oldPath: fs.PathLike, newPath: fs.PathLike) => Promise<void>;
     constructor(asyncQueue: IAsyncQueue, uuidGenerator: IUUidGenerator);
     exists(filepath: fs.PathLike): boolean;
     existsAsync(filepath: fs.PathLike): Promise<boolean>;
@@ -45,6 +46,8 @@ export declare class VFS {
     removeFileAsync(filepath: string): Promise<void>;
     removeDir(filepath: string): void;
     removeDirAsync(filepath: string): Promise<void>;
+    rename(oldPath: string, newPath: string): void;
+    renameAsync(oldPath: string, newPath: string): Promise<void>;
     protected lockFileSync(filepath: any): void;
     protected checkFileSync(filepath: any): any;
     protected unlockFileSync(filepath: any): void;

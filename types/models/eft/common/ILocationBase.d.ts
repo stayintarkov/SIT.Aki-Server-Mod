@@ -18,6 +18,8 @@ export interface ILocationBase {
     BotMaxPlayer: number;
     BotMaxTimePlayer: number;
     BotNormal: number;
+    BotSpawnCountStep: number;
+    BotSpawnPeriodCheck: number;
     BotSpawnTimeOffMax: number;
     BotSpawnTimeOffMin: number;
     BotSpawnTimeOnMax: number;
@@ -30,6 +32,7 @@ export interface ILocationBase {
     Enabled: boolean;
     EnableCoop: boolean;
     GlobalLootChanceModifier: number;
+    GlobalContainerChanceModifier: number;
     IconX: number;
     IconY: number;
     Id: string;
@@ -47,6 +50,7 @@ export interface ILocationBase {
     MinPlayers: number;
     MaxCoopGroup: number;
     Name: string;
+    NonWaveGroupScenario: INonWaveGroupScenario;
     NewSpawn: boolean;
     OcculsionCullingEnabled: boolean;
     OldSpawn: boolean;
@@ -84,6 +88,12 @@ export interface ILocationBase {
     users_spawn_seconds_n2: number;
     users_summon_seconds: number;
     waves: Wave[];
+}
+export interface INonWaveGroupScenario {
+    Chance: number;
+    Enabled: boolean;
+    MaxToBeGroup: number;
+    MinToBeGroup: number;
 }
 export interface ILimit extends MinMax {
     items: any[];
@@ -207,6 +217,7 @@ export interface Wave {
     time_max: number;
     time_min: number;
     sptId?: string;
+    ChanceGroup?: number;
 }
 export declare enum WildSpawnType {
     ASSAULT = "assault",

@@ -18,4 +18,5 @@ export declare class HashUtil {
      * @returns hash value
      */
     generateHashForData(algorithm: string, data: crypto.BinaryLike): string;
+    generateAccountId(): number;
 }

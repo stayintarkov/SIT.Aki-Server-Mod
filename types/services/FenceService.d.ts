@@ -44,12 +44,12 @@ export declare class FenceService {
      * Replace main fence assort with new assort
      * @param assort New assorts to replace old with
      */
-    protected setFenceAssort(assort: ITraderAssort): void;
+    setFenceAssort(assort: ITraderAssort): void;
     /**
      * Replace high rep level fence assort with new assort
      * @param assort New assorts to replace old with
      */
-    protected setFenceDiscountAssort(assort: ITraderAssort): void;
+    setFenceDiscountAssort(assort: ITraderAssort): void;
     /**
      * Get assorts player can purchase
      * Adjust prices based on fence level of player
@@ -153,6 +153,18 @@ export declare class FenceService {
      * @param loyaltyLevel loyalty level to requre item at
      */
     protected addPresets(desiredPresetCount: number, defaultWeaponPresets: Record<string, IPreset>, assorts: ITraderAssort, loyaltyLevel: number): void;
+    /**
+     * Remove parts of a weapon prior to being listed on flea
+     * @param weaponAndMods Weapon to remove parts from
+     */
+    protected removeRandomPartsOfWeapon(weaponAndMods: Item[]): void;
+    /**
+     * Roll % chance check to see if item should be removed
+     * @param weaponMod Weapon mod being checked
+     * @param itemsBeingDeleted Current list of items on weapon being deleted
+     * @returns True if item will be removed
+     */
+    protected presetModItemWillBeRemoved(weaponMod: Item, itemsBeingDeleted: string[]): boolean;
     /**
      * Randomise items' upd properties e.g. med packs/weapons/armor
      * @param itemDetails Item being randomised

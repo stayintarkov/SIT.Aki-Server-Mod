@@ -3,9 +3,10 @@ import { BotHelper } from "../helpers/BotHelper";
 import { ProfileHelper } from "../helpers/ProfileHelper";
 import { WeightedRandomHelper } from "../helpers/WeightedRandomHelper";
 import { IBaseJsonSkills, IBaseSkill, IBotBase, Info, Health as PmcHealth, Skills as botSkills } from "../models/eft/common/tables/IBotBase";
-import { Health, IBotType } from "../models/eft/common/tables/IBotType";
+import { Appearance, Health, IBotType } from "../models/eft/common/tables/IBotType";
 import { BotGenerationDetails } from "../models/spt/bots/BotGenerationDetails";
 import { IBotConfig } from "../models/spt/config/IBotConfig";
+import { IPmcConfig } from "../models/spt/config/IPmcConfig";
 import { ILogger } from "../models/spt/utils/ILogger";
 import { ConfigServer } from "../servers/ConfigServer";
 import { DatabaseServer } from "../servers/DatabaseServer";
@@ -36,6 +37,7 @@ export declare class BotGenerator {
     protected localisationService: LocalisationService;
     protected configServer: ConfigServer;
     protected botConfig: IBotConfig;
+    protected pmcConfig: IPmcConfig;
     constructor(logger: ILogger, hashUtil: HashUtil, randomUtil: RandomUtil, timeUtil: TimeUtil, jsonUtil: JsonUtil, profileHelper: ProfileHelper, databaseServer: DatabaseServer, botInventoryGenerator: BotInventoryGenerator, botLevelGenerator: BotLevelGenerator, botEquipmentFilterService: BotEquipmentFilterService, weightedRandomHelper: WeightedRandomHelper, botHelper: BotHelper, botDifficultyHelper: BotDifficultyHelper, seasonalEventService: SeasonalEventService, localisationService: LocalisationService, configServer: ConfigServer);
     /**
      * Generate a player scav bot object
@@ -66,6 +68,13 @@ export declare class BotGenerator {
      * @returns IBotBase object
      */
     protected generateBot(sessionId: string, bot: IBotBase, botJsonTemplate: IBotType, botGenerationDetails: BotGenerationDetails): IBotBase;
+    /**
+     * Choose various appearance settings for a bot using weights
+     * @param bot Bot to adjust
+     * @param appearance Appearance settings to choose from
+     * @param botGenerationDetails Generation details
+     */
+    protected setBotAppearance(bot: IBotBase, appearance: Appearance, botGenerationDetails: BotGenerationDetails): void;
     /**
      * Create a bot nickname
      * @param botJsonTemplate x.json from database

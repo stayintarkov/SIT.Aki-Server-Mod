@@ -1,6 +1,8 @@
 import { MemberCategory } from "../../../models/enums/MemberCategory";
 import { MinMax } from "../../common/MinMax";
-export interface IPmcConfig {
+import { IBaseConfig } from "./IBaseConfig";
+export interface IPmcConfig extends IBaseConfig {
+    kind: "aki-pmc";
     /** What game version should the PMC have */
     gameVersionWeight: Record<string, number>;
     /** What account type should the PMC have */
@@ -18,6 +20,8 @@ export interface IPmcConfig {
     difficulty: string;
     /** Chance out of 100 to have a complete gun in backpack */
     looseWeaponInBackpackChancePercent: number;
+    /** Chance out of 100 to have an enhancement applied to PMC weapon */
+    weaponHasEnhancementChancePercent: number;
     /** MinMax count of weapons to have in backpack */
     looseWeaponInBackpackLootMinMax: MinMax;
     /** Percentage chance PMC will be USEC */

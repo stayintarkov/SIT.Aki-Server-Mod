@@ -1,9 +1,11 @@
 import { IPmcData } from "../models/eft/common/IPmcData";
+import { Inventory } from "../models/eft/common/tables/IBotBase";
 import { Item } from "../models/eft/common/tables/IItem";
 import { AddItem, IAddItemRequestData } from "../models/eft/inventory/IAddItemRequestData";
 import { IAddItemTempObject } from "../models/eft/inventory/IAddItemTempObject";
 import { IInventoryMergeRequestData } from "../models/eft/inventory/IInventoryMergeRequestData";
 import { IInventoryMoveRequestData } from "../models/eft/inventory/IInventoryMoveRequestData";
+import { IInventoryRemoveRequestData } from "../models/eft/inventory/IInventoryRemoveRequestData";
 import { IInventorySplitRequestData } from "../models/eft/inventory/IInventorySplitRequestData";
 import { IItemEventRouterResponse } from "../models/eft/itemEvent/IItemEventRouterResponse";
 import { IInventoryConfig, RewardDetails } from "../models/spt/config/IInventoryConfig";
@@ -22,7 +24,9 @@ import { PaymentHelper } from "./PaymentHelper";
 import { ProfileHelper } from "./ProfileHelper";
 import { TraderAssortHelper } from "./TraderAssortHelper";
 export interface OwnerInventoryItems {
+    /** Inventory items from source */
     from: Item[];
+    /** Inventory items at destination */
     to: Item[];
     sameInventory: boolean;
     isMail: boolean;
@@ -56,9 +60,20 @@ export declare class InventoryHelper {
      * @param useSortingTable Allow items to go into sorting table when stash has no space
      * @returns IItemEventRouterResponse
      */
-    addItem(pmcData: IPmcData, request: IAddItemRequestData, output: IItemEventRouterResponse, sessionID: string, callback: {
-        (): void;
-    }, foundInRaid?: boolean, addUpd?: any, useSortingTable?: boolean): IItemEventRouterResponse;
+    addItem(pmcData: IPmcData, request: IAddItemRequestData, output: IItemEventRouterResponse, sessionID: string, callback: () => void, foundInRaid?: boolean, addUpd?: any, useSortingTable?: boolean): IItemEventRouterResponse;
+    /**
+     * Take the given item, find a free slot in passed in inventory and place it there
+     * If no space in inventory, place in sorting table
+     * @param itemToAdd Item to add to inventory
+     * @param stashFS2D Two dimentional stash map
+     * @param sortingTableFS2D Two dimentional sorting table stash map
+     * @param itemLib
+     * @param pmcData Player profile
+     * @param useSortingTable Should sorting table be used for overflow items when no inventory space for item
+     * @param output Client output object
+     * @returns Client error output if placing item failed
+     */
+    protected placeItemInInventory(itemToAdd: IAddItemTempObject, stashFS2D: number[][], sortingTableFS2D: number[][], itemLib: Item[], playerInventory: Inventory, useSortingTable: boolean, output: IItemEventRouterResponse): IItemEventRouterResponse;
     /**
      * Add ammo to ammo boxes
      * @param itemToAdd Item to check is ammo box
@@ -66,8 +81,10 @@ export declare class InventoryHelper {
      * @param output IItemEventRouterResponse object
      * @param sessionID Session id
      * @param pmcData Profile to add ammobox to
+     * @param output object to send to client
+     * @param foundInRaid should ammo be FiR
      */
-    protected hydrateAmmoBoxWithAmmo(pmcData: IPmcData, itemToAdd: IAddItemTempObject, parentId: string, sessionID: string, output: IItemEventRouterResponse): void;
+    protected hydrateAmmoBoxWithAmmo(pmcData: IPmcData, itemToAdd: IAddItemTempObject, parentId: string, sessionID: string, output: IItemEventRouterResponse, foundInRaid: boolean): void;
     /**
      *
      * @param assortItems Items to add to inventory
@@ -76,23 +93,31 @@ export declare class InventoryHelper {
      */
     protected splitStackIntoSmallerStacks(assortItems: Item[], requestItem: AddItem, result: IAddItemTempObject[]): void;
     /**
+     * Handle Remove event
      * Remove item from player inventory + insured items array
-     * @param pmcData Profile to remove item from
+     * Also deletes child items
+     * @param profile Profile to remove item from (pmc or scav)
      * @param itemId Items id to remove
      * @param sessionID Session id
      * @param output Existing IItemEventRouterResponse object to append data to, creates new one by default if not supplied
      * @returns IItemEventRouterResponse
      */
-    removeItem(pmcData: IPmcData, itemId: string, sessionID: string, output?: IItemEventRouterResponse): IItemEventRouterResponse;
+    removeItem(profile: IPmcData, itemId: string, sessionID: string, output?: IItemEventRouterResponse): IItemEventRouterResponse;
+    removeItemAndChildrenFromMailRewards(sessionId: string, removeRequest: IInventoryRemoveRequestData, output: IItemEventRouterResponse): IItemEventRouterResponse;
     removeItemByCount(pmcData: IPmcData, itemId: string, count: number, sessionID: string, output?: IItemEventRouterResponse): IItemEventRouterResponse;
     getItemSize(itemTpl: string, itemID: string, inventoryItem: Item[]): number[];
     protected getSizeByInventoryItemHash(itemTpl: string, itemID: string, inventoryItemHash: InventoryHelper.InventoryItemHash): number[];
     protected getInventoryItemHash(inventoryItem: Item[]): InventoryHelper.InventoryItemHash;
     getContainerMap(containerW: number, containerH: number, itemList: Item[], containerId: string): number[][];
     /**
+     * Return the inventory that needs to be modified (scav/pmc etc)
+     * Changes made to result apply to character inventory
      * Based on the item action, determine whose inventories we should be looking at for from and to.
+     * @param request Item interaction request
+     * @param sessionId Session id / playerid
+     * @returns OwnerInventoryItems with inventory of player/scav to adjust
      */
-    getOwnerInventoryItems(body: IInventoryMoveRequestData | IInventorySplitRequestData | IInventoryMergeRequestData, sessionID: string): OwnerInventoryItems;
+    getOwnerInventoryItems(request: IInventoryMoveRequestData | IInventorySplitRequestData | IInventoryMergeRequestData, sessionId: string): OwnerInventoryItems;
     /**
      * Made a 2d array table with 0 - free slot and 1 - used slot
      * @param {Object} pmcData
@@ -101,19 +126,36 @@ export declare class InventoryHelper {
      */
     protected getStashSlotMap(pmcData: IPmcData, sessionID: string): number[][];
     protected getSortingTableSlotMap(pmcData: IPmcData): number[][];
+    /**
+     * Get Player Stash Proper Size
+     * @param sessionID Playerid
+     * @returns Array of 2 values, x and y stash size
+     */
     protected getPlayerStashSize(sessionID: string): Record<number, number>;
+    /**
+     * Get the players stash items tpl
+     * @param sessionID Player id
+     * @returns Stash tpl
+     */
     protected getStashType(sessionID: string): string;
     /**
-    * Internal helper function to transfer an item from one profile to another.
-    * fromProfileData: Profile of the source.
-    * toProfileData: Profile of the destination.
-    * body: Move request
-    */
+     * Internal helper function to transfer an item from one profile to another.
+     * @param fromItems Inventory of the source (can be non-player)
+     * @param toItems Inventory of the destination
+     * @param body Move request
+     */
     moveItemToProfile(fromItems: Item[], toItems: Item[], body: IInventoryMoveRequestData): void;
     /**
-    * Internal helper function to move item within the same profile_f.
-    */
-    moveItemInternal(pmcData: IPmcData, inventoryItems: Item[], moveRequest: IInventoryMoveRequestData): void;
+     * Internal helper function to move item within the same profile_f.
+     * @param pmcData profile to edit
+     * @param inventoryItems
+     * @param moveRequest
+     * @returns True if move was successful
+     */
+    moveItemInternal(pmcData: IPmcData, inventoryItems: Item[], moveRequest: IInventoryMoveRequestData): {
+        success: boolean;
+        errorMessage?: string;
+    };
     /**
      * Update fast panel bindings when an item is moved into a container that doesnt allow quick slot access
      * @param pmcData Player profile

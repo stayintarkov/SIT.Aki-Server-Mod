@@ -1,10 +1,12 @@
 import { IPmcData } from "../../eft/common/IPmcData";
-import { IPresetBuildActionRequestData } from "../../eft/presetBuild/IPresetBuildActionRequestData";
-import { IItemEventRouterResponse } from "../../eft/itemEvent/IItemEventRouterResponse";
 import { IGetBodyResponseData } from "../../eft/httpResponse/IGetBodyResponseData";
-import { WeaponBuild } from "../../eft/profile/IAkiProfile";
+import { IItemEventRouterResponse } from "../../eft/itemEvent/IItemEventRouterResponse";
+import { IPresetBuildActionRequestData } from "../../eft/presetBuild/IPresetBuildActionRequestData";
+import { IWeaponBuild } from "../../eft/profile/IAkiProfile";
 export interface IPresetBuildCallbacks {
-    getHandbookUserlist(url: string, info: any, sessionID: string): IGetBodyResponseData<WeaponBuild[]>;
-    saveBuild(pmcData: IPmcData, body: IPresetBuildActionRequestData, sessionID: string): IItemEventRouterResponse;
-    removeBuild(pmcData: IPmcData, body: IPresetBuildActionRequestData, sessionID: string): IItemEventRouterResponse;
+    getHandbookUserlist(url: string, info: any, sessionID: string): IGetBodyResponseData<IWeaponBuild[]>;
+    saveWeaponBuild(pmcData: IPmcData, body: IPresetBuildActionRequestData, sessionID: string): IItemEventRouterResponse;
+    removeWeaponBuild(pmcData: IPmcData, body: IPresetBuildActionRequestData, sessionID: string): IItemEventRouterResponse;
+    saveEquipmentBuild(pmcData: IPmcData, body: IPresetBuildActionRequestData, sessionID: string): IItemEventRouterResponse;
+    removeEquipmentBuild(pmcData: IPmcData, body: IPresetBuildActionRequestData, sessionID: string): IItemEventRouterResponse;
 }

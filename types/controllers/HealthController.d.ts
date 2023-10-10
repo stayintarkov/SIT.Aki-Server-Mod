@@ -29,34 +29,35 @@ export declare class HealthController {
      * stores in-raid player health
      * @param pmcData Player profile
      * @param info Request data
-     * @param sessionID
+     * @param sessionID Player id
      * @param addEffects Should effects found be added or removed from profile
+     * @param deleteExistingEffects Should all prior effects be removed before apply new ones
      */
     saveVitality(pmcData: IPmcData, info: ISyncHealthRequestData, sessionID: string, addEffects?: boolean, deleteExistingEffects?: boolean): void;
     /**
      * When healing in menu
-     * @param pmcData
-     * @param body
-     * @param sessionID
-     * @returns
+     * @param pmcData Player profile
+     * @param request Healing request
+     * @param sessionID Player id
+     * @returns IItemEventRouterResponse
      */
-    offraidHeal(pmcData: IPmcData, body: IOffraidHealRequestData, sessionID: string): IItemEventRouterResponse;
+    offraidHeal(pmcData: IPmcData, request: IOffraidHealRequestData, sessionID: string): IItemEventRouterResponse;
     /**
      * Handle Eat event
      * Consume food/water outside of a raid
      * @param pmcData Player profile
-     * @param body request Object
+     * @param request Eat request
      * @param sessionID Session id
      * @returns IItemEventRouterResponse
      */
-    offraidEat(pmcData: IPmcData, body: IOffraidEatRequestData, sessionID: string): IItemEventRouterResponse;
+    offraidEat(pmcData: IPmcData, request: IOffraidEatRequestData, sessionID: string): IItemEventRouterResponse;
     /**
      * Handle RestoreHealth event
      * Occurs on post-raid healing page
      * @param pmcData player profile
      * @param healthTreatmentRequest Request data from client
      * @param sessionID Session id
-     * @returns
+     * @returns IItemEventRouterResponse
      */
     healthTreatment(pmcData: IPmcData, healthTreatmentRequest: IHealthTreatmentRequestData, sessionID: string): IItemEventRouterResponse;
     /**
@@ -66,12 +67,4 @@ export declare class HealthController {
      * @param sessionID
      */
     applyWorkoutChanges(pmcData: IPmcData, info: IWorkoutData, sessionId: string): void;
-    /**
-     * Iterate over treatment request diff and find effects to remove from player limbs
-     * @param sessionId
-     * @param profile Profile to update
-     * @param treatmentRequest client request
-     * @param output response to send to client
-     */
-    protected removeEffectsAfterPostRaidHeal(sessionId: string, profile: IPmcData, treatmentRequest: IHealthTreatmentRequestData, output: IItemEventRouterResponse): void;
 }

@@ -1,7 +1,7 @@
 import { IBotBase } from "../models/eft/common/tables/IBotBase";
 import { ILogger } from "../models/spt/utils/ILogger";
 import { LocalisationService } from "./LocalisationService";
-/** Cache bots in a dictionary, keyed by the bots name, keying by name isnt idea as its not unique but this is used by the post-raid system which doesnt have any bot ids, only name */
+/** Cache bots in a dictionary, keyed by the bots name, keying by name isnt ideal as its not unique but this is used by the post-raid system which doesnt have any bot ids, only name */
 export declare class MatchBotDetailsCacheService {
     protected logger: ILogger;
     protected localisationService: LocalisationService;
@@ -17,9 +17,9 @@ export declare class MatchBotDetailsCacheService {
      */
     clearCache(): void;
     /**
-     * Find a bot in the cache by its name
+     * Find a bot in the cache by its name and side
      * @param botName Name of bot to find
      * @returns Bot details
      */
-    getBotByName(botName: string): IBotBase;
+    getBotByNameAndSide(botName: string, botSide: string): IBotBase;
 }

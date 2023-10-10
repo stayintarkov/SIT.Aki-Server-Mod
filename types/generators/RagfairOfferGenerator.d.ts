@@ -55,11 +55,10 @@ export declare class RagfairOfferGenerator {
      * @param items Items in the offer
      * @param barterScheme Cost of item (currency or barter)
      * @param loyalLevel Loyalty level needed to buy item
-     * @param price Price of offer
-     * @param sellInOnePiece Set StackObjectsCount to 1
+     * @param sellInOnePiece Flags sellInOnePiece to be true
      * @returns IRagfairOffer
      */
-    createFleaOffer(userID: string, time: number, items: Item[], barterScheme: IBarterScheme[], loyalLevel: number, price: number, sellInOnePiece?: boolean): IRagfairOffer;
+    createFleaOffer(userID: string, time: number, items: Item[], barterScheme: IBarterScheme[], loyalLevel: number, sellInOnePiece?: boolean): IRagfairOffer;
     /**
      * Create an offer object ready to send to ragfairOfferService.addOffer()
      * @param userID Owner of the offer
@@ -67,17 +66,16 @@ export declare class RagfairOfferGenerator {
      * @param items Items in the offer
      * @param barterScheme Cost of item (currency or barter)
      * @param loyalLevel Loyalty level needed to buy item
-     * @param price Price of offer
      * @param sellInOnePiece Set StackObjectsCount to 1
      * @returns IRagfairOffer
      */
-    protected createOffer(userID: string, time: number, items: Item[], barterScheme: IBarterScheme[], loyalLevel: number, price: number, sellInOnePiece?: boolean): IRagfairOffer;
+    protected createOffer(userID: string, time: number, items: Item[], barterScheme: IBarterScheme[], loyalLevel: number, sellInOnePiece?: boolean): IRagfairOffer;
     /**
      * Calculate the offer price that's listed on the flea listing
      * @param offerRequirements barter requirements for offer
      * @returns rouble cost of offer
      */
-    protected calculateOfferListingPrice(offerRequirements: OfferRequirement[]): number;
+    protected convertOfferRequirementsIntoRoubles(offerRequirements: OfferRequirement[]): number;
     /**
      * Get avatar url from trader table in db
      * @param isTrader Is user we're getting avatar for a trader
@@ -137,7 +135,7 @@ export declare class RagfairOfferGenerator {
      * @param itemDetails raw db item details
      * @returns Item array
      */
-    protected createSingleOfferForItem(items: Item[], isPreset: boolean, itemDetails: [boolean, ITemplateItem]): Promise<Item[]>;
+    protected createSingleOfferForItem(items: Item[], isPreset: boolean, itemDetails: [boolean, ITemplateItem]): Promise<void>;
     /**
      * Generate trader offers on flea using the traders assort data
      * @param traderID Trader to generate offers for
@@ -151,7 +149,7 @@ export declare class RagfairOfferGenerator {
      * @param itemDetails db details of first item
      * @returns
      */
-    protected getItemCondition(userID: string, itemWithMods: Item[], itemDetails: ITemplateItem): Item[];
+    protected randomiseItemUpdProperties(userID: string, itemWithMods: Item[], itemDetails: ITemplateItem): Item[];
     /**
      * Get the relevant condition id if item tpl matches in ragfair.json/condition
      * @param tpl Item to look for matching condition object
@@ -184,7 +182,7 @@ export declare class RagfairOfferGenerator {
      * @param offerItems Items for sale in offer
      * @returns Barter scheme
      */
-    protected createBarterRequirement(offerItems: Item[]): IBarterScheme[];
+    protected createBarterBarterScheme(offerItems: Item[]): IBarterScheme[];
     /**
      * Get an array of flea prices + item tpl, cached in generator class inside `allowedFleaPriceItemsForBarter`
      * @returns array with tpl/price values
@@ -196,7 +194,9 @@ export declare class RagfairOfferGenerator {
     /**
      * Create a random currency-based barter scheme for an array of items
      * @param offerItems Items on offer
+     * @param isPackOffer Is the barter scheme being created for a pack offer
+     * @param multipler What to multiply the resulting price by
      * @returns Barter scheme for offer
      */
-    protected createCurrencyRequirement(offerItems: Item[]): IBarterScheme[];
+    protected createCurrencyBarterScheme(offerItems: Item[], isPackOffer: boolean, multipler?: number): IBarterScheme[];
 }

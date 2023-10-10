@@ -76,30 +76,46 @@ export declare class InventoryController {
     */
     removeItem(pmcData: IPmcData, itemId: string, sessionID: string, output?: IItemEventRouterResponse): IItemEventRouterResponse;
     /**
+     * Handle Remove event
      * Implements functionality "Discard" from Main menu (Stash etc.)
      * Removes item from PMC Profile
      */
     discardItem(pmcData: IPmcData, body: IInventoryRemoveRequestData, sessionID: string): IItemEventRouterResponse;
     /**
-    * Split Item
-    * spliting 1 item-stack into 2 separate items ...
-    */
-    splitItem(pmcData: IPmcData, body: IInventorySplitRequestData, sessionID: string): IItemEventRouterResponse;
+     * Split Item
+     * spliting 1 stack into 2
+     * @param pmcData Player profile (unused, getOwnerInventoryItems() gets profile)
+     * @param request Split request
+     * @param sessionID Session/player id
+     * @returns IItemEventRouterResponse
+     */
+    splitItem(pmcData: IPmcData, request: IInventorySplitRequestData, sessionID: string): IItemEventRouterResponse;
     /**
-     * Merge Item
-     * merges 2 items into one, deletes item from `body.item` and adding number of stacks into `body.with`
+     * Fully merge 2 inventory stacks together into one stack (merging where both stacks remain is called 'transfer')
+     * Deletes item from `body.item` and adding number of stacks into `body.with`
+     * @param pmcData Player profile (unused, getOwnerInventoryItems() gets profile)
+     * @param body Merge request
+     * @param sessionID Player id
+     * @returns IItemEventRouterResponse
      */
     mergeItem(pmcData: IPmcData, body: IInventoryMergeRequestData, sessionID: string): IItemEventRouterResponse;
     /**
-    * Transfer item
-    * Used to take items from scav inventory into stash or to insert ammo into mags (shotgun ones) and reloading weapon by clicking "Reload"
-    */
+     * TODO: Adds no data to output to send to client, is this by design?
+     * TODO: should make use of getOwnerInventoryItems(), stack being transferred may not always be on pmc
+     * Transfer items from one stack into another while keeping original stack
+     * Used to take items from scav inventory into stash or to insert ammo into mags (shotgun ones) and reloading weapon by clicking "Reload"
+     * @param pmcData Player profile
+     * @param body Transfer request
+     * @param sessionID Session id
+     * @returns IItemEventRouterResponse
+     */
     transferItem(pmcData: IPmcData, body: IInventoryTransferRequestData, sessionID: string): IItemEventRouterResponse;
     /**
     * Swap Item
     * its used for "reload" if you have weapon in hands and magazine is somewhere else in rig or backpack in equipment
+    * Also used to swap items using quick selection on character screen
     */
-    swapItem(pmcData: IPmcData, body: IInventorySwapRequestData, sessionID: string): IItemEventRouterResponse;
+    swapItem(pmcData: IPmcData, request: IInventorySwapRequestData, sessionID: string): IItemEventRouterResponse;
     /**
      * Handles folding of Weapons
      */

@@ -1,5 +1,5 @@
-import { MinMax } from "../models/common/MinMax";
 import { Inventory } from "../models/eft/common/tables/IBotBase";
+import { GenerationData } from "../models/eft/common/tables/IBotType";
 import { Item } from "../models/eft/common/tables/IItem";
 import { Grid, ITemplateItem } from "../models/eft/common/tables/ITemplateItem";
 import { EquipmentSlots } from "../models/enums/EquipmentSlots";
@@ -12,6 +12,7 @@ import { RandomUtil } from "../utils/RandomUtil";
 import { ContainerHelper } from "./ContainerHelper";
 import { InventoryHelper } from "./InventoryHelper";
 import { ItemHelper } from "./ItemHelper";
+import { WeightedRandomHelper } from "./WeightedRandomHelper";
 export declare class BotWeaponGeneratorHelper {
     protected logger: ILogger;
     protected databaseServer: DatabaseServer;
@@ -19,22 +20,23 @@ export declare class BotWeaponGeneratorHelper {
     protected randomUtil: RandomUtil;
     protected hashUtil: HashUtil;
     protected inventoryHelper: InventoryHelper;
+    protected weightedRandomHelper: WeightedRandomHelper;
     protected localisationService: LocalisationService;
     protected containerHelper: ContainerHelper;
-    constructor(logger: ILogger, databaseServer: DatabaseServer, itemHelper: ItemHelper, randomUtil: RandomUtil, hashUtil: HashUtil, inventoryHelper: InventoryHelper, localisationService: LocalisationService, containerHelper: ContainerHelper);
+    constructor(logger: ILogger, databaseServer: DatabaseServer, itemHelper: ItemHelper, randomUtil: RandomUtil, hashUtil: HashUtil, inventoryHelper: InventoryHelper, weightedRandomHelper: WeightedRandomHelper, localisationService: LocalisationService, containerHelper: ContainerHelper);
     /**
      * Get a randomized number of bullets for a specific magazine
-     * @param magCounts min and max count of magazines
+     * @param magCounts Weights of magazines
      * @param magTemplate magazine to generate bullet count for
      * @returns bullet count number
      */
-    getRandomizedBulletCount(magCounts: MinMax, magTemplate: ITemplateItem): number;
+    getRandomizedBulletCount(magCounts: GenerationData, magTemplate: ITemplateItem): number;
     /**
      * Get a randomized count of magazines
      * @param magCounts min and max value returned value can be between
      * @returns numerical value of magazine count
      */
-    getRandomizedMagazineCount(magCounts: MinMax): number;
+    getRandomizedMagazineCount(magCounts: GenerationData): number;
     /**
      * Is this magazine cylinder related (revolvers and grenade launchers)
      * @param magazineParentName the name of the magazines parent
@@ -48,7 +50,7 @@ export declare class BotWeaponGeneratorHelper {
      * @param magTemplate template object of magazine
      * @returns Item array
      */
-    createMagazine(magazineTpl: string, ammoTpl: string, magTemplate: ITemplateItem): Item[];
+    createMagazineWithAmmo(magazineTpl: string, ammoTpl: string, magTemplate: ITemplateItem): Item[];
     /**
      * Add a specific number of cartridges to a bots inventory (defaults to vest and pockets)
      * @param ammoTpl Ammo tpl to add to vest/pockets

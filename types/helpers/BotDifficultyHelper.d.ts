@@ -1,5 +1,5 @@
 import { Difficulty } from "../models/eft/common/tables/IBotType";
-import { IBotConfig } from "../models/spt/config/IBotConfig";
+import { IPmcConfig } from "../models/spt/config/IPmcConfig";
 import { ILogger } from "../models/spt/utils/ILogger";
 import { ConfigServer } from "../servers/ConfigServer";
 import { DatabaseServer } from "../servers/DatabaseServer";
@@ -15,7 +15,7 @@ export declare class BotDifficultyHelper {
     protected localisationService: LocalisationService;
     protected botHelper: BotHelper;
     protected configServer: ConfigServer;
-    protected botConfig: IBotConfig;
+    protected pmcConfig: IPmcConfig;
     constructor(logger: ILogger, jsonUtil: JsonUtil, databaseServer: DatabaseServer, randomUtil: RandomUtil, localisationService: LocalisationService, botHelper: BotHelper, configServer: ConfigServer);
     getPmcDifficultySettings(pmcType: "bear" | "usec", difficulty: string, usecType: string, bearType: string): Difficulty;
     /**

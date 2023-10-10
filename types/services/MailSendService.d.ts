@@ -1,6 +1,8 @@
+import { DialogueHelper } from "../helpers/DialogueHelper";
 import { ItemHelper } from "../helpers/ItemHelper";
 import { NotificationSendHelper } from "../helpers/NotificationSendHelper";
 import { NotifierHelper } from "../helpers/NotifierHelper";
+import { TraderHelper } from "../helpers/TraderHelper";
 import { Item } from "../models/eft/common/tables/IItem";
 import { Dialogue, IUserDialogInfo, Message, MessageItems } from "../models/eft/profile/IAkiProfile";
 import { MessageType } from "../models/enums/MessageType";
@@ -19,51 +21,61 @@ export declare class MailSendService {
     protected saveServer: SaveServer;
     protected databaseServer: DatabaseServer;
     protected notifierHelper: NotifierHelper;
+    protected dialogueHelper: DialogueHelper;
     protected notificationSendHelper: NotificationSendHelper;
     protected localisationService: LocalisationService;
     protected itemHelper: ItemHelper;
+    protected traderHelper: TraderHelper;
     protected readonly systemSenderId = "59e7125688a45068a6249071";
-    constructor(logger: ILogger, hashUtil: HashUtil, timeUtil: TimeUtil, saveServer: SaveServer, databaseServer: DatabaseServer, notifierHelper: NotifierHelper, notificationSendHelper: NotificationSendHelper, localisationService: LocalisationService, itemHelper: ItemHelper);
+    constructor(logger: ILogger, hashUtil: HashUtil, timeUtil: TimeUtil, saveServer: SaveServer, databaseServer: DatabaseServer, notifierHelper: NotifierHelper, dialogueHelper: DialogueHelper, notificationSendHelper: NotificationSendHelper, localisationService: LocalisationService, itemHelper: ItemHelper, traderHelper: TraderHelper);
     /**
      * Send a message from an NPC (e.g. prapor) to the player with or without items using direct message text, do not look up any locale
-     * @param playerId Players id to send message to
-     * @param sender The trader sending the message
+     * @param sessionId The session ID to send the message to
+     * @param trader The trader sending the message
      * @param messageType What type the message will assume (e.g. QUEST_SUCCESS)
      * @param message Text to send to the player
      * @param items Optional items to send to player
      * @param maxStorageTimeSeconds Optional time to collect items before they expire
      */
-    sendDirectNpcMessageToPlayer(playerId: string, sender: Traders, messageType: MessageType, message: string, items?: Item[], maxStorageTimeSeconds?: any): void;
+    sendDirectNpcMessageToPlayer(sessionId: string, trader: Traders, messageType: MessageType, message: string, items?: Item[], maxStorageTimeSeconds?: any, systemData?: any, ragfair?: any): void;
     /**
      * Send a message from an NPC (e.g. prapor) to the player with or without items
-     * @param playerId Players id to send message to
-     * @param sender The trader sending the message
+     * @param sessionId The session ID to send the message to
+     * @param trader The trader sending the message
      * @param messageType What type the message will assume (e.g. QUEST_SUCCESS)
      * @param messageLocaleId The localised text to send to player
      * @param items Optional items to send to player
      * @param maxStorageTimeSeconds Optional time to collect items before they expire
      */
-    sendLocalisedNpcMessageToPlayer(playerId: string, sender: Traders, messageType: MessageType, messageLocaleId: string, items?: Item[], maxStorageTimeSeconds?: any): void;
+    sendLocalisedNpcMessageToPlayer(sessionId: string, trader: Traders, messageType: MessageType, messageLocaleId: string, items?: Item[], maxStorageTimeSeconds?: any, systemData?: any, ragfair?: any): void;
     /**
      * Send a message from SYSTEM to the player with or without items
-     * @param playerId Players id to send message to
+     * @param sessionId The session ID to send the message to
      * @param message The text to send to player
      * @param items Optional items to send to player
      * @param maxStorageTimeSeconds Optional time to collect items before they expire
      */
-    sendSystemMessageToPlayer(playerId: string, message: string, items?: Item[], maxStorageTimeSeconds?: any): void;
+    sendSystemMessageToPlayer(sessionId: string, message: string, items?: Item[], maxStorageTimeSeconds?: any): void;
+    /**
+     * Send a message from SYSTEM to the player with or without items with localised text
+     * @param sessionId The session ID to send the message to
+     * @param messageLocaleId Id of key from locale file to send to player
+     * @param items Optional items to send to player
+     * @param maxStorageTimeSeconds Optional time to collect items before they expire
+     */
+    sendLocalisedSystemMessageToPlayer(sessionId: string, messageLocaleId: string, items?: Item[], maxStorageTimeSeconds?: any): void;
     /**
      * Send a USER message to a player with or without items
-     * @param playerId Players id to send message to
+     * @param sessionId The session ID to send the message to
      * @param senderId Who is sending the message
      * @param message The text to send to player
      * @param items Optional items to send to player
      * @param maxStorageTimeSeconds Optional time to collect items before they expire
      */
-    sendUserMessageToPlayer(playerId: string, senderDetails: IUserDialogInfo, message: string, items?: Item[], maxStorageTimeSeconds?: any): void;
+    sendUserMessageToPlayer(sessionId: string, senderDetails: IUserDialogInfo, message: string, items?: Item[], maxStorageTimeSeconds?: any): void;
     /**
      * Large function to send messages to players from a variety of sources (SYSTEM/NPC/USER)
-     * Helper functions in this class are availble to simplify common actions
+     * Helper functions in this class are available to simplify common actions
      * @param messageDetails Details needed to send a message to the player
      */
     sendMessageToPlayer(messageDetails: ISendMessageDetails): void;
@@ -95,6 +107,12 @@ export declare class MailSendService {
      * @returns Sanitised items
      */
     protected processItemsBeforeAddingToMail(dialogType: MessageType, messageDetails: ISendMessageDetails): MessageItems;
+    /**
+     * Try to find the most correct item to be the 'primary' item in a reward mail
+     * @param items Possible items to choose from
+     * @returns Chosen 'primary' item
+     */
+    protected getBaseItemFromRewards(items: Item[]): Item;
     /**
      * Get a dialog with a specified entity (user/trader)
      * Create and store empty dialog if none exists in profile

@@ -28,6 +28,10 @@ export interface FenceConfig {
     itemStackSizeOverrideMinMax: Record<string, MinMax>;
     itemTypeLimits: Record<string, number>;
     regenerateAssortsOnRefresh: boolean;
+    /** Max rouble price before item is not listed on flea */
+    itemCategoryRoublePriceLimit: Record<string, number>;
+    /** Each slotid with % to be removed prior to listing on fence */
+    presetSlotsToRemoveChancePercent: Record<string, number>;
     /** Block seasonal items from appearing when season is inactive */
     blacklistSeasonalItems: boolean;
     blacklist: string[];

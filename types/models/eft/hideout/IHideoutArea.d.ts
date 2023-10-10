@@ -8,6 +8,7 @@ export interface IHideoutArea {
     craftGivesExp: boolean;
     displayLevel: boolean;
     enableAreaRequirements: boolean;
+    parentArea?: string;
     stages: Record<string, Stage>;
 }
 export interface IAreaRequirement {
@@ -19,6 +20,8 @@ export interface Stage {
     autoUpgrade: boolean;
     bonuses: StageBonus[];
     constructionTime: number;
+    /** Containers inventory tpl */
+    container?: string;
     description: string;
     displayInterface: boolean;
     improvements: IStageImprovement[];
@@ -67,6 +70,7 @@ export interface StageBonus {
     type: string;
     filter?: string[];
     icon?: string;
+    /** CHANGES PER DUMP */
     id?: string;
     templateId?: string;
 }

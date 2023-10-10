@@ -1,4 +1,5 @@
 import { GameController } from "../controllers/GameController";
+import { OnLoad } from "../di/OnLoad";
 import { IEmptyRequestData } from "../models/eft/common/IEmptyRequestData";
 import { ICheckVersionResponse } from "../models/eft/game/ICheckVersionResponse";
 import { ICurrentGroupResponse } from "../models/eft/game/ICurrentGroupResponse";
@@ -15,12 +16,14 @@ import { INullResponseData } from "../models/eft/httpResponse/INullResponseData"
 import { SaveServer } from "../servers/SaveServer";
 import { HttpResponseUtil } from "../utils/HttpResponseUtil";
 import { Watermark } from "../utils/Watermark";
-declare class GameCallbacks {
+declare class GameCallbacks implements OnLoad {
     protected httpResponse: HttpResponseUtil;
     protected watermark: Watermark;
     protected saveServer: SaveServer;
     protected gameController: GameController;
     constructor(httpResponse: HttpResponseUtil, watermark: Watermark, saveServer: SaveServer, gameController: GameController);
+    onLoad(): Promise<void>;
+    getRoute(): string;
     /**
      * Handle client/game/version/validate
      * @returns INullResponseData

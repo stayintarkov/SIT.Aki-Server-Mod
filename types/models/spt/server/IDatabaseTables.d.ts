@@ -1,4 +1,5 @@
 import { IQteData } from "../../../models/eft/hideout/IQteData";
+import { IEquipmentBuild } from "../../../models/eft/profile/IAkiProfile";
 import { IGlobals } from "../../eft/common/IGlobals";
 import { IBotBase } from "../../eft/common/tables/IBotBase";
 import { IBotCore } from "../../eft/common/tables/IBotCore";
@@ -48,6 +49,8 @@ export interface IDatabaseTables {
         profiles: IProfileTemplates;
         /** Flea prices of items - gathered from online flea market dump */
         prices: Record<string, number>;
+        /** Default equipment loadouts that show on main inventory screen */
+        defaultEquipmentPresets: IEquipmentBuild[];
     };
     traders?: Record<string, ITrader>;
     globals?: IGlobals;

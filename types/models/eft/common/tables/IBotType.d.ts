@@ -101,18 +101,22 @@ export interface Experience {
     standingForKill: number;
 }
 export interface Generation {
-    items: ItemMinMax;
+    items: GenerationWeightingItems;
 }
-export interface ItemMinMax {
-    grenades: MinMaxWithWhitelist;
-    healing: MinMaxWithWhitelist;
-    drugs: MinMaxWithWhitelist;
-    stims: MinMaxWithWhitelist;
-    looseLoot: MinMaxWithWhitelist;
-    magazines: MinMaxWithWhitelist;
-    specialItems: MinMaxWithWhitelist;
+export interface GenerationWeightingItems {
+    grenades: GenerationData;
+    healing: GenerationData;
+    drugs: GenerationData;
+    stims: GenerationData;
+    backpackLoot: GenerationData;
+    pocketLoot: GenerationData;
+    vestLoot: GenerationData;
+    magazines: GenerationData;
+    specialItems: GenerationData;
 }
-export interface MinMaxWithWhitelist extends MinMax {
+export interface GenerationData {
+    /** key: number of items, value: weighting */
+    weights: Record<string, number>;
     /** Array of item tpls */
     whitelist: string[];
 }

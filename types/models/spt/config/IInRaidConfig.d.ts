@@ -12,6 +12,8 @@ export interface IInRaidConfig extends IBaseConfig {
     carExtractBaseStandingGain: number;
     /** Fence rep gain when successfully extracting as pscav */
     scavExtractGain: number;
+    /** On death should items in your secure keep their Find in raid status regardless of how you finished the raid */
+    keepFiRSecureContainerOnDeath: boolean;
 }
 export interface RaidMenuSettings {
     aiAmount: string;

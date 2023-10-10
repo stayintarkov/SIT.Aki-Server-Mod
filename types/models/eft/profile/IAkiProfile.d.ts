@@ -1,3 +1,4 @@
+import { EquipmentBuildType } from "../../../models/enums/EquipmentBuildType";
 import { MemberCategory } from "../../../models/enums/MemberCategory";
 import { MessageType } from "../../enums/MessageType";
 import { IPmcData } from "../common/IPmcData";
@@ -7,7 +8,7 @@ export interface IAkiProfile {
     characters: Characters;
     /** Clothing purchases */
     suits: string[];
-    weaponbuilds: WeaponBuild[];
+    userbuilds: IUserBuilds;
     dialogues: Record<string, Dialogue>;
     aki: Aki;
     vitality: Vitality;
@@ -22,6 +23,7 @@ export declare class TraderPurchaseData {
 }
 export interface Info {
     id: string;
+    aid: number;
     username: string;
     password: string;
     wipe: boolean;
@@ -31,11 +33,25 @@ export interface Characters {
     pmc: IPmcData;
     scav: IPmcData;
 }
-export interface WeaponBuild {
+export interface IUserBuilds {
+    weaponBuilds: IWeaponBuild[];
+    equipmentBuilds: IEquipmentBuild[];
+}
+export interface IWeaponBuild {
     id: string;
     name: string;
     root: string;
     items: Item[];
+    type: string;
+}
+export interface IEquipmentBuild {
+    id: string;
+    name: string;
+    root: string;
+    items: Item[];
+    type: string;
+    fastPanel: Record<string, string>;
+    buildType: EquipmentBuildType;
 }
 export interface Dialogue {
     attachmentsNew: number;
@@ -74,7 +90,7 @@ export interface Message {
     Member?: IUpdatableChatMember;
     templateId?: string;
     text?: string;
-    hasRewards: boolean;
+    hasRewards?: boolean;
     rewardCollected: boolean;
     items?: MessageItems;
     maxStorageTime?: number;

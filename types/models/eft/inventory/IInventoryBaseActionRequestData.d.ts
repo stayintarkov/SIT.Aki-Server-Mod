@@ -5,6 +5,7 @@ export interface To {
     id: string;
     container: string;
     location?: ToLocation | number;
+    isSearched?: boolean;
 }
 export interface ToLocation {
     x: number;

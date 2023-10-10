@@ -24,5 +24,7 @@ declare class LauncherCallbacks {
     ping(url: string, info: IEmptyRequestData, sessionID: string): string;
     removeProfile(url: string, info: IRemoveProfileData, sessionID: string): string;
     getCompatibleTarkovVersion(): string;
+    getLoadedServerMods(): string;
+    getServerModsProfileUsed(url: string, info: IEmptyRequestData, sessionId: string): string;
 }
 export { LauncherCallbacks };

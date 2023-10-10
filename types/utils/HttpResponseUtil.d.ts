@@ -9,6 +9,11 @@ export declare class HttpResponseUtil {
     protected localisationService: LocalisationService;
     constructor(jsonUtil: JsonUtil, localisationService: LocalisationService);
     protected clearString(s: string): any;
+    /**
+     * Return passed in data as JSON string
+     * @param data
+     * @returns
+     */
     noBody(data: any): any;
     getBody<T>(data: T, err?: number, errmsg?: any): IGetBodyResponseData<T>;
     getUnclearedBody(data: any, err?: number, errmsg?: any): string;

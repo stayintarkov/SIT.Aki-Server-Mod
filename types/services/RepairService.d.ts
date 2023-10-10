@@ -94,11 +94,11 @@ export declare class RepairService {
      */
     addBuffToItem(repairDetails: RepairDetails, pmcData: IPmcData): void;
     /**
-     * Add buff to item
+     * Add random buff to item
      * @param itemConfig weapon/armor config
      * @param repairDetails Details for item to repair
      */
-    protected addBuff(itemConfig: BonusSettings, repairDetails: RepairDetails): void;
+    addBuff(itemConfig: BonusSettings, item: Item): void;
     /**
      * Check if item should be buffed by checking the item type and relevant player skill level
      * @param repairDetails Item that was repaired

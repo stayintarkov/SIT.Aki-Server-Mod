@@ -104,10 +104,8 @@ export declare class InraidController {
     /**
      * Mark inventory items as FiR if player survived raid, otherwise remove FiR from them
      * @param offraidData Save Progress Request
-     * @param pmcData player profile
-     * @param isPlayerScav Was the player a pScav
      */
-    protected markOrRemoveFoundInRaidItems(offraidData: ISaveProgressRequestData, pmcData: IPmcData, isPlayerScav: boolean): void;
+    protected markOrRemoveFoundInRaidItems(offraidData: ISaveProgressRequestData): void;
     /**
      * Update profile after player completes scav raid
      * @param scavData Scav profile

@@ -14,9 +14,11 @@ import { IGetOffersResult } from "../models/eft/ragfair/IGetOffersResult";
 import { IRemoveOfferRequestData } from "../models/eft/ragfair/IRemoveOfferRequestData";
 import { ISearchRequestData } from "../models/eft/ragfair/ISearchRequestData";
 import { ISendRagfairReportRequestData } from "../models/eft/ragfair/ISendRagfairReportRequestData";
+import { IStorePlayerOfferTaxAmountRequestData } from "../models/eft/ragfair/IStorePlayerOfferTaxAmountRequestData";
 import { IRagfairConfig } from "../models/spt/config/IRagfairConfig";
 import { ConfigServer } from "../servers/ConfigServer";
 import { RagfairServer } from "../servers/RagfairServer";
+import { RagfairTaxService } from "../services/RagfairTaxService";
 import { HttpResponseUtil } from "../utils/HttpResponseUtil";
 import { JsonUtil } from "../utils/JsonUtil";
 /**
@@ -27,9 +29,10 @@ export declare class RagfairCallbacks implements OnLoad, OnUpdate {
     protected jsonUtil: JsonUtil;
     protected ragfairServer: RagfairServer;
     protected ragfairController: RagfairController;
+    protected ragfairTaxService: RagfairTaxService;
     protected configServer: ConfigServer;
     protected ragfairConfig: IRagfairConfig;
-    constructor(httpResponse: HttpResponseUtil, jsonUtil: JsonUtil, ragfairServer: RagfairServer, ragfairController: RagfairController, configServer: ConfigServer);
+    constructor(httpResponse: HttpResponseUtil, jsonUtil: JsonUtil, ragfairServer: RagfairServer, ragfairController: RagfairController, ragfairTaxService: RagfairTaxService, configServer: ConfigServer);
     onLoad(): Promise<void>;
     getRoute(): string;
     onUpdate(timeSinceLastRun: number): Promise<boolean>;
@@ -53,4 +56,5 @@ export declare class RagfairCallbacks implements OnLoad, OnUpdate {
     getFleaPrices(url: string, request: IEmptyRequestData, sessionID: string): IGetBodyResponseData<Record<string, number>>;
     /** Handle client/reports/ragfair/send */
     sendReport(url: string, info: ISendRagfairReportRequestData, sessionID: string): INullResponseData;
+    storePlayerOfferTaxAmount(url: string, request: IStorePlayerOfferTaxAmountRequestData, sessionId: string): INullResponseData;
 }

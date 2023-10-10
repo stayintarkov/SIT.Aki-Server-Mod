@@ -2,12 +2,15 @@ import { ContainerHelper } from "../helpers/ContainerHelper";
 import { ItemHelper } from "../helpers/ItemHelper";
 import { PresetHelper } from "../helpers/PresetHelper";
 import { RagfairServerHelper } from "../helpers/RagfairServerHelper";
+import { IContainerMinMax, IStaticContainer } from "../models/eft/common/ILocation";
+import { ILocationBase } from "../models/eft/common/ILocationBase";
 import { ILooseLoot, Spawnpoint, SpawnpointTemplate, SpawnpointsForced } from "../models/eft/common/ILooseLoot";
 import { Item } from "../models/eft/common/tables/IItem";
-import { IStaticAmmoDetails, IStaticContainerProps, IStaticForcedProps, IStaticLootDetails } from "../models/eft/common/tables/ILootBase";
+import { IStaticAmmoDetails, IStaticContainerData, IStaticForcedProps, IStaticLootDetails } from "../models/eft/common/tables/ILootBase";
 import { ILocationConfig } from "../models/spt/config/ILocationConfig";
 import { ILogger } from "../models/spt/utils/ILogger";
 import { ConfigServer } from "../servers/ConfigServer";
+import { DatabaseServer } from "../servers/DatabaseServer";
 import { LocalisationService } from "../services/LocalisationService";
 import { SeasonalEventService } from "../services/SeasonalEventService";
 import { JsonUtil } from "../utils/JsonUtil";
@@ -19,8 +22,15 @@ export interface IContainerItem {
     width: number;
     height: number;
 }
+export interface IContainerGroupCount {
+    /** Containers this group has + probabilty to spawn */
+    containerIdsWithProbability: Record<string, number>;
+    /** How many containers the map should spawn with this group id */
+    chosenCount: number;
+}
 export declare class LocationGenerator {
     protected logger: ILogger;
+    protected databaseServer: DatabaseServer;
     protected jsonUtil: JsonUtil;
     protected objectId: ObjectId;
     protected randomUtil: RandomUtil;
@@ -33,7 +43,39 @@ export declare class LocationGenerator {
     protected localisationService: LocalisationService;
     protected configServer: ConfigServer;
     protected locationConfig: ILocationConfig;
-    constructor(logger: ILogger, jsonUtil: JsonUtil, objectId: ObjectId, randomUtil: RandomUtil, ragfairServerHelper: RagfairServerHelper, itemHelper: ItemHelper, mathUtil: MathUtil, seasonalEventService: SeasonalEventService, containerHelper: ContainerHelper, presetHelper: PresetHelper, localisationService: LocalisationService, configServer: ConfigServer);
+    constructor(logger: ILogger, databaseServer: DatabaseServer, jsonUtil: JsonUtil, objectId: ObjectId, randomUtil: RandomUtil, ragfairServerHelper: RagfairServerHelper, itemHelper: ItemHelper, mathUtil: MathUtil, seasonalEventService: SeasonalEventService, containerHelper: ContainerHelper, presetHelper: PresetHelper, localisationService: LocalisationService, configServer: ConfigServer);
+    /**
+     * Create an array of container objects with randomised loot
+     * @param locationBase Map base to generate containers for
+     * @param staticAmmoDist Static ammo distribution - database.loot.staticAmmo
+     * @returns Array of container objects
+     */
+    generateStaticContainers(locationBase: ILocationBase, staticAmmoDist: Record<string, IStaticAmmoDetails[]>): SpawnpointTemplate[];
+    /**
+     * Get containers with a non-100% chance to spawn OR are NOT on the container type randomistion blacklist
+     * @param staticContainers
+     * @returns IStaticContainerData array
+     */
+    protected getRandomisableContainersOnMap(staticContainers: IStaticContainerData[]): IStaticContainerData[];
+    /**
+     * Get containers with 100% spawn rate or have a type on the randomistion ignore list
+     * @param staticContainersOnMap
+     * @returns IStaticContainerData array
+     */
+    protected getGuaranteedContainers(staticContainersOnMap: IStaticContainerData[]): IStaticContainerData[];
+    /**
+     * Choose a number of containers based on their probabilty value to fulfil the desired count in containerData.chosenCount
+     * @param groupId Name of the group the containers are being collected for
+     * @param containerData Containers and probability values for a groupId
+     * @returns List of chosen container Ids
+     */
+    protected getContainersByProbabilty(groupId: string, containerData: IContainerGroupCount): string[];
+    /**
+     * Get a mapping of each groupid and the containers in that group + count of containers to spawn on map
+     * @param containersGroups Container group values
+     * @returns dictionary keyed by groupId
+     */
+    protected getGroupIdToContainerMappings(staticContainerGroupData: IStaticContainer | Record<string, IContainerMinMax>, staticContainersOnMap: IStaticContainerData[]): Record<string, IContainerGroupCount>;
     /**
      * Choose loot to put into a static container based on weighting
      * Handle forced items + seasonal item removal when not in season
@@ -44,7 +86,7 @@ export declare class LocationGenerator {
      * @param locationName Name of the map to generate static loot for
      * @returns IStaticContainerProps
      */
-    generateContainerLoot(staticContainer: IStaticContainerProps, staticForced: IStaticForcedProps[], staticLootDist: Record<string, IStaticLootDetails>, staticAmmoDist: Record<string, IStaticAmmoDetails[]>, locationName: string): IStaticContainerProps;
+    protected addLootToContainer(staticContainer: IStaticContainerData, staticForced: IStaticForcedProps[], staticLootDist: Record<string, IStaticLootDetails>, staticAmmoDist: Record<string, IStaticAmmoDetails[]>, locationName: string): IStaticContainerData;
     /**
      * Get a 2d grid of a containers item slots
      * @param containerTpl Tpl id of the container
@@ -88,9 +130,10 @@ export declare class LocationGenerator {
      * Create array of item (with child items) and return
      * @param chosenComposedKey Key we want to look up items for
      * @param spawnPoint Dynamic spawn point item we want will be placed in
+     * @param staticAmmoDist ammo distributions
      * @returns IContainerItem
      */
-    protected createDynamicLootItem(chosenComposedKey: string, spawnPoint: Spawnpoint): IContainerItem;
+    protected createDynamicLootItem(chosenComposedKey: string, spawnPoint: Spawnpoint, staticAmmoDist: Record<string, IStaticAmmoDetails[]>): IContainerItem;
     /**
      * Replace the _id value for base item + all children items parentid value
      * @param itemWithChildren Item with mods to update

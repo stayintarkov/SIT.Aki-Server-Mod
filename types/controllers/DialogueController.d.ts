@@ -7,7 +7,9 @@ import { IGetMailDialogViewResponseData } from "../models/eft/dialog/IGetMailDia
 import { ISendMessageRequest } from "../models/eft/dialog/ISendMessageRequest";
 import { Dialogue, DialogueInfo, IAkiProfile, IUserDialogInfo, Message } from "../models/eft/profile/IAkiProfile";
 import { MessageType } from "../models/enums/MessageType";
+import { ICoreConfig } from "../models/spt/config/ICoreConfig";
 import { ILogger } from "../models/spt/utils/ILogger";
+import { ConfigServer } from "../servers/ConfigServer";
 import { SaveServer } from "../servers/SaveServer";
 import { GiftService } from "../services/GiftService";
 import { MailSendService } from "../services/MailSendService";
@@ -24,7 +26,9 @@ export declare class DialogueController {
     protected mailSendService: MailSendService;
     protected giftService: GiftService;
     protected hashUtil: HashUtil;
-    constructor(logger: ILogger, saveServer: SaveServer, timeUtil: TimeUtil, dialogueHelper: DialogueHelper, profileHelper: ProfileHelper, randomUtil: RandomUtil, mailSendService: MailSendService, giftService: GiftService, hashUtil: HashUtil);
+    protected configServer: ConfigServer;
+    protected coreConfig: ICoreConfig;
+    constructor(logger: ILogger, saveServer: SaveServer, timeUtil: TimeUtil, dialogueHelper: DialogueHelper, profileHelper: ProfileHelper, randomUtil: RandomUtil, mailSendService: MailSendService, giftService: GiftService, hashUtil: HashUtil, configServer: ConfigServer);
     /** Handle onUpdate spt event */
     update(): void;
     /**

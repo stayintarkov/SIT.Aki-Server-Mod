@@ -7,8 +7,6 @@ export interface IInsuranceConfig extends IBaseConfig {
     returnChancePercent: Record<string, number>;
     /** Item slots that should never be returned as insurance */
     blacklistedEquipment: string[];
-    /** Names of equipment slots that could not be returned as insurance */
-    slotIdsWithChanceOfNotReturning: string[];
     /** Override to control how quickly insurance is processed/returned in second */
     returnTimeOverrideSeconds: number;
     /** How often server should process insurance in seconds */

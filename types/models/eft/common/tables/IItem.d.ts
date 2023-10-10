@@ -12,6 +12,7 @@ export interface Upd {
     Togglable?: Togglable;
     Map?: Map;
     Tag?: Tag;
+    /** SPT specific property, not made by BSG */
     sptPresetId?: string;
     FaceShield?: FaceShield;
     StackObjectsCount?: number;

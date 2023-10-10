@@ -7,7 +7,7 @@ export interface IWeatherConfig extends IBaseConfig {
     weather: Weather;
 }
 export interface Weather {
-    clouds: MinMax;
+    clouds: WeatherSettings<string>;
     windSpeed: WeatherSettings<number>;
     windDirection: WeatherSettings<WindDirection>;
     windGustiness: MinMax;

@@ -8,6 +8,7 @@ import { IBotBase } from "../models/eft/common/tables/IBotBase";
 import { IBotCore } from "../models/eft/common/tables/IBotCore";
 import { Difficulty } from "../models/eft/common/tables/IBotType";
 import { IBotConfig } from "../models/spt/config/IBotConfig";
+import { IPmcConfig } from "../models/spt/config/IPmcConfig";
 import { ILogger } from "../models/spt/utils/ILogger";
 import { ConfigServer } from "../servers/ConfigServer";
 import { DatabaseServer } from "../servers/DatabaseServer";
@@ -29,6 +30,7 @@ export declare class BotController {
     protected applicationContext: ApplicationContext;
     protected jsonUtil: JsonUtil;
     protected botConfig: IBotConfig;
+    protected pmcConfig: IPmcConfig;
     static readonly pmcTypeLabel = "PMC";
     constructor(logger: ILogger, databaseServer: DatabaseServer, botGenerator: BotGenerator, botHelper: BotHelper, botDifficultyHelper: BotDifficultyHelper, botGenerationCacheService: BotGenerationCacheService, matchBotDetailsCacheService: MatchBotDetailsCacheService, localisationService: LocalisationService, profileHelper: ProfileHelper, configServer: ConfigServer, applicationContext: ApplicationContext, jsonUtil: JsonUtil);
     /**
@@ -70,5 +72,5 @@ export declare class BotController {
      * @returns cap number
      */
     getBotCap(): number;
-    getPmcBotTypes(): Record<string, Record<string, Record<string, number>>>;
+    getAiBotBrainTypes(): any;
 }

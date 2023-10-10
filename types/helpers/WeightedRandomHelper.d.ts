@@ -1,6 +1,6 @@
 export declare class WeightedRandomHelper {
     /**
-     * USE getWeightedValue() WHERE POSSIBLE
+     * @deprecated USE getWeightedValue() WHERE POSSIBLE
      * Gets a tplId from a weighted dictionary
      * @param {tplId: weighting[]} itemArray
      * @returns tplId

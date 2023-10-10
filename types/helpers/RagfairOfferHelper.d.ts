@@ -1,4 +1,5 @@
 import { IPmcData } from "../models/eft/common/IPmcData";
+import { Item } from "../models/eft/common/tables/IItem";
 import { ITraderAssort } from "../models/eft/common/tables/ITrader";
 import { IItemEventRouterResponse } from "../models/eft/itemEvent/IItemEventRouterResponse";
 import { IAkiProfile } from "../models/eft/profile/IAkiProfile";
@@ -13,10 +14,10 @@ import { DatabaseServer } from "../servers/DatabaseServer";
 import { SaveServer } from "../servers/SaveServer";
 import { LocaleService } from "../services/LocaleService";
 import { LocalisationService } from "../services/LocalisationService";
+import { MailSendService } from "../services/MailSendService";
 import { RagfairOfferService } from "../services/RagfairOfferService";
 import { HashUtil } from "../utils/HashUtil";
 import { TimeUtil } from "../utils/TimeUtil";
-import { DialogueHelper } from "./DialogueHelper";
 import { ItemHelper } from "./ItemHelper";
 import { PaymentHelper } from "./PaymentHelper";
 import { PresetHelper } from "./PresetHelper";
@@ -33,7 +34,6 @@ export declare class RagfairOfferHelper {
     protected databaseServer: DatabaseServer;
     protected traderHelper: TraderHelper;
     protected saveServer: SaveServer;
-    protected dialogueHelper: DialogueHelper;
     protected itemHelper: ItemHelper;
     protected paymentHelper: PaymentHelper;
     protected presetHelper: PresetHelper;
@@ -44,15 +44,16 @@ export declare class RagfairOfferHelper {
     protected ragfairOfferService: RagfairOfferService;
     protected localeService: LocaleService;
     protected localisationService: LocalisationService;
+    protected mailSendService: MailSendService;
     protected configServer: ConfigServer;
     protected static goodSoldTemplate: string;
     protected ragfairConfig: IRagfairConfig;
     protected questConfig: IQuestConfig;
-    constructor(logger: ILogger, timeUtil: TimeUtil, hashUtil: HashUtil, eventOutputHolder: EventOutputHolder, databaseServer: DatabaseServer, traderHelper: TraderHelper, saveServer: SaveServer, dialogueHelper: DialogueHelper, itemHelper: ItemHelper, paymentHelper: PaymentHelper, presetHelper: PresetHelper, profileHelper: ProfileHelper, ragfairServerHelper: RagfairServerHelper, ragfairSortHelper: RagfairSortHelper, ragfairHelper: RagfairHelper, ragfairOfferService: RagfairOfferService, localeService: LocaleService, localisationService: LocalisationService, configServer: ConfigServer);
+    constructor(logger: ILogger, timeUtil: TimeUtil, hashUtil: HashUtil, eventOutputHolder: EventOutputHolder, databaseServer: DatabaseServer, traderHelper: TraderHelper, saveServer: SaveServer, itemHelper: ItemHelper, paymentHelper: PaymentHelper, presetHelper: PresetHelper, profileHelper: ProfileHelper, ragfairServerHelper: RagfairServerHelper, ragfairSortHelper: RagfairSortHelper, ragfairHelper: RagfairHelper, ragfairOfferService: RagfairOfferService, localeService: LocaleService, localisationService: LocalisationService, mailSendService: MailSendService, configServer: ConfigServer);
     /**
      * Passthrough to ragfairOfferService.getOffers(), get flea offers a player should see
-     * @param searchRequest
-     * @param itemsToAdd
+     * @param searchRequest Data from client
+     * @param itemsToAdd ragfairHelper.filterCategories()
      * @param traderAssorts Trader assorts
      * @param pmcProfile Player profile
      * @returns Offers the player should see
@@ -67,6 +68,13 @@ export declare class RagfairOfferHelper {
      * @returns IRagfairOffer array
      */
     getOffersForBuild(searchRequest: ISearchRequestData, itemsToAdd: string[], traderAssorts: Record<string, ITraderAssort>, pmcProfile: IPmcData): IRagfairOffer[];
+    /**
+     * Check if offer is from trader standing the player does not have
+     * @param offer Offer to check
+     * @param pmcProfile Player profile
+     * @returns True if item is locked, false if item is purchaseable
+     */
+    protected traderOfferLockedBehindLoyaltyLevel(offer: IRagfairOffer, pmcProfile: IPmcData): boolean;
     /**
      * Check if offer item is quest locked for current player by looking at sptQuestLocked property in traders barter_scheme
      * @param offer Offer to check is quest locked
@@ -112,27 +120,42 @@ export declare class RagfairOfferHelper {
      */
     protected getProfileOffers(sessionID: string): IRagfairOffer[];
     /**
-     * Delete an offer from a desired profile
+     * Delete an offer from a desired profile and from ragfair offers
      * @param sessionID Session id of profile to delete offer from
-     * @param offerId Offer id to delete
+     * @param offerId Id of offer to delete
      */
-    protected deleteOfferByOfferId(sessionID: string, offerId: string): void;
+    protected deleteOfferById(sessionID: string, offerId: string): void;
     /**
      * Complete the selling of players' offer
      * @param sessionID Session id
      * @param offer Sold offer details
      * @param boughtAmount Amount item was purchased for
-     * @returns Client response
+     * @returns IItemEventRouterResponse
      */
     protected completeOffer(sessionID: string, offer: IRagfairOffer, boughtAmount: number): IItemEventRouterResponse;
     /**
+     * Get a localised message for when players offer has sold on flea
+     * @param itemTpl Item sold
+     * @param boughtAmount How many were purchased
+     * @returns Localised message text
+     */
+    protected getLocalisedOfferSoldMessage(itemTpl: string, boughtAmount: number): string;
+    /**
      * Should a ragfair offer be visible to the player
-     * @param info Search request
+     * @param searchRequest Search request
      * @param itemsToAdd ?
      * @param traderAssorts Trader assort items
      * @param offer The flea offer
      * @param pmcProfile Player profile
      * @returns True = should be shown to player
      */
-    isDisplayableOffer(info: ISearchRequestData, itemsToAdd: string[], traderAssorts: Record<string, ITraderAssort>, offer: IRagfairOffer, pmcProfile: IPmcData): boolean;
+    isDisplayableOffer(searchRequest: ISearchRequestData, itemsToAdd: string[], traderAssorts: Record<string, ITraderAssort>, offer: IRagfairOffer, pmcProfile: IPmcData): boolean;
+    /**
+     * Is items quality value within desired range
+     * @param item Item to check quality of
+     * @param min Desired minimum quality
+     * @param max Desired maximum quality
+     * @returns True if in range
+     */
+    protected itemQualityInRange(item: Item, min: number, max: number): boolean;
 }

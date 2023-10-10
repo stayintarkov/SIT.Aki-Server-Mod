@@ -13,6 +13,11 @@ export declare class PresetHelper {
     hasPreset(templateId: string): boolean;
     getPreset(id: string): IPreset;
     getPresets(templateId: string): IPreset[];
+    /**
+     * Get the default preset for passed in weapon id
+     * @param templateId Weapon id to get preset for
+     * @returns Null if no default preset, otherwise IPreset
+     */
     getDefaultPreset(templateId: string): IPreset;
     getBaseItemTpl(presetId: string): string;
 }
