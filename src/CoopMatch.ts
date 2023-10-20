@@ -284,8 +284,8 @@ export class CoopMatch {
         WebSocketHandler.Instance.sendToWebSockets(this.ConnectedPlayers, JSON.stringify({ "endSession": true, reason: reason }));
 
         this.Status = CoopMatchStatus.Complete;
-        clearInterval(this.SendLastDataInterval);
-        clearInterval(this.CheckStillRunningInterval);
+        // clearInterval(this.SendLastDataInterval);
+        // clearInterval(this.CheckStillRunningInterval);
 
         delete CoopMatch.CoopMatches[this.ServerId];
 
