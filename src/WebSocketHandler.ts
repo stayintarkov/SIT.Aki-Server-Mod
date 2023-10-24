@@ -17,7 +17,26 @@ export class WebSocketHandler {
             WebSocketHandler.Instance = this;
             this.logger = logger;
             const webSocketServer = new WebSocket.Server({
-                "port": webSocketPort
+                "port": webSocketPort,
+                perMessageDeflate: {
+                    zlibDeflateOptions: {
+                      // See zlib defaults.
+                      chunkSize: 1024,
+                      memLevel: 7,
+                      level: 3
+                    },
+                    zlibInflateOptions: {
+                      chunkSize: 10 * 1024
+                    },
+                    // Other options settable:
+                    clientNoContextTakeover: true, // Defaults to negotiated value.
+                    serverNoContextTakeover: true, // Defaults to negotiated value.
+                    serverMaxWindowBits: 10, // Defaults to negotiated value.
+                    // Below options specified as default values.
+                    concurrencyLimit: 10, // Limits zlib concurrency for perf.
+                    threshold: 1024 // Size (in bytes) below which messages
+                    // should not be compressed if context takeover is disabled.
+                }
             });
     
             webSocketServer.addListener("listening", () => 
@@ -82,7 +101,7 @@ export class WebSocketHandler {
         // console.log(ws);
         console.log(`Web Socket ${sessionId} has disconnected`);
 
-        if(this.webSockets[sessionId] === undefined)
+        if(this.webSockets[sessionId] !== undefined)
             delete this.webSockets[sessionId];
 
     }
@@ -164,7 +183,7 @@ export class WebSocketHandler {
         for(let session of sessions) {
             if(this.webSockets[session] !== undefined)
             {
-                if (this.webSockets[session].readyState === WebSocket.OPEN) 
+                // if (this.webSockets[session].readyState === WebSocket.OPEN) 
                     return true;
             }
         }
