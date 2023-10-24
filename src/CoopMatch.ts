@@ -82,9 +82,8 @@ export class CoopMatch {
 
     friendlyAI: friendlyAI;
 
-    private SendLastDataInterval : NodeJS.Timer;
-    private CheckStartTimeout : NodeJS.Timer;
-    private CheckStillRunningInterval: NodeJS.Timer;
+    private CheckStartTimeout : NodeJS.Timeout;
+    private CheckStillRunningInterval: NodeJS.Timeout;
 
     /** A STATIC Dictonary of Coop Matches. The Key is the Account Id of the Player that created it */
     public static CoopMatches: Record<string, CoopMatch> = {}; 
