@@ -83,6 +83,7 @@ export class CoopMatch {
     friendlyAI: friendlyAI;
 
     private SendLastDataInterval : NodeJS.Timer;
+    private CheckStartTimeout : NodeJS.Timer;
     private CheckStillRunningInterval: NodeJS.Timer;
 
     /** A STATIC Dictonary of Coop Matches. The Key is the Account Id of the Player that created it */
@@ -112,7 +113,8 @@ export class CoopMatch {
         }
 
         // This checks to see if the WebSockets can still be communicated with. If it cannot for any reason. The match/raid/session will close down.
-        setTimeout(() => {
+       
+        this.CheckStartTimeout = setTimeout(() => {
             this.CheckStillRunningInterval = setInterval(() => {
 
                 if(!WebSocketHandler.Instance.areThereAnyWebSocketsOpen(this.ConnectedPlayers)) {
@@ -121,7 +123,7 @@ export class CoopMatch {
     
             }, CoopConfig.Instance.webSocketTimeoutSeconds * 1000);
         }, CoopConfig.Instance.webSocketTimeoutCheckStartSeconds * 1000);
-
+    
         
     }
 
@@ -284,8 +286,10 @@ export class CoopMatch {
         WebSocketHandler.Instance.sendToWebSockets(this.ConnectedPlayers, JSON.stringify({ "endSession": true, reason: reason }));
 
         this.Status = CoopMatchStatus.Complete;
-        // clearInterval(this.SendLastDataInterval);
-        // clearInterval(this.CheckStillRunningInterval);
+        
+        //clearTimeout(this.SendLastDataInterval);
+        clearTimeout(this.CheckStartTimeout);
+        clearInterval(this.CheckStillRunningInterval);
 
         delete CoopMatch.CoopMatches[this.ServerId];
 
