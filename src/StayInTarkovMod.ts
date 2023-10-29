@@ -14,7 +14,6 @@ import MemberCategory = require("@spt-aki/models/enums/MemberCategory");
 
 import type { IPreAkiLoadMod } from "@spt-aki/models/external/IPreAkiLoadMod";
 import type { ILogger } from "@spt-aki/models/spt/utils/ILogger";
-import { HttpBufferHandler } from "@spt-aki/servers/http/HttpBufferHandler";
 import type { DynamicRouterModService } from "@spt-aki/services/mod/dynamicRouter/DynamicRouterModService";
 import type { StaticRouterModService } from "@spt-aki/services/mod/staticRouter/StaticRouterModService";
 
@@ -44,7 +43,6 @@ import { ProfileHelper } from "@spt-aki/helpers/ProfileHelper";
 import { IncomingMessage, ServerResponse } from "http";
 import { CoopMatchResponse } from "./CoopMatchResponse";
 import { friendlyAI } from "./FriendlyAI";
-import { SITCustomHttpHandler } from "./SITCustomHttpHandler";
 import { SITCustomTraders } from "./Traders/SITCustomTraders";
 // -------------------------------------------------------------------------
 
@@ -57,7 +55,6 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
 
     saveServer: SaveServer;
     locationController: LocationController;
-    httpBufferHandler: HttpBufferHandler;
     protected httpResponse: HttpResponseUtil;
     databaseServer: DatabaseServer;
     public webSocketHandler: WebSocketHandler;
@@ -71,7 +68,6 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
     bundleLoader: BundleLoader;
     resolvedExternalIP: string;
     profileHelper: ProfileHelper;
-    sitCustomHttpHandler: SITCustomHttpHandler;
 
     public traders: any[] = [];
 
@@ -102,7 +98,6 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         CoopMatch.saveServer = this.saveServer;
         CoopMatch.routeHandler(container);
         this.locationController = container.resolve<LocationController>("LocationController");
-        this.httpBufferHandler  = container.resolve<HttpBufferHandler>("HttpBufferHandler");
         this.databaseServer = container.resolve<DatabaseServer>("DatabaseServer");
         this.httpResponse = container.resolve<HttpResponseUtil>("HttpResponseUtil");
         this.configServer = container.resolve<ConfigServer>("ConfigServer");
@@ -114,7 +109,6 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         this.webSocketHandler = new WebSocketHandler(this.coopConfig.webSocketPort, logger);
         this.bundleLoader = container.resolve<BundleLoader>("BundleLoader");
         this.profileHelper = container.resolve<ProfileHelper>("ProfileHelper");
-        this.sitCustomHttpHandler = new SITCustomHttpHandler(container);
 
         // this.traders.push(new SITCustomTraders(), new CoopGroupTrader(), new UsecTrader(), new BearTrader());
         this.traders.push(new SITCustomTraders());
@@ -725,17 +719,6 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         //     }
         //     // The modifier Always makes sure this replacement method is ALWAYS replaced
         // }, {frequency: "Always"});
-
-        /**
-         * MUST HAVE: REPLACE HTTP REQUEST HANDLER
-         */
-        container.afterResolution("AkiHttpListener", (_t, result: AkiHttpListener) => 
-        {
-            result.handle = (sessionId: string, req: IncomingMessage, resp: ServerResponse) => 
-            {
-                return this.sitCustomHttpHandler.sitHttpHandler(sessionId, req, resp, result);
-            }
-        }, {frequency: "Always"});
         
         /**
          * MUST HAVE: REPLACE GAME CONFIG SO IP CAN BE EXTERNAL
