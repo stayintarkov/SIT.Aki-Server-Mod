@@ -386,6 +386,23 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                             }
                         }
                         
+                        if(coopMatch.ConnectedUsers.findIndex(x => x == info.profileId) !== -1)
+                        {
+                            if(WebSocketHandler.Instance.webSockets[info.profileId] !== undefined)
+                            {
+                                if(WebSocketHandler.Instance.webSockets[info.profileId].readyState == WebSocket.OPEN)
+                                {
+                                    output = JSON.stringify(
+                                        {
+                                            alreadyConnected: true
+                                        }
+                                    )
+                                    
+                                    logger.info(`JoinMatch failed: ${info.profileId} is already connected!`);
+                                }
+                            }
+                        }
+
                         if(coopMatch.AuthorizedUsers.findIndex(x => x == info.profileId) === -1)
                         {
                             coopMatch.AuthorizedUsers.push(info.profileId);
@@ -395,6 +412,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                         output = JSON.stringify(coopMatch !== null ? 
                             { 
                                 serverId: coopMatch.ServerId
+                                , timestamp: coopMatch.Timestamp
                                 , expectedNumberOfPlayers: coopMatch.ExpectedNumberOfPlayers 
                                 , sitVersion: coopMatch.SITVersion 
                                 , gameVersion: coopMatch.GameVersion
