@@ -282,6 +282,7 @@ export class CoopMatch {
     public PlayerLeft(profileId: string) {
         this.ConnectedPlayers = this.ConnectedPlayers.filter(x => x != profileId);
         this.ConnectedUsers = this.ConnectedUsers.filter(x => x != profileId);
+        this.AuthorizedUsers = this.AuthorizedUsers.filter(x => x != profileId);
 
         // If the Server Player has left, end the session
         if(this.ServerId == profileId) {
