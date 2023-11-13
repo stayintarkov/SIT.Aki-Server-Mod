@@ -50,6 +50,8 @@ export class CoopMatch {
     /** Plain text password. Handled server side. */
     Password: string = undefined;
 
+    public Timestamp: string = undefined;
+
     /** The Connected Player Profiles. */
     public ConnectedPlayers: string[] = [];
 
@@ -89,8 +91,8 @@ export class CoopMatch {
     public static CoopMatches: Record<string, CoopMatch> = {}; 
     public static AirdropLoot: LootItem[] = undefined;
 
-
     public static saveServer: SaveServer;
+
 
     public constructor(inData: any) {
 
