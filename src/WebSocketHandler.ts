@@ -59,7 +59,7 @@ export class WebSocketHandler {
         const sessionID = splitUrl.pop();
 
         // get url params
-        const urlParams = this.getUrlParams(req.url);
+        //const urlParams = this.getUrlParams(req.url);
         
         ws.on("message", async function message(msg) 
         {
@@ -70,19 +70,6 @@ export class WebSocketHandler {
         {
             wsh.processClose(ws, sessionID);
         });
-
-        const coopMatchPassword = CoopMatch.CoopMatches[urlParams["serverId"]].Password;
-
-        // validate password before allowing websocket connection
-        if(coopMatchPassword !== undefined || coopMatchPassword !== "")
-        {
-            if(urlParams["password"] !== coopMatchPassword)
-            {
-                console.log(`"${sessionID} provided an invalid password. Coop Web Socket connection terminated.`);
-                ws.close();
-                return;
-            }
-        }
         
         this.webSockets[sessionID] = ws;
         console.log(`${sessionID} has connected to Coop Web Socket`);
@@ -203,9 +190,19 @@ export class WebSocketHandler {
         return false;
     }
 
+    public closeWebSocketSession(session: string, reason: string) {
+        if(this.webSockets[session] !== undefined) {
+            if(this.webSockets[session].readyState === WebSocket.OPEN) {
+                this.webSockets[session].send(JSON.stringify({ "endSession": true, reason: reason }));
+                this.webSockets[session].close();
+            }
+            delete this.webSockets[session];
+        }
+    }
+
     private getUrlParams(url: string):Record<string, string> {
 
-        const urlParams: Record<string, string> = {};
+        let urlParams: Record<string, string> = {};
 
         url.substring(url.indexOf("?")+1).split("&").forEach(param => {
             

@@ -291,6 +291,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                         CoopMatch.CoopMatches[info.serverId].GameVersion = info.gameVersion;
                         CoopMatch.CoopMatches[info.serverId].SITVersion = info.sitVersion;
                         CoopMatch.CoopMatches[info.serverId].Password = info.password !== undefined ? info.password : undefined;
+                        CoopMatch.CoopMatches[info.serverId].AuthorizedUsers.push(info.serverId);
                         output = JSON.stringify({ serverId:  info.serverId });
                         return output;
                     }
@@ -367,7 +368,6 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                             return output;
                         }
 
-
                         if (coopMatch.Password !== "") {
                             if(info.password == "")
                             {
@@ -388,8 +388,13 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                                 )
                                 return output;
                             }
-                        } 
-
+                        }
+                        
+                        if(coopMatch.AuthorizedUsers.findIndex(x => x == info.profileId) === -1)
+                        {
+                            coopMatch.AuthorizedUsers.push(info.profileId);
+                            logger.info(`Added authorized user: ${info.profileId} in server: ${coopMatch.ServerId}`);
+                        }
 
                         output = JSON.stringify(coopMatch !== null ? 
                             { 

@@ -56,6 +56,8 @@ export class CoopMatch {
     /** The Connected User Profiles. */
     public ConnectedUsers: string[] = [];
 
+    public AuthorizedUsers: string[] = [];
+
     /** All characters in the game. Including AI */
     public Characters: any[] = [];
 
@@ -251,16 +253,28 @@ export class CoopMatch {
     }
 
     public PlayerJoined(profileId: string) {
+        
+        if(profileId.startsWith("pmc") && this.ConnectedUsers.findIndex(x => x == profileId) === -1) {
+
+            console.log(`Checking server authorization for profile: ${profileId}`);
+
+            if(this.AuthorizedUsers.findIndex(x => x == profileId) === -1)
+            {
+                console.log(`${profileId} is not authorized in server: ${this.ServerId}`);
+    
+                WebSocketHandler.Instance.closeWebSocketSession(profileId, CoopMatchEndSessionMessages.WEBSOCKET_TIMEOUT_MESSAGE);
+    
+                return;
+            }
+
+            this.ConnectedUsers.push(profileId);
+            console.log(`${this.ServerId}: ${profileId} has joined`);
+        }
+        
         if(this.ConnectedPlayers.findIndex(x => x == profileId) === -1) {
             this.ConnectedPlayers.push(profileId);
             // console.log(`${this.ServerId}: ${profileId} has joined`);
         }
-
-        if(profileId.startsWith("pmc") && this.ConnectedUsers.findIndex(x => x == profileId) === -1) {
-            this.ConnectedUsers.push(profileId);
-            console.log(`${this.ServerId}: ${profileId} has joined`);
-        }
-
     }
 
     public PlayerLeft(profileId: string) {
