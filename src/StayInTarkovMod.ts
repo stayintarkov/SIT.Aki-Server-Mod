@@ -278,6 +278,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                         }
 
                         CoopMatch.CoopMatches[info.serverId] = new CoopMatch(info);
+                        CoopMatch.CoopMatches[info.serverId].Timestamp = info.timestamp;
                         CoopMatch.CoopMatches[info.serverId].Location = info.settings.location;
                         CoopMatch.CoopMatches[info.serverId].Time = info.settings.timeVariant;
                         CoopMatch.CoopMatches[info.serverId].WeatherSettings = info.settings.timeAndWeatherSettings;
@@ -341,6 +342,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                         output = JSON.stringify(coopMatch !== null ? 
                             { 
                                 ServerId: coopMatch.ServerId
+                                , timestamp: coopMatch.Timestamp
                                 , expectedNumberOfPlayers: coopMatch.ExpectedNumberOfPlayers 
                                 , sitVersion: coopMatch.SITVersion 
                                 , gameVersion: coopMatch.GameVersion
