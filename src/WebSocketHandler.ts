@@ -55,25 +55,37 @@ export class WebSocketHandler {
         const wsh = this;
         // Strip request and break it into sections
         const splitUrl = req.url.substring(0, req.url.indexOf("?")).split("/");
+
         const sessionID = splitUrl.pop();
+
+        // get url params
+        const urlParams = this.getUrlParams(req.url);
         
         ws.on("message", async function message(msg) 
         {
-
             wsh.processMessage(msg);
-           
-
         });
 
         ws.on("close", async (code: number, reason: Buffer) =>
         {
             wsh.processClose(ws, sessionID);
-
         });
 
+        const coopMatchPassword = CoopMatch.CoopMatches[urlParams["serverId"]].Password;
+
+        // validate password before allowing websocket connection
+        if(coopMatchPassword !== undefined || coopMatchPassword !== "")
+        {
+            if(urlParams["password"] !== coopMatchPassword)
+            {
+                console.log(`"${sessionID} provided an invalid password. Coop Web Socket connection terminated.`);
+                ws.close();
+                return;
+            }
+        }
+        
         this.webSockets[sessionID] = ws;
         console.log(`${sessionID} has connected to Coop Web Socket`);
-
     }
 
     private TryParseJsonArray(msg: string) {
@@ -189,6 +201,20 @@ export class WebSocketHandler {
         }
 
         return false;
+    }
+
+    private getUrlParams(url: string):Record<string, string> {
+
+        const urlParams: Record<string, string> = {};
+
+        url.substring(url.indexOf("?")+1).split("&").forEach(param => {
+            
+            const paramSplit = param.split("=");
+
+            urlParams[paramSplit[0]] = paramSplit[1];
+        });
+
+        return urlParams;
     }
 }
 
