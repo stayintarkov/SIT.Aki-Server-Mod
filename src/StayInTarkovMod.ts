@@ -249,7 +249,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                             // Location Instance
                             matchResponse.Location = m.Location;
                             // Passworded
-                            matchResponse.IsPasswordLocked = m.Password !== undefined;
+                            matchResponse.IsPasswordLocked = m.Password !== undefined && m.Password !== "";
                             // Game Version
                             matchResponse.GameVersion = m.GameVersion;
                             // SIT Version
