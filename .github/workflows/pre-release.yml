@@ -6,7 +6,7 @@ on:
         description: 'Can be one of [major,minor,patch]. CAUTION: This will enforce a new pre-release with the specified semantic version type bumped.'
         required: false
 env:
-  NODE_VERSION: 14
+  NODE_VERSION: 16
   PAULOV_BOT_NAME: "Paulov Bot"
   PAULOV_BOT_EMAIL: "Paulov-bot <paulov@users.noreply.github.com>"
   RELEASE_NOTES_FILE: "RELEASE-BODY.md"
