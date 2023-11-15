@@ -858,7 +858,14 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
     postDBLoad(container: tsyringe.DependencyContainer): void {
         StayInTarkovMod.container = container;
 
-        const locations = StayInTarkovMod.container.resolve<DatabaseServer>("DatabaseServer").getTables().locations;
+        const dbTables = StayInTarkovMod.container.resolve<DatabaseServer>("DatabaseServer").getTables();
+        dbTables.locales.global["en"]["Attention! This is a Beta version of Escape from Tarkov for testing purposes."] 
+            = "Welcome to Stay in Tarkov. The OFFLINE Coop mod for SPT-Aki.";
+
+        dbTables.locales.global["en"]["NDA free warning"] 
+            = "To Host/Join a game. You must select a map and go to the last screen to use the Server Browser. Have fun!";
+            
+        const locations = dbTables.locations;
 
         // Open All Exfils. This is a SIT >mod< feature. Has nothing to do with the Coop module. Can be turned off in config/SITConfig.json
         if(this.sitConfig.openAllExfils === true) {
