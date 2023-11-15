@@ -10,7 +10,7 @@ env:
   PAULOV_BOT_NAME: "Paulov Bot"
   PAULOV_BOT_EMAIL: "Paulov-bot <paulov@users.noreply.github.com>"
   RELEASE_NOTES_FILE: "RELEASE-BODY.md"
-  PRERELEASE_KEYWORD: "next"
+  PRERELEASE_KEYWORD: "pre"
 defaults:
   run:
     shell: bash
