@@ -1,0 +1,115 @@
+name: Pre-Release
+on:
+  workflow_dispatch:
+    inputs:
+      semver-type:
+        description: 'Can be one of [major,minor,patch]. CAUTION: This will enforce a new pre-release with the specified semantic version type bumped.'
+        required: false
+env:
+  NODE_VERSION: 14
+  PAULOV_BOT_NAME: "Paulov Bot"
+  PAULOV_BOT_EMAIL: "Paulov-bot <paulov@users.noreply.github.com>"
+  RELEASE_NOTES_FILE: "RELEASE-BODY.md"
+  PRERELEASE_KEYWORD: "next"
+defaults:
+  run:
+    shell: bash
+jobs:
+  pre-release:
+    name: Pre-Release
+    runs-on: ubuntu-20.04
+    steps:
+      - name: Check SemVer input
+        env:
+          SEMVER_TYPE: ${{ github.event.inputs.semver-type }}
+        run: |
+          if [[ ! -z "$SEMVER_TYPE" ]]; then
+            echo "SemVer Type is defined. Checking for valid SemVer type..."
+            if [[ "$SEMVER_TYPE" == "major" ]] || [[ "$SEMVER_TYPE" == "minor" ]] || [[ "$SEMVER_TYPE" == "patch" ]]; then
+              echo "::notice::SemVer Type is correctly set to $SEMVER_TYPE! Continuing with this version bump..."
+            else
+              echo "::error::ERROR: Enforced SemVer does not match any of [major,minor,patch]!"
+              echo "Exiting..."
+              exit 1
+            fi
+          else
+            echo "::notice::No SemVer type defined, continuing with auto generated version number..."
+          fi
+
+      - name: Checkout repo
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+
+      - name: Configure Git
+        env:
+          PAULOV_BOT_NAME: ${{ env.PAULOV_BOT_NAME }}
+          PAULOV_BOT_EMAIL: ${{ env.PAULOV_BOT_EMAIL }}
+        run: |
+          git config user.name "$PAULOV_BOT_NAME"
+          git config user.email "$PAULOV_BOT_EMAIL"
+
+      - name: Prepare GitHub Release Notes
+        env:
+          SEMVER_TYPE: ${{ github.event.inputs.semver-type }}
+        run: |
+          if [[ -z "$SEMVER_TYPE" ]]; then
+            npx standard-version@^9.3.1 \
+              --prerelease "${{ env.PRERELEASE_KEYWORD }}" \
+              -i "${{ env.RELEASE_NOTES_FILE }}" \
+              --skip.commit \
+              --skip.tag \
+              --header "" \
+              --release-as "$SEMVER_TYPE"
+          else
+            npx standard-version@^9.3.1 \
+              --prerelease "${{ env.PRERELEASE_KEYWORD }}" \
+              -i "${{ env.RELEASE_NOTES_FILE }}" \
+              --skip.commit \
+              --skip.tag \
+              --header ""
+          fi
+
+      - name: Enhance Release Notes with Build Metadata
+        run: |
+          echo "#### Build Information" >> "${{ env.RELEASE_NOTES_FILE }}"
+          echo "" >> "${{ env.RELEASE_NOTES_FILE }}"
+          echo "**GitHub Actions Run:** $GITHUB_SERVER_URL/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID" >> "${{ env.RELEASE_NOTES_FILE }}"
+
+      - name: Create pre-release package
+        id: create-release-package
+        env:
+          SEMVER_TYPE: ${{ github.event.inputs.semver-type }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo "🚀 Creating pre-release package now..."
+
+          if [[ ! -z "$SEMVER_TYPE" ]]; then
+            npx standard-version@^9.3.1 \
+              --release-as "$SEMVER_TYPE" \
+              --prerelease "${{ env.PRERELEASE_KEYWORD }}" \
+              --skip.commit \
+              --skip.changelog
+          else
+            npx standard-version@^9.3.1 \
+              --prerelease "${{ env.PRERELEASE_KEYWORD }}" \
+              --skip.commit \
+              --skip.changelog
+          fi
+
+          echo "::set-output name=tag-name::$(git describe --tags --abbrev=0)"
+          echo "⚡️ Pushing changes to remote repository..."
+          git push --follow-tags
+
+      - name: Create GitHub Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          RELEASE_TAG: ${{ steps.create-release-package.outputs.tag-name }}
+        run: |
+          gh release create "$RELEASE_TAG" --prerelease --notes-file "${{ env.RELEASE_NOTES_FILE }}" --title "$RELEASE_TAG"
