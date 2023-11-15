@@ -152,9 +152,9 @@ export class WebSocketHandler {
                 // console.log("found match");
                 match.ProcessData(jsonObject, this.logger);
             }
+        } else {
+            this.sendToAllWebSockets(JSON.stringify(jsonObject));
         }
-
-        this.sendToAllWebSockets(JSON.stringify(jsonObject));
     }
 
     public sendToAllWebSockets(data: string) {
