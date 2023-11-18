@@ -2,7 +2,6 @@ import { BundleLoader } from "@spt-aki/loaders/BundleLoader";
 import { JsonUtil } from "@spt-aki/utils/JsonUtil";
 import { VFS } from "@spt-aki/utils/VFS";
 import { DependencyContainer } from "tsyringe";
-import { ExternalIPFinder } from "./ExternalIPFinder";
 
 class BundleInfo
 {
@@ -27,18 +26,16 @@ export class BundleLoaderFixed
     protected bundles: Record<string, BundleInfo> = {};
     jsonUtil: JsonUtil;
     vfs: VFS;
-    externalIPFinder: ExternalIPFinder;
+    backendUrl: string;
 
     constructor(
         vfs: VFS,
         jsonUtil: JsonUtil,
-        externalIPFinder: ExternalIPFinder
     )
     { 
 
         this.vfs = vfs;
         this.jsonUtil = jsonUtil;
-        this.externalIPFinder = externalIPFinder
     }
 
     public getBundles(local: boolean): BundleInfo[]
@@ -49,7 +46,7 @@ export class BundleLoaderFixed
         {
             result.push(this.getBundle(bundle, local));
         }
-
+        
         return result;
     }
 
@@ -71,8 +68,9 @@ export class BundleLoaderFixed
         const manifest = this.jsonUtil.deserialize<BundleManifest>(this.vfs.readFile(`${modpath}bundles.json`)).manifest;
 
         for (const bundle of manifest)
-        {
-            const bundlePath = `${this.externalIPFinder.resolveExternalIP()}/files/bundle/${bundle.key}`;
+        {          
+            // return a partial url. the complete url will be build on client side.
+            const bundlePath = `/files/bundle/${bundle.key}`;
             const bundleFilepath = bundle.path || `${modpath}bundles/${bundle.key}`.replace(/\\/g, "/");
             this.addBundle(bundle.key, new BundleInfo(modpath, bundle, bundlePath, bundleFilepath));
         }
@@ -83,7 +81,6 @@ export class BundleLoaderFixed
     }
 
     public resolveAndOverride(container: DependencyContainer): void {
-
 
         const thisObj = this;
 
@@ -98,6 +95,7 @@ export class BundleLoaderFixed
                 return thisObj.getBundle(key, local);
             }
             result.getBundles = (local: boolean) => {
+                
                 return thisObj.getBundles(local);
             }
         });
