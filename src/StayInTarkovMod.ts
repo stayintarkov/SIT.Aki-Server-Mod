@@ -44,6 +44,7 @@ import { IncomingMessage, ServerResponse } from "http";
 import { CoopMatchResponse } from "./CoopMatchResponse";
 import { friendlyAI } from "./FriendlyAI";
 import { SITCustomTraders } from "./Traders/SITCustomTraders";
+import { HttpServerHelper } from "@spt-aki/helpers/HttpServerHelper";
 // -------------------------------------------------------------------------
 
 
@@ -68,8 +69,11 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
     bundleLoader: BundleLoader;
     resolvedExternalIP: string;
     profileHelper: ProfileHelper;
+    httpServerHelper: HttpServerHelper;
 
     public traders: any[] = [];
+
+    public sessionBackendUrl: Record<string, string> = {};
 
     public getCoopMatch(serverId: string) : CoopMatch {
 
@@ -109,6 +113,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         this.webSocketHandler = new WebSocketHandler(this.coopConfig.webSocketPort, logger);
         this.bundleLoader = container.resolve<BundleLoader>("BundleLoader");
         this.profileHelper = container.resolve<ProfileHelper>("ProfileHelper");
+        this.httpServerHelper = container.resolve<HttpServerHelper>("HttpServerHelper");
 
         // this.traders.push(new SITCustomTraders(), new CoopGroupTrader(), new UsecTrader(), new BearTrader());
         this.traders.push(new SITCustomTraders());
@@ -127,10 +132,10 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
             t.preAkiLoad(container);
         }
      
-        this.externalIPFinder = new ExternalIPFinder(this.coopConfig, this.httpConfig);
-        
+        //this.externalIPFinder = new ExternalIPFinder(this.coopConfig, this.httpConfig);
+
         // ----------------------- Bundle Loader Fixes ------------------------------------------------
-        const bundleLoaderFixed = new BundleLoaderFixed(container.resolve<VFS>("VFS"), container.resolve<JsonUtil>("JsonUtil"), this.externalIPFinder);
+        const bundleLoaderFixed = new BundleLoaderFixed(container.resolve<VFS>("VFS"), container.resolve<JsonUtil>("JsonUtil"));
         bundleLoaderFixed.resolveAndOverride(container);
 
         // ----------------------- TODO: Azure WebApp Helper (trying to fix this ASAP) ------------------------------------------------
@@ -392,13 +397,15 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                             {
                                 if(WebSocketHandler.Instance.webSockets[info.profileId].readyState == WebSocket.OPEN)
                                 {
+                                    logger.info(`JoinMatch failed: ${info.profileId} is already connected!`);
+                                    
                                     output = JSON.stringify(
                                         {
                                             alreadyConnected: true
                                         }
                                     )
                                     
-                                    logger.info(`JoinMatch failed: ${info.profileId} is already connected!`);
+                                    return output;
                                 }
                             }
                         }
@@ -538,6 +545,26 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         staticRouterModService.registerStaticRouter(
             "MatchStaticRouter-SIT",
             [
+                {
+                    url: "/launcher/profile/login",
+                    action: (url: string, info: any, sessionID: string, output: string): any => 
+                    {
+                        let sessionId: string = output;
+                        let backendUrl: string;
+
+                        if(info.backendUrl !== undefined && info.backendUrl !== null) {
+                            backendUrl = info.backendUrl;
+                        }
+                        else{
+                            backendUrl = `${this.coopConfig.protocol}://${this.coopConfig.externalIP}:${this.httpConfig.port}`;
+                        }
+                        
+                        // store backendUrl per session ID for GameController injection
+                        this.sessionBackendUrl[sessionId] = backendUrl;
+                        
+                        return output;
+                    }
+                },
                 {
                     url: "/client/match/group/status",
                     action: (url: string, info: any, sessionID: string, output: string): any => 
@@ -753,12 +780,15 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
             // We want to replace the original method logic with something different
             result.getGameConfig = (sessionID: string) => 
             {
-                return this.getGameConfig(sessionID);
+                // get the requestUrl for the sessionID
+                let backendUrl = this.sessionBackendUrl[sessionID];
+
+                delete this.sessionBackendUrl[sessionID];
+
+                return this.getGameConfig(sessionID, backendUrl);
             }
             // The modifier Always makes sure this replacement method is ALWAYS replaced
         }, {frequency: "Always"});
-
-
     }
 
     public generateNewLootForLocation(sessionID: string, request: IGetLocationRequestData) {
@@ -820,11 +850,10 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
     //     return friendList;
     // }
 
-    public getGameConfig(sessionID: string): IGameConfigResponse
+    public getGameConfig(sessionID: string, backendUrl: string): IGameConfigResponse
     {
         const profile = this.profileHelper.getPmcProfile(sessionID);
-
-        let externalIp = this.externalIPFinder.resolveExternalIP();
+        //let externalIp = this.externalIPFinder.resolveExternalIP();
 
         const config: IGameConfigResponse = {
             languages: this.databaseServer.getTables().locales.languages,
@@ -836,11 +865,11 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
             taxonomy: 6,
             activeProfileId: `pmc${sessionID}`,
             backend: {
-                Lobby: externalIp,
-                Trading: externalIp,
-                Messaging: externalIp,
-                Main: externalIp,
-                RagFair: externalIp,
+                Lobby: backendUrl,
+                Trading: backendUrl,
+                Messaging: backendUrl,
+                Main: backendUrl,
+                RagFair: backendUrl,
             },
             useProtobuf: false,
             utc_time: new Date().getTime() / 1000,
