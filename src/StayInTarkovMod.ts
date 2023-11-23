@@ -45,6 +45,7 @@ import { CoopMatchResponse } from "./CoopMatchResponse";
 import { friendlyAI } from "./FriendlyAI";
 import { SITCustomTraders } from "./Traders/SITCustomTraders";
 import { HttpServerHelper } from "@spt-aki/helpers/HttpServerHelper";
+import { BundleCallbacks } from "@spt-aki/callbacks/BundleCallbacks";
 // -------------------------------------------------------------------------
 
 
@@ -70,6 +71,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
     resolvedExternalIP: string;
     profileHelper: ProfileHelper;
     httpServerHelper: HttpServerHelper;
+    bundleCallbacks: BundleCallbacks;
 
     public traders: any[] = [];
 
@@ -114,6 +116,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         this.bundleLoader = container.resolve<BundleLoader>("BundleLoader");
         this.profileHelper = container.resolve<ProfileHelper>("ProfileHelper");
         this.httpServerHelper = container.resolve<HttpServerHelper>("HttpServerHelper");
+        this.bundleCallbacks = container.resolve<BundleCallbacks>("BundleCallbacks");
 
         // this.traders.push(new SITCustomTraders(), new CoopGroupTrader(), new UsecTrader(), new BearTrader());
         this.traders.push(new SITCustomTraders());
@@ -199,6 +202,14 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
 
                         output = JSON.stringify(friendlyAI);
                         return output;
+                    }
+                ),
+                new RouteAction(
+                    "/files/bundle",
+                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                    (url: string, info: any, sessionID: string, output: string): any =>
+                    {
+                        return this.bundleCallbacks.getBundle(url, info, sessionID);
                     }
                 )
             ]
