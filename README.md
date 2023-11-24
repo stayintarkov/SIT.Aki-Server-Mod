@@ -37,6 +37,8 @@ If you aren't using the latest Aki server, you need to update or install new.
 
 As an alternative to steps 3-4, you can clone this repo into `SIT/server/user/mods/`. This will likely be far, far buggier, and is not recommended unless you have a reason to do so. If you installed this way, you're likely to receive less support.
 
+After installing, a member of your group will need to run the `Aki.Server.exe`, and facilitate the rest of your group connecting to their machine (or whatever machine they run it on). That is, they'll need to port forward and give you their IP, or you'll all need to connect via hamachi or a VPN. If you don't know how to do these things, check out the [discord server](https://discord.gg/f4CN4n3nP2).
+
 ## How do I configure this mod?
 
 ### Coop Config JSON
