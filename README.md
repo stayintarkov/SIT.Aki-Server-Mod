@@ -24,16 +24,16 @@ This is the SERVER modification of [SPT-Aki](https://www.sp-tarkov.com/) to allo
 If you already use SPT, it's recommended to create a separate Aki-server install as opposed to installing SIT on your existing one (if you have the space). It'll keep things more manageable in case you switch between using SIT and SPT.
 If you aren't using the latest Aki server, you need to update or install new.
 
-1. Create a new folder for the Aki-Server (we'll refer to it as `SIT/server/` here)
-2. Download the latest [SPT-Aki Release](https://www.sp-tarkov.com/#download) and extract the server files to `SIT/server/`
+- Create a new folder for the Aki-Server (we'll refer to it as `SIT/server/` here)
+- Download the latest [SPT-Aki Release](https://www.sp-tarkov.com/#download) and extract the server files to `SIT/server/`
   * You only need the following folders/files:
     * `Aki_Data/`
     * `Aki.Server.exe`
   * Run `Aki.Server.exe` once, until it reaches the 'happy playing!' message. Then close the server.
-3. Download the latest ["Source code" release](https://github.com/paulov-t/SIT.Aki-Server-Mod/releases) 
+- Download the latest ["Source code" release](https://github.com/paulov-t/SIT.Aki-Server-Mod/releases) 
   * In the future, latest releases will be in this repo's releases page like you'd expect. This repo is newly-migrated from paulov's personal repos, so old builds are found there at the above link.
-4. Extract the release into the `SIT/server/user/mods/` folder
-5. Rename the folder SITCoop (ie `SIT/server/user/mods/SITCoop`)
+- Extract the release into the `SIT/server/user/mods/` folder
+- Rename the folder SITCoop (ie `SIT/server/user/mods/SITCoop`)
 
 As an alternative to steps 3-4, you can clone this repo into `SIT/server/user/mods/`. This will likely be far, far buggier, and is not recommended unless you have a reason to do so. If you installed this way, you're likely to receive less support.
 
