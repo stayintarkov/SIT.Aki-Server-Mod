@@ -7,7 +7,7 @@ A SPT-Aki mod to be used with SPT-Aki Server to allow the Coop Module to communi
 
 <div align=center>
 
-![GitHub all releases](https://img.shields.io/github/downloads/paulov-t/SIT.Aki-Server-Mod/total) ![GitHub release (latest by date)](https://img.shields.io/github/downloads/paulov-t/SIT.Aki-Server-Mod/latest/total)
+![GitHub all releases](https://img.shields.io/github/downloads/stayintarkov/SIT.Aki-Server-Mod/total)
 
 </div>
 
@@ -15,13 +15,13 @@ A SPT-Aki mod to be used with SPT-Aki Server to allow the Coop Module to communi
 
 ## Summary
 
-This is the SERVER modification of [SPT-Aki](https://www.sp-tarkov.com/) to allow the [Coop Module](https://github.com/paulov-t/SIT.Core) to communicate with the SPT-Aki Server.
+This is the SERVER modification of [SPT-Aki](https://www.sp-tarkov.com/) to allow the [Coop Module](https://github.com/stayintarkov/StayInTarkov.Client) to communicate with the SPT-Aki Server.
 
 ## How to use this Repo?
 
 * Install SIT via the Launcher (or manually)
 * Download and Install the latest SPT-Aki Server
-* Download the [latest "Source code" release](https://github.com/paulov-t/SIT.Aki-Server-Mod/releases) (preferred) or use the code clone above (if you are feeling brave and like bugs)
+* Download the [latest "Source code" release](https://github.com/stayintarkov/SIT.Aki-Server-Mod/releases) (preferred) or use the code clone above (if you are feeling brave and like bugs)
 * Install this repo into the server /user/mods/ folder
 * Rename the folder SITCoop
 
