@@ -193,6 +193,9 @@ export class CoopMatch {
 
         if(info.m === undefined) { 
             this.LastUpdateDateTime = new Date(Date.now());
+            if("RaidTimer" in info || "TimeAndWeather" in info) {
+                WebSocketHandler.Instance.sendToWebSockets(this.ConnectedUsers, JSON.stringify(info));
+            }
             return;
         }
             
