@@ -1,16 +1,9 @@
 import tsyringe = require("tsyringe");
 
-import { LocationCallbacks } from "@spt-aki/callbacks/LocationCallbacks";
-import { GameController } from "@spt-aki/controllers/GameController";
 import { LocationController } from "@spt-aki/controllers/LocationController";
-import { AkiHttpListener } from "@spt-aki/servers/http/AkiHttpListener";
 import { SaveServer } from "@spt-aki/servers/SaveServer";
 import { HttpResponseUtil } from "@spt-aki/utils/HttpResponseUtil";
-
-
-// import { Friend, IGetFriendListDataResponse } from "@spt-aki/models/eft/dialog/IGetFriendListDataResponse";
-import { IGameConfigResponse } from "@spt-aki/models/eft/game/IGameConfigResponse";
-import MemberCategory = require("@spt-aki/models/enums/MemberCategory");
+import { BundleCallbacks } from "@spt-aki/callbacks/BundleCallbacks";
 
 import type { IPreAkiLoadMod } from "@spt-aki/models/external/IPreAkiLoadMod";
 import type { ILogger } from "@spt-aki/models/spt/utils/ILogger";
@@ -26,28 +19,30 @@ import { ExternalIPFinder } from "./ExternalIPFinder";
 import { WebSocketHandler } from "./WebSocketHandler";
 
 import { RouteAction } from "@spt-aki/di/Router";
-import { BundleLoader } from "@spt-aki/loaders/BundleLoader";
 import { ConfigTypes } from "@spt-aki/models/enums/ConfigTypes";
 import { IPostDBLoadMod } from "@spt-aki/models/external/IPostDBLoadMod";
 import { ConfigServer } from "@spt-aki/servers/ConfigServer";
-import { JsonUtil } from "@spt-aki/utils/JsonUtil";
-import { VFS } from "@spt-aki/utils/VFS";
-import { BundleLoaderFixed } from "./BundleLoaderFixed";
+
 import { SITConfig } from "./SITConfig";
 import moment = require("moment");
 import AzureWAH = require("./AzureWebAppHelper");
 
 // -------------------------------------------------------------------------
 // Custom Traders (needs to be refactored into SITCustomTraders.ts)
-import { ProfileHelper } from "@spt-aki/helpers/ProfileHelper";
-import { IncomingMessage, ServerResponse } from "http";
 import { CoopMatchResponse } from "./CoopMatchResponse";
 import { friendlyAI } from "./FriendlyAI";
 import { SITCustomTraders } from "./Traders/SITCustomTraders";
-import { HttpServerHelper } from "@spt-aki/helpers/HttpServerHelper";
-import { BundleCallbacks } from "@spt-aki/callbacks/BundleCallbacks";
+
 // -------------------------------------------------------------------------
 
+// Overrides ---------------------------------------------------------------
+import { BundleLoaderOverride } from "./Overrides/BundleLoaderOverride";
+import { LauncherControllerOverride } from "./Overrides/LauncherControllerOverride";
+import { GameControllerOverride } from "./Overrides/GameControllerOverride";
+import { LocationCallbacksOverride } from "./Overrides/LocationCallbacksOverride";
+import { LocationControllerOverride } from "./Overrides/LocationControllerOverride";
+
+// -------------------------------------------------------------------------
 
 @tsyringe.injectable()
 export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
@@ -56,26 +51,17 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
     private static container: tsyringe.DependencyContainer;
 
     saveServer: SaveServer;
-    locationController: LocationController;
     protected httpResponse: HttpResponseUtil;
     databaseServer: DatabaseServer;
     public webSocketHandler: WebSocketHandler;
     public externalIPFinder: ExternalIPFinder;
     public coopConfig: CoopConfig;
     public sitConfig: SITConfig;
-    locationData: object = {};
-    locationData2: object = {};
     configServer: ConfigServer;
     httpConfig: any;
-    bundleLoader: BundleLoader;
-    resolvedExternalIP: string;
-    profileHelper: ProfileHelper;
-    httpServerHelper: HttpServerHelper;
     bundleCallbacks: BundleCallbacks;
 
     public traders: any[] = [];
-
-    public sessionBackendUrl: Record<string, string> = {};
 
     public getCoopMatch(serverId: string) : CoopMatch {
 
@@ -97,26 +83,18 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         // Initialize & resolve variables
         StayInTarkovMod.container = container;
         StayInTarkovMod.Instance = this;
+
         const logger = container.resolve<ILogger>("WinstonLogger");
-        const dynamicRouterModService = container.resolve<DynamicRouterModService>("DynamicRouterModService");
-        const staticRouterModService = container.resolve<StaticRouterModService>("StaticRouterModService");
         this.saveServer = container.resolve<SaveServer>("SaveServer");
+        this.configServer = container.resolve<ConfigServer>("ConfigServer");
         CoopMatch.saveServer = this.saveServer;
         CoopMatch.routeHandler(container);
-        this.locationController = container.resolve<LocationController>("LocationController");
-        this.databaseServer = container.resolve<DatabaseServer>("DatabaseServer");
-        this.httpResponse = container.resolve<HttpResponseUtil>("HttpResponseUtil");
-        this.configServer = container.resolve<ConfigServer>("ConfigServer");
         // get http.json config
         this.httpConfig = this.configServer.getConfig(ConfigTypes.HTTP);
         this.coopConfig = new CoopConfig();
         this.sitConfig = new SITConfig();
         this.sitConfig.routeHandler(container);
         this.webSocketHandler = new WebSocketHandler(this.coopConfig.webSocketPort, logger);
-        this.bundleLoader = container.resolve<BundleLoader>("BundleLoader");
-        this.profileHelper = container.resolve<ProfileHelper>("ProfileHelper");
-        this.httpServerHelper = container.resolve<HttpServerHelper>("HttpServerHelper");
-        this.bundleCallbacks = container.resolve<BundleCallbacks>("BundleCallbacks");
 
         // this.traders.push(new SITCustomTraders(), new CoopGroupTrader(), new UsecTrader(), new BearTrader());
         this.traders.push(new SITCustomTraders());
@@ -124,22 +102,36 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
 
     public preAkiLoad(container: tsyringe.DependencyContainer): void {
 
-
         const logger = container.resolve<ILogger>("WinstonLogger");
         const dynamicRouterModService = container.resolve<DynamicRouterModService>("DynamicRouterModService");
         const staticRouterModService = container.resolve<StaticRouterModService>("StaticRouterModService");
+
         this.InitializeVariables(container);
 
         // Initialize Custom Traders
         for(const t of this.traders) {
             t.preAkiLoad(container);
         }
-     
-        //this.externalIPFinder = new ExternalIPFinder(this.coopConfig, this.httpConfig);
 
-        // ----------------------- Bundle Loader Fixes ------------------------------------------------
-        const bundleLoaderFixed = new BundleLoaderFixed(container.resolve<VFS>("VFS"), container.resolve<JsonUtil>("JsonUtil"));
-        bundleLoaderFixed.resolveAndOverride(container);
+        // ----------------------- Bundle Loader overrides ------------------------------------------------
+        const bundleLoaderOverride = new BundleLoaderOverride(container);
+        bundleLoaderOverride.override();
+
+        // ----------------------- Game Controller overrides -------------------------------------------------
+        const gameControllerOverride = new GameControllerOverride(container);
+        gameControllerOverride.override();
+
+        // ----------------------- Launcher Controller overrides -------------------------------------------------
+        const launcherControllerOverride = new LauncherControllerOverride(container, gameControllerOverride, this.coopConfig, this.httpConfig);
+        launcherControllerOverride.override();
+
+        // ----------------------- Location Callbacks overrides -------------------------------------------------
+        const locationCallbacksOverride = new LocationCallbacksOverride(container);
+        locationCallbacksOverride.override();
+
+        // ----------------------- Location Controller overrides -------------------------------------------------
+        const locationControllerOverride = new LocationControllerOverride(container);
+        locationControllerOverride.override();
 
         // ----------------------- TODO: Azure WebApp Helper (trying to fix this ASAP) ------------------------------------------------
         new AzureWAH.AzureWebAppHelper(this.configServer);
@@ -543,39 +535,15 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                         return "";
                     }
                 },
-               
-                
-                
-                
             ],
             "sit-coop"
             // "aki"
         );
-
+        
         // Hook up to existing AKI static route
         staticRouterModService.registerStaticRouter(
             "MatchStaticRouter-SIT",
             [
-                {
-                    url: "/launcher/profile/login",
-                    action: (url: string, info: any, sessionID: string, output: string): any => 
-                    {
-                        let sessionId: string = output;
-                        let backendUrl: string;
-
-                        if(info.backendUrl !== undefined && info.backendUrl !== null) {
-                            backendUrl = info.backendUrl;
-                        }
-                        else{
-                            backendUrl = `${this.coopConfig.protocol}://${this.coopConfig.externalIP}:${this.httpConfig.port}`;
-                        }
-                        
-                        // store backendUrl per session ID for GameController injection
-                        this.sessionBackendUrl[sessionId] = backendUrl;
-                        
-                        return output;
-                    }
-                },
                 {
                     url: "/client/match/group/status",
                     action: (url: string, info: any, sessionID: string, output: string): any => 
@@ -713,63 +681,6 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
             "aki"
         );
 
-
-        container.afterResolution("LocationCallbacks", (_t, result: LocationCallbacks) => {
-
-            // result.getLocationData = (url: string, info: IEmptyRequestData, sessionID: string) => {
-
-
-            // }
-
-            result.getLocation = (url: string, info: IGetLocationRequestData, sessionID: string) => {
-
-
-                // This is HACK to test out getting same loot on multiple clients
-                if (this.locationData[info.locationId] === undefined) {
-                    console.log(`No cached locationData found for ${info.locationId}. Creating it now!`);
-                    this.generateNewLootForLocation(sessionID, info);
-                    this.locationData[info.locationId].Loot = this.locationData[info.locationId].Data.Loot;
-                }
-
-                // // This is a HACK. For some reason (not figured out yet) the Loot field empties after it has been generated. So refilling it here.
-                if (this.locationData[info.locationId].Data.Loot.length === 0) 
-                {
-                    this.locationData[info.locationId].Data.Loot = this.locationData[info.locationId].Loot;
-                }
-
-                return this.httpResponse.getBody(this.locationData[info.locationId].Data);
-
-            }
-
-            // result.getAirdropLoot = (url: string, info: IEmptyRequestData, sessionID: string) => {
-
-            //     if(CoopMatch.AirdropLoot === undefined) {
-            //         CoopMatch.AirdropLoot = this.locationController.getAirdropLoot();
-            //     }
-
-            //     return this.httpResponse.noBody(CoopMatch.AirdropLoot);
-                
-            // }
-
-        }, {frequency: "Always"});
-
-        container.afterResolution("LocationController", (_t, result: LocationController) => {
-
-            result.get = (sessionId: string, request: IGetLocationRequestData) => {
-
-                if (this.locationData2[request.locationId] === undefined) {
-
-                    // const name = location.toLowerCase().replace(" ", "");
-                    // this.locationData2[location] = result.generate(name);
-                    this.locationData2[request.locationId] = result.get(sessionId, request);
-                }
-                
-                return this.locationData2[request.locationId];
-            }
-
-
-        }, {frequency: "Always"});
-
         /**
          * WIP/UNUSED FEATURE: GET FRIENDS LIST
          */
@@ -786,37 +697,6 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         /**
          * MUST HAVE: REPLACE GAME CONFIG SO IP CAN BE EXTERNAL
          */
-        container.afterResolution("GameController", (_t, result: GameController) => 
-        {
-            // We want to replace the original method logic with something different
-            result.getGameConfig = (sessionID: string) => 
-            {
-                // get the requestUrl for the sessionID
-                let backendUrl = this.sessionBackendUrl[sessionID];
-
-                delete this.sessionBackendUrl[sessionID];
-
-                return this.getGameConfig(sessionID, backendUrl);
-            }
-            // The modifier Always makes sure this replacement method is ALWAYS replaced
-        }, {frequency: "Always"});
-    }
-
-    public generateNewLootForLocation(sessionID: string, request: IGetLocationRequestData) {
-
-        if(this.locationData[request.locationId] === undefined)
-            this.locationData[request.locationId] = {};
-
-        this.locationData[request.locationId].Data = this.locationController.get(sessionID, request);
-        
-        // const ownedCoopMatch = this.getCoopMatch(sessionID);
-        const ownedCoopMatch = this.getCoopMatch(`pmc${sessionID}`);
-        if(ownedCoopMatch !== undefined) {
-            ownedCoopMatch.Loot = this.locationData[request.locationId].Loot;
-        }
-        else {
-            // console.warn(`Could not save Location Loot for match ${sessionID}. Unable to find Match.`);
-        }
     }
 
     // public getFriendsList(sessionID: string): IGetFriendListDataResponse
@@ -860,40 +740,6 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
 
     //     return friendList;
     // }
-
-    public getGameConfig(sessionID: string, backendUrl: string): IGameConfigResponse
-    {
-        const profile = this.profileHelper.getPmcProfile(sessionID);
-        //let externalIp = this.externalIPFinder.resolveExternalIP();
-
-        const config: IGameConfigResponse = {
-            languages: this.databaseServer.getTables().locales.languages,
-            ndaFree: false,
-            reportAvailable: false,
-            twitchEventMember: false,
-            lang: "en",
-            aid: profile.aid,
-            taxonomy: 6,
-            activeProfileId: `pmc${sessionID}`,
-            backend: {
-                Lobby: backendUrl,
-                Trading: backendUrl,
-                Messaging: backendUrl,
-                Main: backendUrl,
-                RagFair: backendUrl,
-            },
-            useProtobuf: false,
-            utc_time: new Date().getTime() / 1000,
-            totalInGame: profile.Stats?.Eft?.TotalInGameTime ?? 0
-        };
-
-        return config;
-    }
-
-
-    
-
-
 
     postDBLoad(container: tsyringe.DependencyContainer): void {
         StayInTarkovMod.container = container;
