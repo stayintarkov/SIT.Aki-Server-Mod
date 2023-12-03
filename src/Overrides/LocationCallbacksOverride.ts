@@ -47,7 +47,6 @@ export class LocationCallbacksOverride
 
              result.getLocation = (url: string, info: IGetLocationRequestData, sessionID: string) => {
 
-
                 // This is HACK to test out getting same loot on multiple clients
                 if (this.locationData[info.locationId] === undefined) {
                     console.log(`No cached locationData found for ${info.locationId}. Creating it now!`);
@@ -62,9 +61,7 @@ export class LocationCallbacksOverride
                 }
 
                 return this.httpResponse.getBody(this.locationData[info.locationId].Data);
-
             }
-
         }, {frequency: "Always"});
     }
 }

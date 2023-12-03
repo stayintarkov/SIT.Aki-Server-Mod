@@ -30,10 +30,11 @@ export class LauncherControllerOverride
 
     private login(info: any)
     {
+        let backendUrl: string = `${this.coopConfig.protocol}://${this.coopConfig.externalIP}:${this.httpConfig.port}`;
+        
         for (const sessionID in this.saveServer.getProfiles())
         {
             const account = this.saveServer.getProfile(sessionID).info;
-            let backendUrl: string;
             
             if (info.username === account.username)
             {
@@ -42,10 +43,6 @@ export class LauncherControllerOverride
                     if(info.backendUrl !== undefined && info.backendUrl !== "")
                     {
                         backendUrl = info.backendUrl;
-                    }
-                    else
-                    {
-                        backendUrl = `${this.coopConfig.protocol}://${this.coopConfig.externalIP}:${this.httpConfig.port}`;
                     }
 
                     this.gameControllerOverride.setSessionBackendUrl(sessionID, backendUrl);
