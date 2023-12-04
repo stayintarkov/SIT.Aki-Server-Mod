@@ -32,7 +32,7 @@ jobs:
         run: |
           mkdir dist-artifact
           mv dist/* dist-artifact/
-        - name: Upload artifact
+      - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: SITCoop
