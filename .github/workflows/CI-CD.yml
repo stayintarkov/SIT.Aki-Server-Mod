@@ -28,8 +28,8 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Upload production-ready build files
+      - name: Create artifact
         uses: actions/upload-artifact@v2
         with:
           name: production-files
-          path: ./dist
+          path: ./dist/sit-coop.zip
