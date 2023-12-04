@@ -21,21 +21,20 @@ class BundleInfo
     }
 }
 
-export class BundleLoaderFixed
+export class BundleLoaderOverride
 {
-    protected bundles: Record<string, BundleInfo> = {};
+    container: DependencyContainer;
     jsonUtil: JsonUtil;
     vfs: VFS;
-    backendUrl: string;
+    protected bundles: Record<string, BundleInfo> = {};
 
     constructor(
-        vfs: VFS,
-        jsonUtil: JsonUtil,
+        container: DependencyContainer
     )
     { 
-
-        this.vfs = vfs;
-        this.jsonUtil = jsonUtil;
+        this.container = container;
+        this.vfs = container.resolve<VFS>("VFS");
+        this.jsonUtil = container.resolve<JsonUtil>("JsonUtil");
     }
 
     public getBundles(local: boolean): BundleInfo[]
@@ -80,11 +79,11 @@ export class BundleLoaderFixed
         this.bundles[key] = b;
     }
 
-    public resolveAndOverride(container: DependencyContainer): void {
+    public override(): void {
 
         const thisObj = this;
 
-        container.afterResolution("BundleLoader", (_t, result: BundleLoader) => {
+        this.container.afterResolution("BundleLoader", (_t, result: BundleLoader) => {
             result.addBundle = (key: string, b: BundleInfo) => {
                 return thisObj.addBundle(key, b);
             }
