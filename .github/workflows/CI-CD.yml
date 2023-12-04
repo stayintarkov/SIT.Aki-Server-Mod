@@ -29,7 +29,11 @@ jobs:
         run: npm run build
 
       - name: Create artifact
+        run: |
+          mkdir dist-artifact
+          mv dist/* dist-artifact/
+        - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
-          name: production-files
-          path: ./dist/sit-coop.zip
+          name: SITCoop
+          path: dist-artifact/${{ github.sha }}.zip
