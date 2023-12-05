@@ -45,28 +45,25 @@ const exclude = glob.sync(`{${ignoreList.join(",")}}`, { realpath: true, dot: tr
 
 // For some reason these basic-bitch functions won't allow us to copy a directory into itself, so we have to resort to
 // using a temporary directory, like an idiot. Excuse the normalize spam; some modules cross-platform, some don't...
-fs.copySync(__dirname, path.normalize(`${__dirname}/../~${modName}`), {filter:(filePath) => 
-{
-    return !exclude.includes(filePath);
-}});
-fs.moveSync(path.normalize(`${__dirname}/../~${modName}`), path.normalize(`${__dirname}/${modName}`), { overwrite: true });
-fs.copySync(path.normalize(`${__dirname}/${modName}`), path.normalize(`${__dirname}/dist`));
-console.log("Build files copied.");
+// Copy the files to the root directory
+fs.copySync(__dirname, path.normalize(`${__dirname}/../${modName}`), {filter:(filePath) => 
+    {
+        return !exclude.includes(filePath);
+    }});
 
-// Compress the files for easy distribution. The compressed file is saved into the dist directory. When uncompressed we
-// need to be sure that it includes a directory that the user can easily copy into their game mods directory.
+// Compress the files for easy distribution. The compressed file is saved in the root directory.
 zip({
     source: modName,
-    destination: `dist/${modName}.zip`,
+    destination: `${__dirname}/${modName}.zip`,
     cwd: __dirname
 }).catch(function(err)
 {
     console.error("A bestzip error has occurred: ", err.stack);
 }).then(function()
 {
-    console.log(`Compressed mod package to: /dist/${modName}.zip`);
+    console.log(`Compressed mod package to: ${__dirname}/${modName}.zip`);
 
-    // Now that we're done with the compression we can delete the temporary build directory.
+    // Now that we're done with the compression, we can delete the temporary build directory.
     fs.rmSync(`${__dirname}/${modName}`, { force: true, recursive: true });
-    console.log("Build successful! your zip file has been created and is ready to be uploaded to hub.sp-tarkov.com/files/");
+    console.log("Build successful! Your zip file has been created and is ready to be uploaded.");
 });
