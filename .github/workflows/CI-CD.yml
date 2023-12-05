@@ -31,9 +31,6 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Extract inner .zip file
-        run: unzip ./dist/SITCoop.zip -d ./dist
-      
       - name: Create artifact
         uses: actions/upload-artifact@v2
         with:
