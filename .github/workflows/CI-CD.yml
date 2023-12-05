@@ -31,12 +31,8 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Get artifact filename
-        id: artifact_filename
-        run: echo "::set-output name=filename::$(ls -d /*.zip)"
-
       - name: Create artifact
         uses: actions/upload-artifact@v2
         with:
           name: SITCoop
-          path: ${{ steps.artifact_filename.outputs.filename }}
+          path: ./*.zip
