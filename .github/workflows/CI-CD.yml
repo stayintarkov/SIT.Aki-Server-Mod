@@ -22,6 +22,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Update version
+        run: node updateVersion.js
+
       #- name: Run tests and linters
       #  run: npm test && npm run lint
 
@@ -29,11 +32,7 @@ jobs:
         run: npm run build
 
       - name: Create artifact
-        run: |
-          mkdir dist-artifact
-          mv dist/* dist-artifact/
-      - name: Upload artifact
         uses: actions/upload-artifact@v2
         with:
           name: SITCoop
-          path: dist-artifact/${{ github.sha }}.zip
+          path: ./dist
