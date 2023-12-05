@@ -28,18 +28,15 @@ jobs:
         env:
           MOD_NAME: ${{ github.run_number }}
 
-      #- name: Run tests and linters
-      #  run: npm test && npm run lint
-
       - name: Build
         run: npm run build
 
       - name: Get artifact filename
         id: artifact_filename
-        run: echo "::set-output name=filename::$(cat ./${{ env.MOD_NAME }}.zip)"
+        run: echo "::set-output name=filename::$(ls -d ./dist/*.zip)"
 
       - name: Create artifact
         uses: actions/upload-artifact@v2
         with:
           name: SITCoop
-          path: ./${{ env.MOD_NAME }}.zip
+          path: ${{ steps.artifact_filename.outputs.filename }}
