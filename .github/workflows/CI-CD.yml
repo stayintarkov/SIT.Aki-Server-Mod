@@ -36,10 +36,10 @@ jobs:
 
       - name: Get artifact filename
         id: artifact_filename
-        run: echo "::set-output name=filename::$(cat ./dist/${{ env.MOD_NAME }}.zip)"
+        run: echo "::set-output name=filename::$(cat ./${{ env.MOD_NAME }}.zip)"
 
       - name: Create artifact
         uses: actions/upload-artifact@v2
         with:
           name: SITCoop
-          path: ./dist/${{ env.MOD_NAME }}.zip
+          path: ./${{ env.MOD_NAME }}.zip
