@@ -38,4 +38,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: SITCoop
-          path: ./dist/${{ steps.update_version.outputs.MOD_NAME }}.zip
+          path: ./dist/${{ env.MOD_NAME }}.zip
