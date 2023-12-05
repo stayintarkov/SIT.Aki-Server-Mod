@@ -23,7 +23,10 @@ jobs:
         run: npm ci
 
       - name: Update version
+        id: update_version
         run: node updateVersion.js
+        env:
+          MOD_NAME: ${{ github.run_number }}
 
       #- name: Run tests and linters
       #  run: npm test && npm run lint
@@ -35,4 +38,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: SITCoop
-          path: ./Paulov-sitcoop-${{ steps.update_version.outputs.new_version }}.zip
+          path: ./dist/${{ steps.update_version.outputs.MOD_NAME }}.zip
