@@ -35,4 +35,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: SITCoop
-          path: ./dist/Paulov-sitcoop-${{ steps.update_version.outputs.new_version }}.zip
+          path: ./Paulov-sitcoop-${{ steps.update_version.outputs.new_version }}.zip
