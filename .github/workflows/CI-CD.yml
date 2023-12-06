@@ -44,4 +44,4 @@ jobs:
           name: SITCoop${{ steps.update_version.outputs.version }}
           draft: true
           token: ${{ secrets.GITHUB_TOKEN }}
-          tags: SITCoop${{ steps.update_version.outputs.version }}
+          tag: SITCoop${{ steps.update_version.outputs.version }}
