@@ -35,5 +35,13 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: SITCoop
-          tags: SITCoop${{ steps.update_version.outputs.version }}
           path: ./SITCoop
+      
+      - name: Create release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: 'SITCoop'
+          name: SITCoop${{ steps.update_version.outputs.version }}
+          draft: true
+          token: ${{ secrets.GITHUB_TOKEN }}
+          tags: SITCoop${{ steps.update_version.outputs.version }}

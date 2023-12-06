@@ -31,6 +31,7 @@ const ignoreList = [
     "src/**/*.js",
     "types/",
     ".git/",
+    ".github/",
     ".gitea/",
     ".eslintignore",
     ".eslintrc.json",
@@ -39,16 +40,22 @@ const ignoreList = [
     "packageBuild.ts",
     "mod.code-workspace",
     "package-lock.json",
-    "tsconfig.json"
+    "tsconfig.json",
+    ".github",
+    ".gitignore",
+    "package.json",
+    "packageBuild.ts",
+    "updateVersion.js"
 ];
 const exclude = glob.sync(`{${ignoreList.join(",")}}`, { realpath: true, dot: true });
 
 // For some reason these basic-bitch functions won't allow us to copy a directory into itself, so we have to resort to
 // using a temporary directory, like an idiot. Excuse the normalize spam; some modules cross-platform, some don't...
-fs.copySync(__dirname, path.normalize(`${__dirname}/../~${modName}`), {filter:(filePath) => 
-{
-    return !exclude.includes(filePath);
-}});
+fs.copySync(__dirname, path.normalize(`${__dirname}/../~${modName}`), {
+    filter: (filePath) => {
+        return !exclude.includes(filePath);
+    }
+});
 fs.moveSync(path.normalize(`${__dirname}/../~${modName}`), path.normalize(`${__dirname}/${modName}`), { overwrite: true });
 fs.copySync(path.normalize(`${__dirname}/${modName}`), path.normalize(`${__dirname}/dist`));
 console.log("Build files copied.");
@@ -56,3 +63,23 @@ console.log("Build files copied.");
 // Remove the dist folder
 fs.rmdirSync(path.resolve(__dirname, "dist"), { recursive: true });
 console.log("Dist folder removed.");
+
+// Remove additional files and folders from SITCoop folder
+const filesToRemove = [
+    ".gitignore",
+    "mod.code-workspace",
+    "package-lock.json",
+    "package.json",
+    "packageBuild.ts",
+    "updateVersion.js",
+    ".github",
+    "node_modules",
+    ".elintignore",
+    ".eslintrc.json",
+];
+  
+filesToRemove.forEach((file) => {
+    const filePath = path.resolve(__dirname, "SITCoop", file);
+    fs.removeSync(filePath);
+    console.log(`Removed: ${filePath}`);
+});
