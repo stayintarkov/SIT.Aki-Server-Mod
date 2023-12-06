@@ -35,4 +35,5 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: SITCoop
-          path: ./*.zip
+          tags: SITCoop${{ steps.update_version.outputs.version }}
+          path: ./SITCoop

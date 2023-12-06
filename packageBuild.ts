@@ -15,7 +15,7 @@ const path = require("path");
 const { author, name:packageName, version } = require("./package.json");
 
 // Generate the name of the package, stripping out all non-alphanumeric characters in the 'author' and 'name'.
-const modName = `${author.replace(/[^a-z0-9]/gi, "")}-${packageName.replace(/[^a-z0-9]/gi, "")}-${version}`;
+const modName = "SITCoop";
 console.log(`Generated package name: ${modName}`);
 
 // Delete the old build directory and compressed package file.
@@ -45,25 +45,14 @@ const exclude = glob.sync(`{${ignoreList.join(",")}}`, { realpath: true, dot: tr
 
 // For some reason these basic-bitch functions won't allow us to copy a directory into itself, so we have to resort to
 // using a temporary directory, like an idiot. Excuse the normalize spam; some modules cross-platform, some don't...
-// Copy the files to the root directory
-fs.copySync(__dirname, path.normalize(`${__dirname}/../${modName}`), {filter:(filePath) => 
-    {
-        return !exclude.includes(filePath);
-    }});
-
-// Compress the files for easy distribution. The compressed file is saved in the root directory.
-zip({
-    source: modName,
-    destination: `${__dirname}/${modName}.zip`,
-    cwd: __dirname
-}).catch(function(err)
+fs.copySync(__dirname, path.normalize(`${__dirname}/../~${modName}`), {filter:(filePath) => 
 {
-    console.error("A bestzip error has occurred: ", err.stack);
-}).then(function()
-{
-    console.log(`Compressed mod package to: ${__dirname}/${modName}.zip`);
+    return !exclude.includes(filePath);
+}});
+fs.moveSync(path.normalize(`${__dirname}/../~${modName}`), path.normalize(`${__dirname}/${modName}`), { overwrite: true });
+fs.copySync(path.normalize(`${__dirname}/${modName}`), path.normalize(`${__dirname}/dist`));
+console.log("Build files copied.");
 
-    // Now that we're done with the compression, we can delete the temporary build directory.
-    fs.rmSync(`${__dirname}/${modName}`, { force: true, recursive: true });
-    console.log("Build successful! Your zip file has been created and is ready to be uploaded.");
-});
+// Remove the dist folder
+fs.rmdirSync(path.resolve(__dirname, "dist"), { recursive: true });
+console.log("Dist folder removed.");
