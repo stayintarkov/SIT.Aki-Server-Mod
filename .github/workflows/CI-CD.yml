@@ -44,10 +44,6 @@ jobs:
         run: git tag SITCoop${{ steps.update_version.outputs.version }}
         if: github.event_name == 'workflow_dispatch'
 
-      - name: Push tag
-        run: git push origin SITCoop${{ steps.update_version.outputs.version }}
-        if: github.event_name == 'workflow_dispatch'
-
       - name: Create release
         uses: actions/create-release@v1
         if: github.event_name == 'workflow_dispatch'
