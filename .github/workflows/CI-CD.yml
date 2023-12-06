@@ -49,11 +49,13 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
 
       - name: Create release
-        uses: softprops/action-gh-release@v1
+        uses: actions/create-release@v1
         if: github.event_name == 'workflow_dispatch'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          name: SITCoop${{ steps.update_version.outputs.version }}
-          files: SITCoop.zip
-          generate_release_notes: true
+          tag_name: SITCoop${{ steps.update_version.outputs.version }}
+          release_name: SITCoop${{ steps.update_version.outputs.version }}
           draft: true
-          token: ${{ secrets.GITHUB_TOKEN }}
+          prerelease: false
+          
