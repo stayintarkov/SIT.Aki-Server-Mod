@@ -40,6 +40,14 @@ jobs:
       - name: Zip artifact
         run: zip -r SITCoop.zip SITCoop
 
+      - name: Create tag
+        run: git tag SITCoop${{ steps.update_version.outputs.version }}
+        if: github.event_name == 'workflow_dispatch'
+
+      - name: Push tag
+        run: git push origin SITCoop${{ steps.update_version.outputs.version }}
+        if: github.event_name == 'workflow_dispatch'
+
       - name: Create release
         uses: softprops/action-gh-release@v1
         if: github.event_name == 'workflow_dispatch'
@@ -49,4 +57,3 @@ jobs:
           generate_release_notes: true
           draft: true
           token: ${{ secrets.GITHUB_TOKEN }}
-          tag_name: SITCoop${{ steps.update_version.outputs.version }}
