@@ -23,8 +23,9 @@ jobs:
         run: npm ci
 
       - name: Update version
-        id: update_version
-        run: node updateVersion.js
+        run: |
+          node updateVersion.js
+          echo "::set-output name=version::$(jq -r '.version' package.json)"
         env:
           MOD_NAME: ${{ github.run_number }}
 
@@ -44,14 +45,16 @@ jobs:
         run: git tag SITCoop${{ steps.update_version.outputs.version }}
         if: github.event_name == 'workflow_dispatch'
 
-      - name: Create release
-        uses: actions/create-release@v1
+      - name: Push tag
+        run: git push origin SITCoop${{ steps.update_version.outputs.version }}
         if: github.event_name == 'workflow_dispatch'
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        if: github.event_name == 'workflow_dispatch'
         with:
-          tag_name: SITCoop${{ steps.update_version.outputs.version }}
-          release_name: SITCoop${{ steps.update_version.outputs.version }}
+          name: SITCoop${{ steps.update_version.outputs.version }}
+          files: SITCoop.zip
+          generate_release_notes: true
           draft: true
-          prerelease: false
-          
+          token: ${{ secrets.GITHUB_TOKEN }}
