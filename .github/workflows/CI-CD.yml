@@ -36,11 +36,14 @@ jobs:
         with:
           name: SITCoop
           path: ./SITCoop
-      
+
+      - name: Zip artifact
+        run: zip -r SITCoop.zip SITCoop
+
       - name: Create release
         uses: ncipollo/release-action@v1
         with:
-          artifacts: 'SITCoop'
+          artifacts: 'SITCoop.zip'
           name: SITCoop${{ steps.update_version.outputs.version }}
           draft: true
           token: ${{ secrets.GITHUB_TOKEN }}
