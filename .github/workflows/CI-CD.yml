@@ -6,7 +6,8 @@ on:
       - main
   workflow_dispatch:
 
-permissions: write-all
+permissions:
+  contents: write-all
 
 jobs:
   build:
@@ -36,21 +37,19 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Create artifact
-        uses: actions/upload-artifact@v2
-        with:
-          name: SITCoop
-          path: ./SITCoop
-
-      - name: Zip artifact
-        run: zip -r SITCoop.zip SITCoop
-
-      - name: Create tag
-        run: git tag v${{ steps.update_version.outputs.version }}
-        if: github.event_name == 'workflow_dispatch'
-      
-      - name: Push tag
-        run: git push origin v${{ steps.update_version.outputs.version }}
+      - name: Create tag and push
+        run: |
+          current_tag=$(git describe --tags --abbrev=0)
+          if [ "$current_tag" == "v${{ steps.update_version.outputs.version }}" ]; then
+            tag_parts=($(echo $current_tag | tr '.' '\n'))
+            patch=$((tag_parts[2] + 1))
+            new_tag="${tag_parts[0]}.${tag_parts[1]}.$patch"
+            git tag v$new_tag
+            git push origin v$new_tag
+          else
+            git tag v${{ steps.update_version.outputs.version }}
+            git push origin v${{ steps.update_version.outputs.version }}
+          fi
         if: github.event_name == 'workflow_dispatch'
 
       - name: Create release
