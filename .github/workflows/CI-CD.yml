@@ -35,12 +35,9 @@ jobs:
         env:
           MOD_NAME: ${{ github.run_number }}
 
-      - name: Build
-        run: npm run build
-
       - name: Create tag and push
         run: |
-          current_tag=$(git describe --tags --abbrev=0)
+          current_tag=$(git describe --tags --abbrev=0 || echo "")
           if [ "$current_tag" == "v${{ steps.update_version.outputs.version }}" ]; then
             tag_parts=($(echo $current_tag | tr '.' '\n'))
             patch=$((tag_parts[2] + 1))
