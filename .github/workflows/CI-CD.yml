@@ -35,8 +35,7 @@ jobs:
           name: SITCoop
           path: ./SITCoop
 
-      - name: Zip artifact
-        run: zip -r SITCoop.zip SITCoop
+
 
       - name: Update version
         id: update_version
@@ -47,27 +46,17 @@ jobs:
         env:
           MOD_NAME: ${{ github.run_number }}
 
-      - name: Create tag and push
-        run: |
-          current_tag=$(git describe --tags --abbrev=0 || echo "")
-          if [ "$current_tag" == "v${{ steps.update_version.outputs.version }}" ]; then
-            tag_parts=($(echo $current_tag | tr '.' '\n'))
-            patch=$((tag_parts[2] + 1))
-            new_tag="${tag_parts[0]}.${tag_parts[1]}.$patch"
-            git tag v$new_tag
-            git push origin v$new_tag
-          else
-            git tag v${{ steps.update_version.outputs.version }}
-            git push origin v${{ steps.update_version.outputs.version }}
-          fi
         if: github.event_name == 'workflow_dispatch'
+
+      - name: Zip artifact
+        run: zip -r SITCoop.zip SITCoop
 
       - name: Create release
         uses: softprops/action-gh-release@v1
         if: github.event_name == 'workflow_dispatch'
         with:
-          tag_name: ${{ steps.update_version.outputs.version }}
-          name: SITCoop${{ steps.update_version.outputs.version }}
+          tag_name: ${{ github.run_number }}
+          name: SITCoop-${{ github.run_number }}
           files: SITCoop.zip
           generate_release_notes: true
           draft: true
