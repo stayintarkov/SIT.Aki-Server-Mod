@@ -48,8 +48,8 @@ jobs:
       - name: Create artifact
         uses: actions/upload-artifact@v2
         with:
-          name: SITCoop
-          path: ./SITCoop
+          name: SITCoop-${{ steps.extract_version.outputs.version }}
+          path: ./SITCoop-${{ steps.extract_version.outputs.version }}
         if: github.event_name == 'workflow_dispatch'
 
       - name: Zip artifact
