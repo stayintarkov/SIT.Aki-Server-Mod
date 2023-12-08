@@ -1,7 +1,11 @@
 const fs = require('fs');
+const path = require('path');
+
+// Construct an absolute path to package.json using __dirname
+const packageJsonPath = path.join(__dirname, 'package.json');
 
 // Read the package.json file
-const packageJson = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
 
 // Get the current version number
 let currentVersion = packageJson.version;
@@ -15,7 +19,7 @@ parts[2] = (lastPart + 1).toString();
 packageJson.version = parts.join('.');
 
 // Write the updated package.json back to the file
-fs.writeFileSync('package.json', JSON.stringify(packageJson, null, 2), 'utf8');
+fs.writeFileSync(packageJsonPath, JSON.stringify(packageJson, null, 2), 'utf8');
 
 // Log the updated version number
 console.log(`Updated version from ${currentVersion} to ${packageJson.version}`);

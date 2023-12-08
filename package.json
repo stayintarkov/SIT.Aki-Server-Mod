@@ -1,32 +1,32 @@
 {
-    "name": "sit-coop",
-    "version": "1.4.0",
-    "main": "src/StayInTarkovMod.js",
-    "license": "MIT",
-    "author": "Paulov",
-    "akiVersion": "3.8.0",
-    "engines": {
-        "node": "18.15.0"
-    },
-    "scripts": {
-        "setup": "npm i",
-        "build": "node ./packageBuild.ts"
-    },
-    "devDependencies": {
-        "@types/node": "18.18.4",
-        "@types/ws": "8.5.7",
-        "@typescript-eslint/eslint-plugin": "6.7.5",
-        "@typescript-eslint/parser": "6.7.5",
-        "bestzip": "2.2.1",
-        "eslint": "8.51.0",
-        "fs-extra": "11.1.1",
-        "glob": "10.3.3",
-        "moment": "^2.29.4",
-        "selfsigned": "^2.0.1",
-        "tsyringe": "4.8.0",
-        "typescript": "5.2.2"
-    },
-    "dependencies": {
-        "ws": "^8.14.2"
-    }
+  "name": "sit-coop",
+  "version": "1.4.0",
+  "main": "src/StayInTarkovMod.js",
+  "license": "MIT",
+  "author": "Paulov",
+  "akiVersion": "3.8.0",
+  "engines": {
+    "node": "18.15.0"
+  },
+  "scripts": {
+    "setup": "npm i",
+    "build": "node ./packageBuild.ts"
+  },
+  "devDependencies": {
+    "@types/node": "18.18.4",
+    "@types/ws": "8.5.7",
+    "@typescript-eslint/eslint-plugin": "6.7.5",
+    "@typescript-eslint/parser": "6.7.5",
+    "bestzip": "2.2.1",
+    "eslint": "8.51.0",
+    "fs-extra": "11.1.1",
+    "glob": "10.3.3",
+    "moment": "^2.29.4",
+    "selfsigned": "^2.0.1",
+    "tsyringe": "4.8.0",
+    "typescript": "5.2.2"
+  },
+  "dependencies": {
+    "ws": "^8.14.2"
+  }
 }
