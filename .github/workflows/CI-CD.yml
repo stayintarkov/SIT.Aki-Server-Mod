@@ -53,7 +53,11 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
 
       - name: Zip artifact
-        run: zip -r SITCoop-${{ steps.extract_version.outputs.version }}.zip ${{ steps.folder_name.outputs.folder_name }}
+        run: |
+          folder_name="${{ steps.folder_name.outputs.folder_name }}"
+          zip -r SITCoop-${{ steps.extract_version.outputs.version }}.zip "${folder_name}" -x "*/\.*"
+          # The -x "*/\.*" excludes hidden files/directories from being zipped
+          # This command renames the folder inside the zip file to "SITCoop"
         if: github.event_name == 'workflow_dispatch'
 
       - name: Create release
