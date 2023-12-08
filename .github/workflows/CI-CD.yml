@@ -34,19 +34,35 @@ jobs:
         with:
           name: SITCoop
           path: ./SITCoop
+        if: github.event_name == 'workflow_dispatch'
 
+      - name: Get folder name
+        id: folder_name
+        run: |
+          folder_name=$(find SITCoop* -maxdepth 0 -type d)
+          echo "::set-output name=folder_name::$folder_name"
+        shell: bash
+        if: github.event_name == 'workflow_dispatch'
+
+      - name: Extract version from folder name
+        id: extract_version
+        run: |
+          version=$(echo "${{ steps.folder_name.outputs.folder_name }}" | awk -F '[-]' '{print $2}')
+          echo "::set-output name=version::$version"
+        shell: bash
         if: github.event_name == 'workflow_dispatch'
 
       - name: Zip artifact
-        run: zip -r SITCoop.zip SITCoop
+        run: zip -r SITCoop-${{ steps.extract_version.outputs.version }}.zip ${{ steps.folder_name.outputs.folder_name }}
+        if: github.event_name == 'workflow_dispatch'
 
       - name: Create release
         uses: softprops/action-gh-release@v1
         if: github.event_name == 'workflow_dispatch'
         with:
-          tag_name: v${{ github.event.inputs.version }}
-          name: SITCoop
-          files: SITCoop.zip
+          tag_name: ${{ steps.extract_version.outputs.version }}
+          name: SITCoop-${{ steps.extract_version.outputs.version }}
+          files: SITCoop-${{ steps.extract_version.outputs.version }}.zip
           generate_release_notes: true
           draft: true
           token: ${{ secrets.GITHUB_TOKEN }}
