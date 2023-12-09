@@ -31,8 +31,8 @@ jobs:
         run: npm run build
 
       - name: Version update
-        run: npm updateVersion
-      
+        run: node updateVersion.js
+
       - name: Read package.json
         id: read_package_json
         run: echo "::set-output name=version::$(node -e 'console.log(require("./package.json").version)')"
