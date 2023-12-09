@@ -9,19 +9,19 @@ const zip = require('bestzip');
 const path = require("path");
 
 // Function to update version using updateVersion.js script
-function updateVersion() {
-    const { execSync } = require('child_process');
+//function updateVersion() {
+//    const { execSync } = require('child_process');
 
-    try {
-        execSync('node updateVersion.js', { stdio: 'inherit' });
-        console.log('Version updated successfully.');
-    } catch (error) {
-        console.error('Error updating version:', error);
-    }
-}
+//    try {
+//        execSync('node updateVersion.js', { stdio: 'inherit' });
+//        console.log('Version updated successfully.');
+//    } catch (error) {
+//        console.error('Error updating version:', error);
+//    }
+//}
 
 // Call the updateVersion function before the build process
-updateVersion();
+// updateVersion();
 
 // Load the package.json file to get some information about the package so we can name things appropriately. This is
 // atypical, and you would never do this in a production environment, but this script is only used for development so
