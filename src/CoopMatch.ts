@@ -7,6 +7,9 @@ import { CoopConfig } from "./CoopConfig";
 import { friendlyAI } from "./FriendlyAI";
 import { StayInTarkovMod } from "./StayInTarkovMod";
 import { WebSocketHandler } from "./WebSocketHandler";
+import { ILocationBase } from "@spt-aki/models/eft/common/ILocationBase";
+import { LocationController } from "@spt-aki/controllers/LocationController";
+import { IGetLocationRequestData } from "@spt-aki/models/eft/location/IGetLocationRequestData";
 
 export enum CoopMatchStatus {
     Loading,
@@ -58,11 +61,11 @@ export class CoopMatch {
     /** The Connected User Profiles. */
     public ConnectedUsers: string[] = [];
 
+    /** Authorized Users (for password protection) */
     public AuthorizedUsers: string[] = [];
 
     /** All characters in the game. Including AI */
     public Characters: any[] = [];
-
 
     LastDataByProfileId: Record<string, Record<string, Record<string, any>>> = {};
 
@@ -78,7 +81,7 @@ export class CoopMatch {
 
     Status: CoopMatchStatus = CoopMatchStatus.Loading;
     Settings: any = {};
-    Loot: any = {};
+    LocationData: ILocationBase;
     Location: string;
     Time: string;
     WeatherSettings: any;
@@ -95,6 +98,7 @@ export class CoopMatch {
 
     public static saveServer: SaveServer;
 
+    public static locationController: LocationController;
 
     public constructor(inData: any) {
 
@@ -115,8 +119,15 @@ export class CoopMatch {
             delete CoopMatch.CoopMatches[inData.serverId];
         }
 
+        // Generate match location data (Loot)
+        this.LocationData = CoopMatch.locationController.get("", 
+        {
+            crc: 0, /* unused */
+            locationId: this.Location,
+            variantId: 0 /* unused */
+        });
+
         // This checks to see if the WebSockets can still be communicated with. If it cannot for any reason. The match/raid/session will close down.
-       
         this.CheckStartTimeout = setTimeout(() => {
             this.CheckStillRunningInterval = setInterval(() => {
 
@@ -125,9 +136,7 @@ export class CoopMatch {
                 }
     
             }, CoopConfig.Instance.webSocketTimeoutSeconds * 1000);
-        }, CoopConfig.Instance.webSocketTimeoutCheckStartSeconds * 1000);
-    
-        
+        }, CoopConfig.Instance.webSocketTimeoutCheckStartSeconds * 1000);        
     }
 
     public ProcessData(info: any, logger: ILogger) {
@@ -307,10 +316,9 @@ export class CoopMatch {
         clearTimeout(this.CheckStartTimeout);
         clearInterval(this.CheckStillRunningInterval);
 
-        delete CoopMatch.CoopMatches[this.ServerId];
+        this.LocationData = null;
 
-        // Clear out Location Data after match has ended
-        StayInTarkovMod.Instance.locationData = {};
+        delete CoopMatch.CoopMatches[this.ServerId];
     }
 
     public static routeHandler(container: tsyringe.DependencyContainer) {
