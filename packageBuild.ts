@@ -31,14 +31,15 @@ const ignoreList = [
     "src/**/*.js",
     "types/",
     ".git/",
-    ".github/",
     ".gitea/",
     ".eslintignore",
     ".eslintrc.json",
     ".gitignore",
     ".DS_Store",
+    "packageBuild.ts",
     "mod.code-workspace",
     "package-lock.json",
+    "tsconfig.json"
 ];
 const exclude = glob.sync(`{${ignoreList.join(",")}}`, { realpath: true, dot: true });
 
@@ -59,9 +60,20 @@ console.log("Dist folder removed.");
 
 // Remove additional files and folders from SITCoop folder
 const filesToRemove = [
+    "node_modules/",
+    // "node_modules/!(weighted|glob)", // Instead of excluding the entire node_modules directory, allow two node modules.
+    "src/**/*.js",
+    "types/",
+    ".git/",
+    ".gitea/",
+    ".eslintignore",
+    ".eslintrc.json",
     ".gitignore",
+    ".DS_Store",
+    "packageBuild.ts",
     "mod.code-workspace",
-    ".github",
+    "package-lock.json",
+    "tsconfig.json"
 ];
   
 filesToRemove.forEach((file) => {

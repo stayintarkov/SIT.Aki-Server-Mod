@@ -30,12 +30,10 @@ jobs:
 
       - name: Build
         run: npm run build
-      
-      
+          
       - name: Read package.json
         id: read_package_json
         run: echo "::set-output name=version::$(node -e 'console.log(require("./package.json").version)')"
-        if: github.event_name == 'workflow_dispatch'
 
       - name: Create artifact
         uses: actions/upload-artifact@v2
