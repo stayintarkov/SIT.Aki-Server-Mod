@@ -29,7 +29,9 @@ jobs:
 
       - name: Build
         run: npm run build
-
+      
+        if: github.event_name == 'workflow_dispatch'
+      
       - name: Read package.json
         id: read_package_json
         run: echo "::set-output name=version::$(node -e 'console.log(require("./package.json").version)')"
@@ -39,9 +41,7 @@ jobs:
         with:
           name: SITCoop
           path: ./SITCoop
-      
-        if: github.event_name == 'workflow_dispatch'
-      
+
       - name: Zip artifact
         run: |
           folder_name=$(find SITCoop* -maxdepth 0 -type d)
