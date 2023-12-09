@@ -60,13 +60,10 @@ console.log("Dist folder removed.");
 
 // Remove additional files and folders from SITCoop folder
 const filesToRemove = [
-    "node_modules/",
     // "node_modules/!(weighted|glob)", // Instead of excluding the entire node_modules directory, allow two node modules.
     ".github/",
     ".git/",
     ".gitea/",
-    ".eslintignore",
-    ".eslintrc.json",
     ".gitignore",
 ];
   
