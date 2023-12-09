@@ -37,14 +37,8 @@ const ignoreList = [
     ".eslintrc.json",
     ".gitignore",
     ".DS_Store",
-    "packageBuild.ts",
     "mod.code-workspace",
     "package-lock.json",
-    "tsconfig.json",
-    ".github",
-    ".gitignore",
-    "packageBuild.ts",
-    "updateVersion.js"
 ];
 const exclude = glob.sync(`{${ignoreList.join(",")}}`, { realpath: true, dot: true });
 
@@ -68,9 +62,6 @@ const filesToRemove = [
     ".gitignore",
     "mod.code-workspace",
     "package-lock.json",
-    "package.json",
-    "packageBuild.ts",
-    "updateVersion.js",
     ".github",
     "node_modules",
     ".elintignore",
