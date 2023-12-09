@@ -8,20 +8,6 @@ const glob = require("glob");
 const zip = require('bestzip');
 const path = require("path");
 
-// Function to update version using updateVersion.js script
-//function updateVersion() {
-//    const { execSync } = require('child_process');
-//    try {
-//        execSync('node updateVersion.js', { stdio: 'inherit' });
-//        console.log('Version updated successfully.');
-//    } catch (error) {
-//        console.error('Error updating version:', error);
-//    }
-//}
-
-// Call the updateVersion function before the build process
-// updateVersion();
-
 // Load the package.json file to get some information about the package so we can name things appropriately. This is
 // atypical, and you would never do this in a production environment, but this script is only used for development so
 // it's fine in this case. Some of these values are stored in environment variables, but those differ between node
@@ -29,7 +15,7 @@ const path = require("path");
 const { author, name:packageName, version } = require("./package.json");
 
 // Generate the name of the package, stripping out all non-alphanumeric characters in the 'author' and 'name'.
-const modName = "SITCoop-" + version;
+const modName = "SITCoop";
 console.log(`Generated package name: ${modName}`);
 
 // Delete the old build directory and compressed package file.

@@ -27,9 +27,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Version update
-        run: node updateVersion.js
-
       - name: Build
         run: npm run build
 
@@ -40,8 +37,8 @@ jobs:
       - name: Create artifact
         uses: actions/upload-artifact@v2
         with:
-          name: SITCoop-${{ steps.read_package_json.outputs.version }}
-          path: ./SITCoop-${{ steps.read_package_json.outputs.version }}
+          name: SITCoop
+          path: ./SITCoop
       
         if: github.event_name == 'workflow_dispatch'
       
@@ -49,7 +46,7 @@ jobs:
         run: |
           folder_name=$(find SITCoop* -maxdepth 0 -type d)
           cd "$(dirname "${folder_name}")"
-          zip -r SITCoop-${{ steps.read_package_json.outputs.version }}.zip "$(basename "${folder_name}")" -x "*/\.*"      
+          zip -r SITCoop.zip "$(basename "${folder_name}")" -x "*/\.*"      
         if: github.event_name == 'workflow_dispatch'
       
       - name: Create release
@@ -58,7 +55,7 @@ jobs:
         with:
           tag_name: ${{ steps.read_package_json.outputs.version }}
           name: SITCoop-${{ steps.read_package_json.outputs.version }}
-          files: SITCoop-${{ steps.read_package_json.outputs.version }}.zip
+          files: SITCoop.zip
           generate_release_notes: true
           draft: true
           token: ${{ secrets.GITHUB_TOKEN }}
