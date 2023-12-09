@@ -1,4 +1,4 @@
-name: Node.js CI/CD
+name: SIT Server Mod CI/CD
 
 on:
   pull_request:
