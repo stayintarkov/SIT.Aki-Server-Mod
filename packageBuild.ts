@@ -43,7 +43,6 @@ const ignoreList = [
     "tsconfig.json",
     ".github",
     ".gitignore",
-    "package.json",
     "packageBuild.ts",
     "updateVersion.js"
 ];
