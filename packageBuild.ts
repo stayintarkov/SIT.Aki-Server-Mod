@@ -61,11 +61,7 @@ console.log("Dist folder removed.");
 const filesToRemove = [
     ".gitignore",
     "mod.code-workspace",
-    "package-lock.json",
     ".github",
-    "node_modules",
-    ".elintignore",
-    ".eslintrc.json",
 ];
   
 filesToRemove.forEach((file) => {
