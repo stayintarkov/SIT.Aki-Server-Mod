@@ -11,7 +11,6 @@ const path = require("path");
 // Function to update version using updateVersion.js script
 //function updateVersion() {
 //    const { execSync } = require('child_process');
-
 //    try {
 //        execSync('node updateVersion.js', { stdio: 'inherit' });
 //        console.log('Version updated successfully.');
