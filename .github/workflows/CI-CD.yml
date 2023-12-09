@@ -29,44 +29,31 @@ jobs:
       - name: Build
         run: npm run build
       
-      - name: Get folder name
-        id: folder_name
-        run: |
-          folder_name=$(find SITCoop* -maxdepth 0 -type d)
-          echo "::set-output name=folder_name::$folder_name"
-        shell: bash
-        if: github.event_name == 'workflow_dispatch'
-
-      - name: Extract version from folder name
-        id: extract_version
-        run: |
-          version=$(echo "${{ steps.folder_name.outputs.folder_name }}" | awk -F '[-]' '{print $2}')
-          echo "::set-output name=version::$version"
-        shell: bash
-        if: github.event_name == 'workflow_dispatch'
-
+      - name: Read package.json
+        id: read_package_json
+        run: echo "::set-output name=version::$(node -e 'console.log(require("./package.json").version)')"
+      
       - name: Create artifact
         uses: actions/upload-artifact@v2
         with:
-          name: SITCoop-${{ steps.extract_version.outputs.version }}
-          path: ./SITCoop-${{ steps.extract_version.outputs.version }}
+          name: SITCoop-${{ steps.read_package_json.outputs.version }}
+          path: ./SITCoop-${{ steps.read_package_json.outputs.version }}
         if: github.event_name == 'workflow_dispatch'
-
+      
       - name: Zip artifact
         run: |
           folder_name=$(find SITCoop* -maxdepth 0 -type d)
           cd "$(dirname "${folder_name}")"
-          zip -r SITCoop-${{ steps.extract_version.outputs.version }}.zip "$(basename "${folder_name}")" -x "*/\.*"      
-      
+          zip -r SITCoop-${{ steps.read_package_json.outputs.version }}.zip "$(basename "${folder_name}")" -x "*/\.*"      
         if: github.event_name == 'workflow_dispatch'
       
       - name: Create release
         uses: softprops/action-gh-release@v1
         if: github.event_name == 'workflow_dispatch'
         with:
-          tag_name: ${{ steps.extract_version.outputs.version }}
-          name: SITCoop-${{ steps.extract_version.outputs.version }}
-          files: SITCoop-${{ steps.extract_version.outputs.version }}.zip
+          tag_name: ${{ steps.read_package_json.outputs.version }}
+          name: SITCoop-${{ steps.read_package_json.outputs.version }}
+          files: SITCoop-${{ steps.read_package_json.outputs.version }}.zip
           generate_release_notes: true
           draft: true
           token: ${{ secrets.GITHUB_TOKEN }}
