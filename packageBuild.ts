@@ -69,11 +69,6 @@ const filesToRemove = [
     ".eslintignore",
     ".eslintrc.json",
     ".gitignore",
-    ".DS_Store",
-    "packageBuild.ts",
-    "mod.code-workspace",
-    "package-lock.json",
-    "tsconfig.json"
 ];
   
 filesToRemove.forEach((file) => {
