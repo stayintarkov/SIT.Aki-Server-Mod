@@ -87,8 +87,11 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         const logger = container.resolve<ILogger>("WinstonLogger");
         this.saveServer = container.resolve<SaveServer>("SaveServer");
         this.configServer = container.resolve<ConfigServer>("ConfigServer");
+        this.bundleCallbacks = container.resolve<BundleCallbacks>("BundleCallbacks");
+
         CoopMatch.saveServer = this.saveServer;
         CoopMatch.routeHandler(container);
+
         // get http.json config
         this.httpConfig = this.configServer.getConfig(ConfigTypes.HTTP);
         this.coopConfig = new CoopConfig();
@@ -196,6 +199,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                         return output;
                     }
                 ),
+                /* Fix for downloading bundle files with extension not ending with .bundle */
                 new RouteAction(
                     "/files/bundle",
                     // eslint-disable-next-line @typescript-eslint/no-unused-vars
