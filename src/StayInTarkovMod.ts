@@ -1,9 +1,7 @@
 import tsyringe = require("tsyringe");
 
-import { LocationController } from "@spt-aki/controllers/LocationController";
 import { SaveServer } from "@spt-aki/servers/SaveServer";
 import { HttpResponseUtil } from "@spt-aki/utils/HttpResponseUtil";
-import { BundleCallbacks } from "@spt-aki/callbacks/BundleCallbacks";
 
 import type { IPreAkiLoadMod } from "@spt-aki/models/external/IPreAkiLoadMod";
 import type { ILogger } from "@spt-aki/models/spt/utils/ILogger";
@@ -32,16 +30,21 @@ import AzureWAH = require("./AzureWebAppHelper");
 import { CoopMatchResponse } from "./CoopMatchResponse";
 import { friendlyAI } from "./FriendlyAI";
 import { SITCustomTraders } from "./Traders/SITCustomTraders";
-
 // -------------------------------------------------------------------------
 
 // Overrides ---------------------------------------------------------------
 import { BundleLoaderOverride } from "./Overrides/BundleLoaderOverride";
 import { LauncherControllerOverride } from "./Overrides/LauncherControllerOverride";
 import { GameControllerOverride } from "./Overrides/GameControllerOverride";
-import { LocationCallbacksOverride } from "./Overrides/LocationCallbacksOverride";
-import { LocationControllerOverride } from "./Overrides/LocationControllerOverride";
+// -------------------------------------------------------------------------
 
+// Controllers -------------------------------------------------------------
+import { LocationController } from "@spt-aki/controllers/LocationController";
+// -------------------------------------------------------------------------
+
+// Callbacks ---------------------------------------------------------------
+import { BundleCallbacks } from "@spt-aki/callbacks/BundleCallbacks";
+import { InraidCallbacks } from "@spt-aki/callbacks/InraidCallbacks";
 // -------------------------------------------------------------------------
 
 @tsyringe.injectable()
@@ -60,6 +63,8 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
     configServer: ConfigServer;
     httpConfig: any;
     bundleCallbacks: BundleCallbacks;
+    locationController: LocationController;
+    inraidCallbacks: InraidCallbacks;
 
     public traders: any[] = [];
 
@@ -76,7 +81,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         }
 
         return CoopMatch.CoopMatches[serverId];
-    } 
+    }
 
     private InitializeVariables(container: tsyringe.DependencyContainer): void { 
         // ----------------------------------------------------------------
@@ -88,8 +93,11 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         this.saveServer = container.resolve<SaveServer>("SaveServer");
         this.configServer = container.resolve<ConfigServer>("ConfigServer");
         this.bundleCallbacks = container.resolve<BundleCallbacks>("BundleCallbacks");
+        this.inraidCallbacks = container.resolve<InraidCallbacks>("InraidCallbacks");
+        this.httpResponse = container.resolve<HttpResponseUtil>("HttpResponseUtil");
 
         CoopMatch.saveServer = this.saveServer;
+        CoopMatch.locationController = this.locationController;
         CoopMatch.routeHandler(container);
 
         // get http.json config
@@ -128,14 +136,6 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         const launcherControllerOverride = new LauncherControllerOverride(container, gameControllerOverride, this.coopConfig, this.httpConfig);
         launcherControllerOverride.override();
 
-        // ----------------------- Location Callbacks overrides -------------------------------------------------
-        const locationCallbacksOverride = new LocationCallbacksOverride(container);
-        locationCallbacksOverride.override();
-
-        // ----------------------- Location Controller overrides -------------------------------------------------
-        const locationControllerOverride = new LocationControllerOverride(container);
-        locationControllerOverride.override();
-
         // ----------------------- TODO: Azure WebApp Helper (trying to fix this ASAP) ------------------------------------------------
         new AzureWAH.AzureWebAppHelper(this.configServer);
 
@@ -155,6 +155,31 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         dynamicRouterModService.registerDynamicRouter(
             "sit-coop-loot",
             [
+                // Re-implementation of /client/location/getLocalloot for SIT Coop.
+                // Single player uses the default route.
+                new RouteAction(
+                    "/coop/location/getLoot",
+                    (url: string, info: any, sessionID: string, output: string): any =>
+                    {
+                        const coopMatch = this.getCoopMatch(info.serverId);
+
+                        if(coopMatch === undefined)
+                        {
+                            console.error(`Cannot retrieve LocationData for unknown ServerId: ${info.serverId}!`);
+                            return this.httpResponse.nullResponse();
+                        }
+
+                        if(coopMatch.LocationData === undefined)
+                        {
+                            console.error(`No LocationData found in server ${coopMatch.ServerId}!`);
+                            return this.httpResponse.nullResponse();
+                        }
+
+                        this.inraidCallbacks.registerPlayer(url, info, sessionID);
+
+                        return this.httpResponse.getBody(coopMatch.LocationData);
+                    }
+                ),
                 new RouteAction(
                     "/coop/server/spawnPoint",
                     // eslint-disable-next-line @typescript-eslint/no-unused-vars
