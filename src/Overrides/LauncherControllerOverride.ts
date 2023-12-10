@@ -2,7 +2,7 @@ import { DependencyContainer } from "tsyringe";
 import { ILoginRequestData } from "@spt-aki/models/eft/launcher/ILoginRequestData";
 import { SaveServer } from "@spt-aki/servers/SaveServer";
 import { LauncherController } from "@spt-aki/controllers/LauncherController";
-import { CoopConfig } from "src/CoopConfig";
+import { CoopConfig } from "./../CoopConfig";
 import { GameControllerOverride } from "./GameControllerOverride";
 
 export class LauncherControllerOverride
