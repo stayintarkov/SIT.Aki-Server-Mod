@@ -92,6 +92,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         const logger = container.resolve<ILogger>("WinstonLogger");
         this.saveServer = container.resolve<SaveServer>("SaveServer");
         this.configServer = container.resolve<ConfigServer>("ConfigServer");
+        this.locationController = container.resolve<LocationController>("LocationController");
         this.bundleCallbacks = container.resolve<BundleCallbacks>("BundleCallbacks");
         this.inraidCallbacks = container.resolve<InraidCallbacks>("InraidCallbacks");
         this.httpResponse = container.resolve<HttpResponseUtil>("HttpResponseUtil");
