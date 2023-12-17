@@ -1,18 +1,60 @@
-name: Node.js CI
+name: SIT Server Mod CI/CD
 
-on: [push]
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+      - reopened
+  workflow_dispatch:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
+    permissions:
+      packages: write
+      contents: write
+
     steps:
-      - uses: actions/checkout@v4
-      - name: Use Node.js
-        uses: actions/setup-node@v3
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
         with:
           node-version: '18.15.0'
-      - run: npm ci
-      - run: npm run build --if-present
-      - run: npm test
+
+      - name: Install dependencies
+        run: |
+          npm ci
+          npm i
+
+      - name: Build
+        run: npm run build
+          
+      - name: Read package.json
+        id: read_package_json
+        run: echo "::set-output name=version::$(node -e 'console.log(require("./package.json").version)')"
+
+      - name: Create artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: SITCoop.zip
+          path: ./SITCoop
+        if: github.event_name != 'workflow_dispatch'
+
+      - name: Compress SITCoop folder
+        run: zip -r SITCoop.zip ./SITCoop
+        if: github.event_name == 'workflow_dispatch'
+      
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        if: github.event_name == 'workflow_dispatch'
+        with:
+          tag_name: ${{ steps.read_package_json.outputs.version }}
+          name: SITCoop-${{ steps.read_package_json.outputs.version }}
+          files: SITCoop.zip
+          generate_release_notes: true
+          draft: true
+          token: ${{ secrets.GITHUB_TOKEN }}
