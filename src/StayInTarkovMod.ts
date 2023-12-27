@@ -13,7 +13,6 @@ import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
 import { IGetLocationRequestData } from "@spt-aki/models/eft/location/IGetLocationRequestData";
 import { CoopConfig } from "./CoopConfig";
 import { CoopMatch, CoopMatchEndSessionMessages, CoopMatchStatus } from "./CoopMatch";
-import { ExternalIPFinder } from "./ExternalIPFinder";
 import { WebSocketHandler } from "./WebSocketHandler";
 
 import { RouteAction } from "@spt-aki/di/Router";
@@ -29,7 +28,6 @@ import AzureWAH = require("./AzureWebAppHelper");
 // Custom Traders (needs to be refactored into SITCustomTraders.ts)
 import { CoopMatchResponse } from "./CoopMatchResponse";
 import { friendlyAI } from "./FriendlyAI";
-import { SITCustomTraders } from "./Traders/SITCustomTraders";
 // -------------------------------------------------------------------------
 
 // Overrides ---------------------------------------------------------------
@@ -57,7 +55,6 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
     protected httpResponse: HttpResponseUtil;
     databaseServer: DatabaseServer;
     public webSocketHandler: WebSocketHandler;
-    public externalIPFinder: ExternalIPFinder;
     public coopConfig: CoopConfig;
     public sitConfig: SITConfig;
     configServer: ConfigServer;
@@ -109,7 +106,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         this.webSocketHandler = new WebSocketHandler(this.coopConfig.webSocketPort, logger);
 
         // this.traders.push(new SITCustomTraders(), new CoopGroupTrader(), new UsecTrader(), new BearTrader());
-        this.traders.push(new SITCustomTraders());
+        // this.traders.push(new SITCustomTraders());
     }
 
     public preAkiLoad(container: tsyringe.DependencyContainer): void {
