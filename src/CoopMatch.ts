@@ -265,7 +265,8 @@ export class CoopMatch {
 
     public PlayerJoined(profileId: string) {
         
-        if(profileId.startsWith("pmc") && this.ConnectedUsers.findIndex(x => x == profileId) === -1) {
+        // if(profileId.startsWith("pmc") && this.ConnectedUsers.findIndex(x => x == profileId) === -1) {
+        if(this.ConnectedUsers.findIndex(x => x == profileId) === -1) {
 
             console.log(`Checking server authorization for profile: ${profileId}`);
 
