@@ -104,14 +104,23 @@ export class WebSocketHandler {
             // console.log(`received ${msgStr}`);
             const messageWithoutSITPrefix = msgStr.substring(3, msgStr.length);
             // const serverId = messageWithoutSITPrefix.substring(0, 24); // get serverId (MongoIds are 24 characters)
-            const serverId = messageWithoutSITPrefix.substring(0, 27); // get serverId post 0.13.5.0.* these are 27 (pmc{Id})
+            
+            // Post 0.13.5.0.*
+            // const serverId = messageWithoutSITPrefix.substring(0, 27); // get serverId post 0.13.5.0.* these are 27 (pmc{Id})
+
+            // Post 0.14.*, yes thats right, we are back to 24 chars again
+            const serverId = messageWithoutSITPrefix.substring(0, 24); // get serverId (MongoIds are 24 characters)
             // console.log(`server Id is ${serverId}`);
 
-            const messageWithoutSITPrefixes = messageWithoutSITPrefix.substring(27, messageWithoutSITPrefix.length); 
+            // the last chunk will be the method, the ?, and other data
+            const messageWithoutSITPrefixes = messageWithoutSITPrefix.substring(24, messageWithoutSITPrefix.length); 
 
             const match = CoopMatch.CoopMatches[serverId];
             if(match !== undefined) {
                 match.ProcessData(messageWithoutSITPrefixes, this.logger);
+            }
+            else {
+                console.log(`couldn't find match ${serverId}`);
             }
             return;
         }
