@@ -117,7 +117,13 @@ export class WebSocketHandler {
 
             const match = CoopMatch.CoopMatches[serverId];
             if(match !== undefined) {
-                match.ProcessData(messageWithoutSITPrefixes, this.logger);
+                // match.ProcessData(messageWithoutSITPrefixes, this.logger);
+                const method = messageWithoutSITPrefixes.substring(1, messageWithoutSITPrefixes.indexOf('?'));
+                let d = messageWithoutSITPrefixes.substring(messageWithoutSITPrefixes.indexOf('?')).replace('?', '')
+                d = d.replace(method, ""); // remove method
+                // d = d.substring(1); // remove method length prefix
+                const resultObj = { m: method, data: d, fullData: msgStr };
+                WebSocketHandler.Instance.sendToWebSockets(match.ConnectedUsers, JSON.stringify(resultObj));
             }
             else {
                 console.log(`couldn't find match ${serverId}`);
@@ -162,6 +168,22 @@ export class WebSocketHandler {
     }
 
     public sendToWebSockets(sessions: string[], data: string) {
+        for(let session of sessions) {
+            if(this.webSockets[session] !== undefined)
+            {
+                if (this.webSockets[session].readyState === WebSocket.OPEN) 
+                {
+                    this.webSockets[session].send(data);
+                }
+                else 
+                {
+                    delete this.webSockets[session];
+                }
+            }
+        }
+    }
+
+    public sendToWebSocketsAsArray(sessions: string[], data: ArrayBuffer) {
         for(let session of sessions) {
             if(this.webSockets[session] !== undefined)
             {
