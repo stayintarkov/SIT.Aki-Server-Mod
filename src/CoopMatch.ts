@@ -250,7 +250,7 @@ export class CoopMatch {
 		
         // this.PreviousSentData.push(serializedData);
 
-        console.log(info);
+        // console.log(info);
 
         WebSocketHandler.Instance.sendToWebSockets(this.ConnectedUsers, serializedData);
     }
