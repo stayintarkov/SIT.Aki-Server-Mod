@@ -36,10 +36,12 @@ export class CoopMatch {
 
     /** The state of the match. */
     State: any;
-    /** The IP of the match. Unused. */
-    Ip: string;
-    /** The Port of the match. Unused. */
-    Port: string;
+
+    /* Host Info */
+    PublicIP: string;
+    PublicPort: number;
+    NatPunchPort: number;
+    UpnpPort: number;
 
     /** The expected number of players. Used to hold the match before starting. Unused. */
     ExpectedNumberOfPlayers: number = 1;

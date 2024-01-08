@@ -43,6 +43,7 @@ import { LocationController } from "@spt-aki/controllers/LocationController";
 // Callbacks ---------------------------------------------------------------
 import { BundleCallbacks } from "@spt-aki/callbacks/BundleCallbacks";
 import { InraidCallbacks } from "@spt-aki/callbacks/InraidCallbacks";
+import { P2PConnectionHandler } from "./P2PConnectionHandler";
 // -------------------------------------------------------------------------
 
 @tsyringe.injectable()
@@ -55,6 +56,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
     protected httpResponse: HttpResponseUtil;
     databaseServer: DatabaseServer;
     public webSocketHandler: WebSocketHandler;
+    public p2pConnectionHandler: P2PConnectionHandler;
     public coopConfig: CoopConfig;
     public sitConfig: SITConfig;
     configServer: ConfigServer;
@@ -104,6 +106,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         this.sitConfig = new SITConfig();
         this.sitConfig.routeHandler(container);
         this.webSocketHandler = new WebSocketHandler(this.coopConfig.webSocketPort, logger);
+        this.p2pConnectionHandler = new P2PConnectionHandler(6972, logger);
 
         // this.traders.push(new SITCustomTraders(), new CoopGroupTrader(), new UsecTrader(), new BearTrader());
         // this.traders.push(new SITCustomTraders());
@@ -250,8 +253,10 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                             const m = CoopMatch.CoopMatches[itemKey];
 
                             // Filter out Raids that have Not Started or Empty
-                            if(m.ConnectedPlayers.length === 0)
-                                continue;
+
+                            // TEMP FOR UDP TESTING
+                            //if(m.ConnectedPlayers.length === 0)
+                                //continue;
 
                             // Filter out Raids that are on a different time
                             if (m.Time != info.timeVariant)
