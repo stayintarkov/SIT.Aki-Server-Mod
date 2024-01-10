@@ -335,7 +335,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                             { 
                             serverId:  info.serverId,
                             serverType: CoopMatch.CoopMatches[info.serverId].ServerType,
-                            serverPort: CoopMatch.CoopMatches[info.serverId].ServerPort,
+                            serverPort: CoopMatch.CoopMatches[info.serverId].ServerUdpPort,
                         });
                         return output;
                     }
@@ -464,7 +464,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                             { 
                                 serverId: coopMatch.ServerId,
                                 serverType: coopMatch.ServerType,
-                                serverPort: coopMatch.ServerPort,
+                                serverPort: coopMatch.ServerUdpPort,
                                 timestamp: coopMatch.Timestamp,
                                 expectedNumberOfPlayers: coopMatch.ExpectedNumberOfPlayers,
                                 sitVersion: coopMatch.SITVersion,

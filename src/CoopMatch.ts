@@ -30,7 +30,7 @@ export class CoopMatch {
 
     ServerType: string;
 
-    ServerPort: number;
+    ServerUdpPort: number;
 
     /** The time the match was created. Useful for clearing out old matches. */
     CreatedDateTime: Date = new Date();
@@ -103,8 +103,8 @@ export class CoopMatch {
     public constructor(inData: any) {
 
         this.ServerId = inData.serverId;
-        this.ServerType = CoopConfig.Instance.serverType;
-        this.ServerPort = this.ServerType == "relay" ? CoopConfig.Instance.webSocketPort : CoopConfig.Instance.udpPort;
+        this.ServerType = inData.serverType;
+        this.ServerUdpPort =  inData.serverUdpPort;
 
         this.Status = CoopMatchStatus.Loading;
         this.CreatedDateTime = new Date(Date.now());

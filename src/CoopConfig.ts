@@ -6,7 +6,6 @@ export class CoopConfig {
     public serverType: string;
     public webSocketPort: number;
     public p2pConnectionHelperPort: number;
-    public udpPort: number;
     public webSocketUseHttps: boolean;
     public webSocketTimeoutSeconds: number;
     public webSocketTimeoutCheckStartSeconds: number;
@@ -17,7 +16,6 @@ export class CoopConfig {
         this.serverType = "relay";
         this.webSocketPort = 6970;
         this.p2pConnectionHelperPort = 6971;
-        this.udpPort = 6972;
         this.webSocketUseHttps = false;
         this.webSocketTimeoutSeconds = 5;
         this.webSocketTimeoutCheckStartSeconds = 120;
