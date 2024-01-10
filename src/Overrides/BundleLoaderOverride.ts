@@ -51,6 +51,9 @@ export class BundleLoaderOverride
 
     public getBundle(key: string, local: boolean): BundleInfo
     {
+        //decode the bundle key name to support spaces, etc.
+        key = decodeURI(key);
+        
         const bundle = this.jsonUtil.clone(this.bundles[key]);
 
         if (local)
