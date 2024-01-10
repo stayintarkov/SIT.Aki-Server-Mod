@@ -3,19 +3,22 @@ import path from "path";
 
 export class CoopConfig {
 
-    public protocol: string;
-    public externalIP: string;
+    public serverType: string;
     public webSocketPort: number;
-    //public useExternalIPFinder: boolean;
+    public p2pConnectionHelperPort: number;
+    public udpPort: number;
+    public webSocketUseHttps: boolean;
     public webSocketTimeoutSeconds: number;
     public webSocketTimeoutCheckStartSeconds: number;
+
     public static Instance: CoopConfig;
 
     constructor() {
-        this.protocol = "http";
-        this.externalIP = "127.0.0.1";
+        this.serverType = "relay";
         this.webSocketPort = 6970;
-        //this.useExternalIPFinder = true;
+        this.p2pConnectionHelperPort = 6971;
+        this.udpPort = 6972;
+        this.webSocketUseHttps = false;
         this.webSocketTimeoutSeconds = 5;
         this.webSocketTimeoutCheckStartSeconds = 120;
 

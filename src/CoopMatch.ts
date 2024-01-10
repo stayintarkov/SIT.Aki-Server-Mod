@@ -28,6 +28,10 @@ export class CoopMatch {
     /** The ServerId. The ProfileId of the host player. */
     ServerId: string;
 
+    ServerType: string;
+
+    ServerPort: number;
+
     /** The time the match was created. Useful for clearing out old matches. */
     CreatedDateTime: Date = new Date();
 
@@ -36,12 +40,6 @@ export class CoopMatch {
 
     /** The state of the match. */
     State: any;
-
-    /* Host Info */
-    PublicIP: string;
-    PublicPort: number;
-    NatPunchPort: number;
-    UpnpPort: number;
 
     /** The expected number of players. Used to hold the match before starting. Unused. */
     ExpectedNumberOfPlayers: number = 1;
@@ -105,6 +103,9 @@ export class CoopMatch {
     public constructor(inData: any) {
 
         this.ServerId = inData.serverId;
+        this.ServerType = CoopConfig.Instance.serverType;
+        this.ServerPort = this.ServerType == "relay" ? CoopConfig.Instance.webSocketPort : CoopConfig.Instance.udpPort;
+
         this.Status = CoopMatchStatus.Loading;
         this.CreatedDateTime = new Date(Date.now());
         this.LastUpdateDateTime = new Date(Date.now());

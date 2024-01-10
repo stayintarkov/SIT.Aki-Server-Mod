@@ -101,41 +101,33 @@ export class P2PConnectionHandler {
 
         const msgSplit = msgStr.split(":");
 
-        if(msgSplit[0] == "server_endpoints")
+        if(msgSplit[0] == "punch_request")
         {
-            // server_endpoints:serverId:stunIp:stunPort:upnpIp:upnpPort:portforwardingIp:portforwardingPort
-
-            const serverId = msgSplit[1];
-            const stunIp = msgSplit[2];
-            const stunPort = msgSplit[3];
-            const upnpIp = msgSplit[4];
-            const upnpPort = msgSplit[5];
-            const portForwardingIp = msgSplit[6];
-            const portForwardingPort = msgSplit[7];
-
-            this.serverEndpoints[serverId] = new EndPoints(stunIp, Number.parseInt(stunPort), upnpIp, Number.parseInt(upnpPort), portForwardingIp, Number.parseInt(portForwardingPort));
-
-            return;
-        }
-
-        if(msgSplit[0] == "punch")
-        {
-            // punch:serverId:profileId:clientPublicIp:clientPublicPort
+            // punch_request:serverId:profileId:clientPublicIp:clientPublicPort
 
             const serverId = msgSplit[1];
             const profileId = msgSplit[2];
             const clientPublicIp = msgSplit[3];
             const clientPublicPort = msgSplit[4];
 
-            const serverEndpoint = this.serverEndpoints[serverId];
-
             // send punch to server (server punches client NAT)
-            this.webSockets[serverId].send(`punch:${clientPublicIp}:${clientPublicPort}`);
+            this.webSockets[serverId].send(`punch_request:${profileId}:${clientPublicIp}:${clientPublicPort}`);
 
             // send punch to client (client punches server NAT)
-            this.webSockets[profileId].send(`punch:${serverEndpoint.StunIp}:${serverEndpoint.StunPort}`);
+            //this.webSockets[profileId].send(`punch:${serverEndpoint.StunIp}:${serverEndpoint.StunPort}`);
 
             return;
+        }
+
+        if(msgSplit[0] == "punch_response")
+        {
+            // punch_response:profileId:serverIp:serverPort
+
+            const profileId = msgSplit[1];
+            const serverIp = msgSplit[2];
+            const serverPort = msgSplit[3];
+
+            this.webSockets[profileId].send(`punch_response:${serverIp}:${serverPort}`);
         }
     }
 
