@@ -18,6 +18,8 @@ export class WebSocketHandler {
             this.logger = logger;
             const webSocketServer = new WebSocket.Server({
                 "port": webSocketPort,
+                clientTracking: true,
+                skipUTF8Validation: true,
                 perMessageDeflate: {
                     // Other options settable:
                     clientNoContextTakeover: true, // Defaults to negotiated value.
@@ -29,6 +31,15 @@ export class WebSocketHandler {
                     // should not be compressed if context takeover is disabled.
                 }
             });
+
+            // const pinger = setInterval(function ping() {
+            //     webSocketServer.clients.forEach(function each(ws) {
+            //     //   if (ws.isAlive === false) return ws.terminate();
+              
+            //     //   ws.isAlive = false;
+            //       ws.ping();
+            //     });
+            //   }, 30000);
     
             webSocketServer.addListener("listening", () => 
             {
@@ -48,7 +59,7 @@ export class WebSocketHandler {
         const splitUrl = req.url.substring(0, req.url.indexOf("?")).split("/");
 
         const sessionID = splitUrl.pop();
-
+        const ip = req.socket.remoteAddress;
         // get url params
         //const urlParams = this.getUrlParams(req.url);
         
@@ -63,7 +74,7 @@ export class WebSocketHandler {
         });
         
         this.webSockets[sessionID] = ws;
-        console.log(`${sessionID} has connected to Coop Web Socket`);
+        console.log(`${sessionID}:${ip} has connected to SIT WebSocket`);
     }
 
     private TryParseJsonArray(msg: string) {
@@ -104,14 +115,29 @@ export class WebSocketHandler {
             // console.log(`received ${msgStr}`);
             const messageWithoutSITPrefix = msgStr.substring(3, msgStr.length);
             // const serverId = messageWithoutSITPrefix.substring(0, 24); // get serverId (MongoIds are 24 characters)
-            const serverId = messageWithoutSITPrefix.substring(0, 27); // get serverId post 0.13.5.0.* these are 27 (pmc{Id})
+            
+            // Post 0.13.5.0.*
+            // const serverId = messageWithoutSITPrefix.substring(0, 27); // get serverId post 0.13.5.0.* these are 27 (pmc{Id})
+
+            // Post 0.14.*, yes thats right, we are back to 24 chars again
+            const serverId = messageWithoutSITPrefix.substring(0, 24); // get serverId (MongoIds are 24 characters)
             // console.log(`server Id is ${serverId}`);
 
-            const messageWithoutSITPrefixes = messageWithoutSITPrefix.substring(27, messageWithoutSITPrefix.length); 
+            // the last chunk will be the method, the ?, and other data
+            const messageWithoutSITPrefixes = messageWithoutSITPrefix.substring(24, messageWithoutSITPrefix.length); 
 
             const match = CoopMatch.CoopMatches[serverId];
             if(match !== undefined) {
-                match.ProcessData(messageWithoutSITPrefixes, this.logger);
+                // match.ProcessData(messageWithoutSITPrefixes, this.logger);
+                const method = messageWithoutSITPrefixes.substring(1, messageWithoutSITPrefixes.indexOf('?'));
+                let d = messageWithoutSITPrefixes.substring(messageWithoutSITPrefixes.indexOf('?')).replace('?', '')
+                d = d.replace(method, ""); // remove method
+                // d = d.substring(1); // remove method length prefix
+                const resultObj = { m: method, data: d, fullData: msgStr };
+                WebSocketHandler.Instance.sendToWebSockets(match.ConnectedUsers, JSON.stringify(resultObj));
+            }
+            else {
+                console.log(`couldn't find match ${serverId}`);
             }
             return;
         }
@@ -153,6 +179,22 @@ export class WebSocketHandler {
     }
 
     public sendToWebSockets(sessions: string[], data: string) {
+        for(let session of sessions) {
+            if(this.webSockets[session] !== undefined)
+            {
+                if (this.webSockets[session].readyState === WebSocket.OPEN) 
+                {
+                    this.webSockets[session].send(data);
+                }
+                else 
+                {
+                    delete this.webSockets[session];
+                }
+            }
+        }
+    }
+
+    public sendToWebSocketsAsArray(sessions: string[], data: ArrayBuffer) {
         for(let session of sessions) {
             if(this.webSockets[session] !== undefined)
             {

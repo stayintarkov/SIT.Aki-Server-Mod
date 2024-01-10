@@ -156,17 +156,22 @@ export class CoopMatch {
 
         // console.log(info);
 
-        if (typeof(info) === "undefined") {
-
-            return;
-        }
-        else if (typeof(info) === "string") {
+        if (typeof(info) === "string") {
+            // Old SIT Serializer used a '?' as a split of data
             if (info.indexOf("?") !== -1) {
-                // console.log(`coop match wants to process this info ${info}`)
+                console.log(`coop match wants to process this info ${info} ?`)
                 const infoMethod = info.split('?')[0];
                 const infoData = info.split('?')[1];
                 const newJObj = { m: infoMethod, data: infoData };
                 this.ProcessData(newJObj, logger);
+            }
+            // 0.14
+            // When SIT Serializer doesn't use a '?'
+            else {
+                console.log(`SIT ${info}. Will just redirect this out to Clients.`)
+                // const newJObj = { data: info };
+                // this.ProcessData(newJObj, logger);
+                WebSocketHandler.Instance.sendToWebSockets(this.ConnectedUsers, info);
             }
             return;
         }
@@ -200,11 +205,6 @@ export class CoopMatch {
         if(info.profileId !== undefined)
             this.PlayerJoined(info.profileId);
 
-        if(info.m === undefined) { 
-            this.LastUpdateDateTime = new Date(Date.now());
-            return;
-        }
-            
         // logger.info(`Update a Coop Server [${info.serverId}][${info.m}]`);
 
         if(info.m !== "PlayerSpawn") {
@@ -215,12 +215,6 @@ export class CoopMatch {
 
             this.LastDataByProfileId[info.profileId][info.m] = info;
         }
-        
-        // if(info.m == "Move") {
-        //     // console.log(info);
-        //     this.LastMoves[info.accountId] = info;
-        // }
-        // else
         
         if(info.m == "PlayerSpawn") {
             // console.log(info);
@@ -248,13 +242,15 @@ export class CoopMatch {
 
         const serializedData = JSON.stringify(info);
         
-	    if (this.PreviousSentData.findIndex(x => x == serializedData) !== -1)
-			return;
+	    // if (this.PreviousSentData.findIndex(x => x == serializedData) !== -1)
+		// 	return;
 			
-	    if(this.PreviousSentData.length >= this.PreviousSentDataMaxSize)
-		    this.PreviousSentData = [];
+	    // if(this.PreviousSentData.length >= this.PreviousSentDataMaxSize)
+		//     this.PreviousSentData = [];
 		
-        this.PreviousSentData.push(serializedData);
+        // this.PreviousSentData.push(serializedData);
+
+        // console.log(info);
 
         WebSocketHandler.Instance.sendToWebSockets(this.ConnectedUsers, serializedData);
     }
@@ -265,7 +261,8 @@ export class CoopMatch {
 
     public PlayerJoined(profileId: string) {
         
-        if(profileId.startsWith("pmc") && this.ConnectedUsers.findIndex(x => x == profileId) === -1) {
+        // if(profileId.startsWith("pmc") && this.ConnectedUsers.findIndex(x => x == profileId) === -1) {
+        if(this.ConnectedUsers.findIndex(x => x == profileId) === -1) {
 
             console.log(`Checking server authorization for profile: ${profileId}`);
 
