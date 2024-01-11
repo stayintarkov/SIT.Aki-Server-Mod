@@ -102,33 +102,40 @@ export class CoopMatch {
 
     public constructor(inData: any) {
 
-        this.ServerId = inData.serverId;
-        this.ServerType = inData.serverType;
-        this.ServerUdpPort =  inData.serverUdpPort;
-
-        this.Status = CoopMatchStatus.Loading;
-        this.CreatedDateTime = new Date(Date.now());
-        this.LastUpdateDateTime = new Date(Date.now());
-
-        if(inData.settings === undefined)
-            return;
-
-        this.Location = inData.settings.location;
-        this.Time = inData.settings.timeVariant;
-        this.WeatherSettings = inData.settings.timeAndWeatherSettings;
-        this.friendlyAI = new friendlyAI();
-
         if(CoopMatch.CoopMatches[inData.serverId] !== undefined) {
             delete CoopMatch.CoopMatches[inData.serverId];
         }
 
-        // Generate match location data (Loot)
+        if(inData.settings === undefined)
+            return;
+
+        // Server settings
+        this.ServerId = inData.serverId;
+        this.ServerType = inData.serverType;
+        this.ServerUdpPort =  inData.serverUdpPort;
+        this.Password = inData.password !== undefined ? inData.password : undefined;
+
+        this.GameVersion = inData.gameVersion;
+        this.SITVersion = inData.sitVersion;
+        this.AuthorizedUsers.push(inData.serverId);
+        this.Status = CoopMatchStatus.Loading;
+        this.CreatedDateTime = new Date(Date.now());
+        this.LastUpdateDateTime = new Date(Date.now());
+
+        // Raid settings
+        this.Timestamp = inData.timestamp;
+        this.Location = inData.settings.location;
+        this.Time = inData.settings.timeVariant;
+        this.WeatherSettings = inData.settings.timeAndWeatherSettings;
+        this.ExpectedNumberOfPlayers = inData.expectedNumberOfPlayers;
         this.LocationData = CoopMatch.locationController.get("", 
         {
             crc: 0, /* unused */
             locationId: this.Location,
             variantId: 0 /* unused */
         });
+
+        this.friendlyAI = new friendlyAI();
 
         // This checks to see if the WebSockets can still be communicated with. If it cannot for any reason. The match/raid/session will close down.
         this.CheckStartTimeout = setTimeout(() => {

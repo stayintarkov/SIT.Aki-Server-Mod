@@ -322,21 +322,8 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                         }
 
                         CoopMatch.CoopMatches[info.serverId] = new CoopMatch(info);
-                        CoopMatch.CoopMatches[info.serverId].Timestamp = info.timestamp;
-                        CoopMatch.CoopMatches[info.serverId].Location = info.settings.location;
-                        CoopMatch.CoopMatches[info.serverId].Time = info.settings.timeVariant;
-                        CoopMatch.CoopMatches[info.serverId].WeatherSettings = info.settings.timeAndWeatherSettings;
-                        CoopMatch.CoopMatches[info.serverId].ExpectedNumberOfPlayers = info.expectedNumberOfPlayers;
-                        CoopMatch.CoopMatches[info.serverId].GameVersion = info.gameVersion;
-                        CoopMatch.CoopMatches[info.serverId].SITVersion = info.sitVersion;
-                        CoopMatch.CoopMatches[info.serverId].Password = info.password !== undefined ? info.password : undefined;
-                        CoopMatch.CoopMatches[info.serverId].AuthorizedUsers.push(info.serverId);
-                        output = JSON.stringify(
-                            { 
-                            serverId:  info.serverId,
-                            serverType: CoopMatch.CoopMatches[info.serverId].ServerType,
-                            serverPort: CoopMatch.CoopMatches[info.serverId].ServerUdpPort,
-                        });
+
+                        output = JSON.stringify({serverId:  info.serverId});
                         return output;
                     }
                 },

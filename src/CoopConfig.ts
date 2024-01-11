@@ -2,8 +2,6 @@ import fs from "fs";
 import path from "path";
 
 export class CoopConfig {
-
-    public serverType: string;
     public webSocketPort: number;
     public p2pConnectionHelperPort: number;
     public webSocketUseHttps: boolean;
@@ -13,7 +11,6 @@ export class CoopConfig {
     public static Instance: CoopConfig;
 
     constructor() {
-        this.serverType = "relay";
         this.webSocketPort = 6970;
         this.p2pConnectionHelperPort = 6971;
         this.webSocketUseHttps = false;
