@@ -808,7 +808,8 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
             "rezervbase",
             "shoreline",
             "tarkovstreets",
-            "woods"
+            "woods",
+            "sandbox"
         ];
         
         // Loop through each location
@@ -868,6 +869,8 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                 return "E1_2,E6_1,E2_3,E3_4,E4_5,E5_6,E6_1"
             case "Woods":
                 return "House,Old Station";
+            case "Sandbox":
+                return "east,west";
             default:
                 return "";
         }

@@ -20,7 +20,7 @@ export class SITConfig {
     constructor() {
         this.runAzureWebAppHelper = false;
 
-        this.openAllExfils = true;
+        this.openAllExfils = false;
         
         this.showPlayerNameTags = false;
         this.showPlayerNameTagsOnlyWhenVisible = false;

@@ -18,6 +18,8 @@ export class WebSocketHandler {
             this.logger = logger;
             const webSocketServer = new WebSocket.Server({
                 port: webSocketPort,
+                clientTracking: true,
+                skipUTF8Validation: true,
                 perMessageDeflate: {
                     // Other options settable:
                     clientNoContextTakeover: true, // Defaults to negotiated value.
@@ -29,6 +31,15 @@ export class WebSocketHandler {
                     // should not be compressed if context takeover is disabled.
                 }
             });
+
+            // const pinger = setInterval(function ping() {
+            //     webSocketServer.clients.forEach(function each(ws) {
+            //     //   if (ws.isAlive === false) return ws.terminate();
+              
+            //     //   ws.isAlive = false;
+            //       ws.ping();
+            //     });
+            //   }, 30000);
     
             webSocketServer.addListener("listening", () => 
             {
@@ -49,7 +60,7 @@ export class WebSocketHandler {
         const splitUrl = req.url.substring(0, req.url.indexOf("?")).split("/");
 
         const sessionID = splitUrl.pop();
-
+        const ip = req.socket.remoteAddress;
         // get url params
         //const urlParams = this.getUrlParams(req.url);
         
@@ -64,7 +75,7 @@ export class WebSocketHandler {
         });
         
         this.webSockets[sessionID] = ws;
-        console.log(`${sessionID} has connected to Coop Web Socket`);
+        console.log(`${sessionID}:${ip} has connected to SIT WebSocket`);
     }
 
     private TryParseJsonArray(msg: string) {
