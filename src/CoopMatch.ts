@@ -171,7 +171,7 @@ export class CoopMatch {
                 console.log(`SIT ${info}. Will just redirect this out to Clients.`)
                 // const newJObj = { data: info };
                 // this.ProcessData(newJObj, logger);
-                WebSocketHandler.Instance.sendToWebSockets(this.ConnectedUsers, info);
+                WebSocketHandler.Instance.sendToWebSockets(this.ConnectedUsers, undefined, info);
             }
             return;
         }
@@ -252,7 +252,7 @@ export class CoopMatch {
 
         // console.log(info);
 
-        WebSocketHandler.Instance.sendToWebSockets(this.ConnectedUsers, serializedData);
+        WebSocketHandler.Instance.sendToWebSockets(this.ConnectedUsers, undefined, serializedData);
     }
 
     public UpdateStatus(inStatus: CoopMatchStatus) {
@@ -300,12 +300,12 @@ export class CoopMatch {
     }
 
     public Ping(profileId: string, timestamp: string) {
-        WebSocketHandler.Instance.sendToWebSockets([profileId], JSON.stringify({ pong: timestamp }));
+        WebSocketHandler.Instance.sendToWebSockets([profileId], undefined, JSON.stringify({ pong: timestamp }));
     }
 
     public endSession(reason: string) {
         console.log(`COOP SESSION ${this.ServerId} HAS BEEN ENDED: ${reason}`);
-        WebSocketHandler.Instance.sendToWebSockets(this.ConnectedPlayers, JSON.stringify({ "endSession": true, reason: reason }));
+        WebSocketHandler.Instance.sendToWebSockets(this.ConnectedPlayers, undefined, JSON.stringify({ "endSession": true, reason: reason }));
 
         this.Status = CoopMatchStatus.Complete;
         
