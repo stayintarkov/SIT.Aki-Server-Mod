@@ -43,6 +43,8 @@ import { LocationController } from "@spt-aki/controllers/LocationController";
 // Callbacks ---------------------------------------------------------------
 import { BundleCallbacks } from "@spt-aki/callbacks/BundleCallbacks";
 import { InraidCallbacks } from "@spt-aki/callbacks/InraidCallbacks";
+import { GameCallbacks } from "@spt-aki/callbacks/GameCallbacks";
+import { HashUtil } from "@spt-aki/utils/HashUtil";
 // -------------------------------------------------------------------------
 
 @tsyringe.injectable()
@@ -62,6 +64,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
     bundleCallbacks: BundleCallbacks;
     locationController: LocationController;
     inraidCallbacks: InraidCallbacks;
+    gameCallbacks: GameCallbacks;
 
     public traders: any[] = [];
 
@@ -93,6 +96,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         this.bundleCallbacks = container.resolve<BundleCallbacks>("BundleCallbacks");
         this.inraidCallbacks = container.resolve<InraidCallbacks>("InraidCallbacks");
         this.httpResponse = container.resolve<HttpResponseUtil>("HttpResponseUtil");
+        this.gameCallbacks = container.resolve<GameCallbacks>("GameCallbacks");
 
         CoopMatch.saveServer = this.saveServer;
         CoopMatch.locationController = this.locationController;
@@ -586,13 +590,30 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                         return output;
                     }
                 },
+                {
+                    url: "/client/game/start",
+                    action: (url: string, info: any, sessionID: string, output: string): any => 
+                    {
+                        console.log("SIT Game Start");
+                        const myProfile = StayInTarkovMod.Instance.saveServer.getProfile(sessionID);
+                        // Current Equipment Id (Aki's default is 5fe49a0e2694b0755a50476c)
+                        const equipmentId = myProfile.characters.pmc.Inventory.equipment;
+
+                        // Generate a new Equipment Id
+                        const newEquipmentId =  StayInTarkovMod.container.resolve<HashUtil>("HashUtil").generate();
+                        const inventoryString = JSON.stringify(myProfile.characters.pmc.Inventory);
+                        const resultString = inventoryString.replace(new RegExp(equipmentId, 'g'), newEquipmentId);
+                        myProfile.characters.pmc.Inventory = JSON.parse(resultString);
+                        StayInTarkovMod.Instance.saveServer.saveProfile(sessionID);
+                        return StayInTarkovMod.Instance.gameCallbacks.gameStart(url, info, sessionID);
+                    }
+                },
                 // {
                 //     url: "/client/match/group/current",
                 //     action: (url: string, info: any, sessionID: string, output: string): any => 
                 //     {
                 //         logger.info("/client/match/group/current")
                 //         logger.info("TODO: Look into Getting Group Current")
-
                 //         const myAccount = this.saveServer.getProfile(sessionID);
                 //         if(myAccount === undefined) { 
                 //             console.log("own account cannot be found");
