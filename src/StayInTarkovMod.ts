@@ -598,13 +598,17 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                         const myProfile = StayInTarkovMod.Instance.saveServer.getProfile(sessionID);
                         // Current Equipment Id (Aki's default is 5fe49a0e2694b0755a50476c)
                         const equipmentId = myProfile.characters.pmc.Inventory.equipment;
-
-                        // Generate a new Equipment Id
+                        // Generate a new Equipment Id using Aki's HashUtil
                         const newEquipmentId =  StayInTarkovMod.container.resolve<HashUtil>("HashUtil").generate();
+                        // Convert into json string
                         const inventoryString = JSON.stringify(myProfile.characters.pmc.Inventory);
+                        // Using regex, replace the old equipment id with the generated one in the inventory string
                         const resultString = inventoryString.replace(new RegExp(equipmentId, 'g'), newEquipmentId);
+                        // Parse the inventory string back into the profile object 
                         myProfile.characters.pmc.Inventory = JSON.parse(resultString);
+                        // Save the profile back to disk
                         StayInTarkovMod.Instance.saveServer.saveProfile(sessionID);
+                        // Run the Aki Game Start callback
                         return StayInTarkovMod.Instance.gameCallbacks.gameStart(url, info, sessionID);
                     }
                 },
