@@ -44,7 +44,9 @@ import { LocationController } from "@spt-aki/controllers/LocationController";
 import { BundleCallbacks } from "@spt-aki/callbacks/BundleCallbacks";
 import { InraidCallbacks } from "@spt-aki/callbacks/InraidCallbacks";
 import { GameCallbacks } from "@spt-aki/callbacks/GameCallbacks";
+import { ProfileCallbacks } from "@spt-aki/callbacks/ProfileCallbacks";
 import { HashUtil } from "@spt-aki/utils/HashUtil";
+import { SITHelpers } from "./SITHelpers";
 // -------------------------------------------------------------------------
 
 @tsyringe.injectable()
@@ -65,6 +67,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
     locationController: LocationController;
     inraidCallbacks: InraidCallbacks;
     gameCallbacks: GameCallbacks;
+    profileCallbacks: ProfileCallbacks;
 
     public traders: any[] = [];
 
@@ -97,6 +100,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         this.inraidCallbacks = container.resolve<InraidCallbacks>("InraidCallbacks");
         this.httpResponse = container.resolve<HttpResponseUtil>("HttpResponseUtil");
         this.gameCallbacks = container.resolve<GameCallbacks>("GameCallbacks");
+        this.profileCallbacks = container.resolve<ProfileCallbacks>("ProfileCallbacks");
 
         CoopMatch.saveServer = this.saveServer;
         CoopMatch.locationController = this.locationController;
@@ -594,65 +598,20 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                     url: "/client/game/start",
                     action: (url: string, info: any, sessionID: string, output: string): any => 
                     {
-                        // ---------------------------------------------------------------------------------------
-                        // This ensures the Equipment Id is unique to each Profile
-                        // This was introduced because the replication systems require each Player to have a unique Equipment Id, otherwise it would put the wrong items on to the wrong Player
-                        // This runs every time the Game Starts and only affects the User loading the game
-                        // We should keep it running each time to ensure we dont suffer from a hardcoded nightmare later down the line (e.g. Aki change the EquipmentId)
-                        // ---------------------------------------------------------------------------------------
-
-                        const myProfile = StayInTarkovMod.Instance.saveServer.getProfile(sessionID);
-                        // Current Equipment Id (Aki's default is 5fe49a0e2694b0755a50476c)
-                        const equipmentId = myProfile.characters.pmc.Inventory.equipment;
-                        // Generate a new Equipment Id using Aki's HashUtil
-                        const newEquipmentId =  StayInTarkovMod.container.resolve<HashUtil>("HashUtil").generate();
-                        // Convert into json string
-                        const inventoryString = JSON.stringify(myProfile.characters.pmc.Inventory);
-                        // Using regex, replace the old equipment id with the generated one in the inventory string
-                        const resultString = inventoryString.replace(new RegExp(equipmentId, 'g'), newEquipmentId);
-                        // Parse the inventory string back into the profile object 
-                        myProfile.characters.pmc.Inventory = JSON.parse(resultString);
-                        // Save the profile back to disk
-                        StayInTarkovMod.Instance.saveServer.saveProfile(sessionID);
-                        // Run the Aki Game Start callback
+                        new SITHelpers().fixProfileEquipmentId(container, sessionID);
                         return StayInTarkovMod.Instance.gameCallbacks.gameStart(url, info, sessionID);
                     }
                 },
-                // {
-                //     url: "/client/match/group/current",
-                //     action: (url: string, info: any, sessionID: string, output: string): any => 
-                //     {
-                //         logger.info("/client/match/group/current")
-                //         logger.info("TODO: Look into Getting Group Current")
-                //         const myAccount = this.saveServer.getProfile(sessionID);
-                //         if(myAccount === undefined) { 
-                //             console.log("own account cannot be found");
-                //             return null;
-                //         }
-                //         let squadList: Friend[] = [];
-                //         // console.log(allAccounts);
-                //         // {
-                //         //     let squadMember: Friend = {
-                //         //         _id: myAccount.info.id,
-                //         //         Info: {
-                //         //             Level: myAccount.characters.pmc.Info.Level,
-                //         //             Nickname: myAccount.info.username,
-                //         //             Side: myAccount.characters.pmc.Info.Side,
-                //         //             MemberCategory: MemberCategory.DEFAULT
-                //         //         }
-                //         //     };
-                //         //     squadList.push(squadMember);
-                //         // }
+                {
+                    url: "/client/game/profile/create",
+                    action: (url: string, info: any, sessionID: string, output: string): any => 
+                    {
+                        const profileC = StayInTarkovMod.Instance.profileCallbacks.createProfile(url, info, sessionID);
+                        new SITHelpers().fixProfileEquipmentId(container, sessionID);
+                        return profileC;
+                    }
 
-
-                //         const obj = {
-                //             squad: squadList,
-                //             raidSettings: {}
-                //         };
-                //         output = JSON.stringify({ data: obj, err: 0, errmsg: null });
-                //         return output;
-                //     }
-                // },
+                },
                 {
                     url: "/client/match/group/exit_from_menu",
                     action: (url: string, info: any, sessionID: string, output: string): any => 
@@ -739,65 +698,9 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
             "aki"
         );
 
-        /**
-         * WIP/UNUSED FEATURE: GET FRIENDS LIST
-         */
-        // container.afterResolution("DialogueController", (_t, result: DialogueController) => 
-        // {
-        //     // We want to replace the original method logic with something different
-        //     result.getFriendList = (sessionID: string) => 
-        //     {
-        //         return this.getFriendsList(sessionID);
-        //     }
-        //     // The modifier Always makes sure this replacement method is ALWAYS replaced
-        // }, {frequency: "Always"});
-        
-        /**
-         * MUST HAVE: REPLACE GAME CONFIG SO IP CAN BE EXTERNAL
-         */
     }
 
-    // public getFriendsList(sessionID: string): IGetFriendListDataResponse
-    // {
-    //     console.log("getFriendsList");
-    //     const friends = this.getFriendsForUser(sessionID);
-
-    //     return {
-    //         "Friends": friends,
-    //         "Ignore": [],
-    //         "InIgnoreList": []
-    //     };
-    // }
-
-    // public getFriendsForUser(sessionID: string): Friend[]
-    // {
-    //     const allAccounts = this.saveServer.getProfiles();
-	// 	const myAccount = this.saveServer.getProfile(sessionID);
-	// 	if(myAccount === undefined) { 
-	// 		console.log("own account cannot be found");
-	// 		return null;
-	// 	}
-    //     let friendList: Friend[] = [];
-    //     // console.log(allAccounts);
-    //     for (const id in allAccounts)
-    //     {
-    //         if(id == sessionID)
-    //             continue;
-    //         let accountProfile = this.saveServer.getProfile(id);
-    //         let friend: Friend = {
-    //             _id: accountProfile.info.id,
-    //             Info: {
-    //                 Level: accountProfile.characters.pmc.Info.Level,
-    //                 Nickname: accountProfile.info.username,
-    //                 Side: accountProfile.characters.pmc.Info.Side,
-    //                 MemberCategory: MemberCategory.MemberCategory.DEFAULT
-    //             }
-    //         };
-    //         friendList.push(friend);
-    //     }
-
-    //     return friendList;
-    // }
+    
 
     postDBLoad(container: tsyringe.DependencyContainer): void {
         StayInTarkovMod.container = container;
