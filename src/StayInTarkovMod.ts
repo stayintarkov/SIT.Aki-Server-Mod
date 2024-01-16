@@ -594,7 +594,13 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                     url: "/client/game/start",
                     action: (url: string, info: any, sessionID: string, output: string): any => 
                     {
-                        console.log("SIT Game Start");
+                        // ---------------------------------------------------------------------------------------
+                        // This ensures the Equipment Id is unique to each Profile
+                        // This was introduced because the replication systems require each Player to have a unique Equipment Id, otherwise it would put the wrong items on to the wrong Player
+                        // This runs every time the Game Starts and only affects the User loading the game
+                        // We should keep it running each time to ensure we dont suffer from a hardcoded nightmare later down the line (e.g. Aki change the EquipmentId)
+                        // ---------------------------------------------------------------------------------------
+
                         const myProfile = StayInTarkovMod.Instance.saveServer.getProfile(sessionID);
                         // Current Equipment Id (Aki's default is 5fe49a0e2694b0755a50476c)
                         const equipmentId = myProfile.characters.pmc.Inventory.equipment;
