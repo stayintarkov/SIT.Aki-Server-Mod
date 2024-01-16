@@ -43,6 +43,8 @@ import { LocationController } from "@spt-aki/controllers/LocationController";
 // Callbacks ---------------------------------------------------------------
 import { BundleCallbacks } from "@spt-aki/callbacks/BundleCallbacks";
 import { InraidCallbacks } from "@spt-aki/callbacks/InraidCallbacks";
+import { GameCallbacks } from "@spt-aki/callbacks/GameCallbacks";
+import { HashUtil } from "@spt-aki/utils/HashUtil";
 // -------------------------------------------------------------------------
 
 @tsyringe.injectable()
@@ -62,6 +64,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
     bundleCallbacks: BundleCallbacks;
     locationController: LocationController;
     inraidCallbacks: InraidCallbacks;
+    gameCallbacks: GameCallbacks;
 
     public traders: any[] = [];
 
@@ -93,6 +96,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         this.bundleCallbacks = container.resolve<BundleCallbacks>("BundleCallbacks");
         this.inraidCallbacks = container.resolve<InraidCallbacks>("InraidCallbacks");
         this.httpResponse = container.resolve<HttpResponseUtil>("HttpResponseUtil");
+        this.gameCallbacks = container.resolve<GameCallbacks>("GameCallbacks");
 
         CoopMatch.saveServer = this.saveServer;
         CoopMatch.locationController = this.locationController;
@@ -586,13 +590,40 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                         return output;
                     }
                 },
+                {
+                    url: "/client/game/start",
+                    action: (url: string, info: any, sessionID: string, output: string): any => 
+                    {
+                        // ---------------------------------------------------------------------------------------
+                        // This ensures the Equipment Id is unique to each Profile
+                        // This was introduced because the replication systems require each Player to have a unique Equipment Id, otherwise it would put the wrong items on to the wrong Player
+                        // This runs every time the Game Starts and only affects the User loading the game
+                        // We should keep it running each time to ensure we dont suffer from a hardcoded nightmare later down the line (e.g. Aki change the EquipmentId)
+                        // ---------------------------------------------------------------------------------------
+
+                        const myProfile = StayInTarkovMod.Instance.saveServer.getProfile(sessionID);
+                        // Current Equipment Id (Aki's default is 5fe49a0e2694b0755a50476c)
+                        const equipmentId = myProfile.characters.pmc.Inventory.equipment;
+                        // Generate a new Equipment Id using Aki's HashUtil
+                        const newEquipmentId =  StayInTarkovMod.container.resolve<HashUtil>("HashUtil").generate();
+                        // Convert into json string
+                        const inventoryString = JSON.stringify(myProfile.characters.pmc.Inventory);
+                        // Using regex, replace the old equipment id with the generated one in the inventory string
+                        const resultString = inventoryString.replace(new RegExp(equipmentId, 'g'), newEquipmentId);
+                        // Parse the inventory string back into the profile object 
+                        myProfile.characters.pmc.Inventory = JSON.parse(resultString);
+                        // Save the profile back to disk
+                        StayInTarkovMod.Instance.saveServer.saveProfile(sessionID);
+                        // Run the Aki Game Start callback
+                        return StayInTarkovMod.Instance.gameCallbacks.gameStart(url, info, sessionID);
+                    }
+                },
                 // {
                 //     url: "/client/match/group/current",
                 //     action: (url: string, info: any, sessionID: string, output: string): any => 
                 //     {
                 //         logger.info("/client/match/group/current")
                 //         logger.info("TODO: Look into Getting Group Current")
-
                 //         const myAccount = this.saveServer.getProfile(sessionID);
                 //         if(myAccount === undefined) { 
                 //             console.log("own account cannot be found");
