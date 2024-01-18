@@ -3,7 +3,7 @@ import path from "path";
 
 export class CoopConfig {
     public webSocketPort: number;
-    public p2pConnectionHelperPort: number;
+    public natPunchHelperPort: number;
     public webSocketUseHttps: boolean;
     public webSocketTimeoutSeconds: number;
     public webSocketTimeoutCheckStartSeconds: number;
@@ -12,7 +12,7 @@ export class CoopConfig {
 
     constructor() {
         this.webSocketPort = 6970;
-        this.p2pConnectionHelperPort = 6971;
+        this.natPunchHelperPort = 6971;
         this.webSocketUseHttps = false;
         this.webSocketTimeoutSeconds = 5;
         this.webSocketTimeoutCheckStartSeconds = 120;

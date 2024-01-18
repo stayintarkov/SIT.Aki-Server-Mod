@@ -28,9 +28,17 @@ export class CoopMatch {
     /** The ServerId. The ProfileId of the host player. */
     ServerId: string;
 
+    /* Server Type (relay, p2p) */
     ServerType: string;
+    
+    /* Server Nat Method (upnp, natpunch, portforward) */
+    ServerNat: string;
 
-    ServerUdpPort: number;
+    /* Server Ip */
+    ServerIp: string;
+
+    /* Server Port */
+    ServerPort: number;
 
     /** The time the match was created. Useful for clearing out old matches. */
     CreatedDateTime: Date = new Date();
@@ -111,8 +119,6 @@ export class CoopMatch {
 
         // Server settings
         this.ServerId = inData.serverId;
-        this.ServerType = inData.serverType;
-        this.ServerUdpPort =  inData.serverUdpPort;
         this.Password = inData.password !== undefined ? inData.password : undefined;
 
         this.GameVersion = inData.gameVersion;

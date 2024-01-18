@@ -30,20 +30,20 @@ class EndPoints {
     }
 }
 
-export class P2PConnectionHandler {
+export class NatPunchHelper {
 
     public webSockets: Record<string, WebSocket.WebSocket> = {};
     public serverEndpoints: Record<string, EndPoints> = {};
 
     logger: ILogger;
-    public static Instance: P2PConnectionHandler;
+    public static Instance: NatPunchHelper;
 
     constructor(
         webSocketPort: number
         , logger: ILogger
         )
         { 
-            P2PConnectionHandler.Instance = this;
+            NatPunchHelper.Instance = this;
             this.logger = logger;
             const webSocketServer = new WebSocket.Server({
                 port: webSocketPort,
@@ -61,7 +61,7 @@ export class P2PConnectionHandler {
     
             webSocketServer.addListener("listening", () => 
             {
-                console.log(`P2P Connection Helper started on port ${webSocketPort}!`);
+                console.log(`Nat Punch Helper started on port ${webSocketPort}!`);
             });
     
             webSocketServer.addListener("connection", this.wsOnConnection.bind(this));
@@ -90,7 +90,7 @@ export class P2PConnectionHandler {
         });
 
         this.webSockets[sessionID] = ws;
-        console.log(`${sessionID} has connected to P2P Helper!`);
+        console.log(`${sessionID} has connected to Nat Punch Helper!`);
     }
 
     private async processMessage(msg: RawData) {
@@ -135,7 +135,7 @@ export class P2PConnectionHandler {
 
         // console.log("processClose");
         // console.log(ws);
-        console.log(`Web Socket ${sessionId} has disconnected from P2P Helper!`);
+        console.log(`Web Socket ${sessionId} has disconnected from Nat Punch Helper!`);
 
         if(this.webSockets[sessionId] !== undefined)
             delete this.webSockets[sessionId];

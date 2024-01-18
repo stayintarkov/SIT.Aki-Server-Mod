@@ -43,7 +43,7 @@ import { LocationController } from "@spt-aki/controllers/LocationController";
 // Callbacks ---------------------------------------------------------------
 import { BundleCallbacks } from "@spt-aki/callbacks/BundleCallbacks";
 import { InraidCallbacks } from "@spt-aki/callbacks/InraidCallbacks";
-import { P2PConnectionHandler } from "./P2PConnectionHandler";
+import { NatPunchHelper } from "./NatPunchHelper";
 // -------------------------------------------------------------------------
 
 @tsyringe.injectable()
@@ -56,7 +56,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
     protected httpResponse: HttpResponseUtil;
     databaseServer: DatabaseServer;
     public webSocketHandler: WebSocketHandler;
-    public p2pConnectionHandler: P2PConnectionHandler;
+    public natPunchHelper: NatPunchHelper;
     public coopConfig: CoopConfig;
     public sitConfig: SITConfig;
     configServer: ConfigServer;
@@ -109,8 +109,8 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         // Relay server
         this.webSocketHandler = new WebSocketHandler(this.coopConfig.webSocketPort, logger);
 
-        // P2P connection helper
-        this.p2pConnectionHandler = new P2PConnectionHandler(this.coopConfig.p2pConnectionHelperPort, logger);
+        // Nat punch helper
+        this.natPunchHelper = new NatPunchHelper(this.coopConfig.natPunchHelperPort, logger);
 
         // this.traders.push(new SITCustomTraders(), new CoopGroupTrader(), new UsecTrader(), new BearTrader());
         // this.traders.push(new SITCustomTraders());
@@ -450,8 +450,6 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                         output = JSON.stringify(coopMatch !== null ? 
                             { 
                                 serverId: coopMatch.ServerId,
-                                serverType: coopMatch.ServerType,
-                                serverPort: coopMatch.ServerUdpPort,
                                 timestamp: coopMatch.Timestamp,
                                 expectedNumberOfPlayers: coopMatch.ExpectedNumberOfPlayers,
                                 sitVersion: coopMatch.SITVersion,
@@ -568,6 +566,55 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
             ],
             "sit-coop"
             // "aki"
+        );
+
+        /* Get Connection Info */
+        dynamicRouterModService.registerDynamicRouter(
+            "SIT-GetConnectionInfo",
+            [
+                new RouteAction(
+                    "/coop/server/connectionInfo",
+                    (url: string, info: any, sessionID: string, output: string): any =>
+                    {
+                        const splitUrl = url.split("/");
+                        const matchId = splitUrl.pop();
+
+                        const coopMatch = this.getCoopMatch(matchId);
+
+                        output = JSON.stringify(
+                            { 
+                                serverType: coopMatch.ServerType,
+                                serverNat: coopMatch.ServerNat,
+                                serverIp: coopMatch.ServerIp !== undefined ? coopMatch.ServerIp : "",
+                                serverPort: coopMatch.ServerPort !== undefined ? coopMatch.ServerPort : ""
+                            });
+
+                        return output;
+                    }
+                )
+            ], "sit-coop"
+        );
+
+        /* Set Connection Info */
+        staticRouterModService.registerStaticRouter(
+            "SIT-SetConnectionInfo",
+            [
+                {
+                    url: "/coop/server/connectionInfo",
+                    action: (url, info, sessionId, output) =>
+                    {
+                        console.log(info);
+                        
+                        CoopMatch.CoopMatches[info.serverId].ServerType = info.serverType;
+                        CoopMatch.CoopMatches[info.serverId].ServerNat = info.serverNat;
+                        CoopMatch.CoopMatches[info.serverId].ServerIp = info.serverIp !== undefined ? info.serverIp : undefined;
+                        CoopMatch.CoopMatches[info.serverId].ServerPort = info.serverPort !== undefined ? info.serverPort : undefined;
+
+                        output = JSON.stringify({ response: "OK" });
+                        return output;
+                    }
+                }
+            ], "sit-coop"
         );
         
         // Hook up to existing AKI static route
