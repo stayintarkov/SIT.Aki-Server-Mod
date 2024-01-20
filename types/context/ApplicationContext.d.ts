@@ -17,4 +17,5 @@ export declare class ApplicationContext {
     getLatestValue(type: ContextVariableType): ContextVariable;
     getValues(type: ContextVariableType): ContextVariable[];
     addValue(type: ContextVariableType, value: any): void;
+    clearValues(type: ContextVariableType): void;
 }

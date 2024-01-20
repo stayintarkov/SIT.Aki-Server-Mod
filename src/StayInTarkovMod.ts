@@ -13,12 +13,14 @@ import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
 import { IGetLocationRequestData } from "@spt-aki/models/eft/location/IGetLocationRequestData";
 import { CoopConfig } from "./CoopConfig";
 import { CoopMatch, CoopMatchEndSessionMessages, CoopMatchStatus } from "./CoopMatch";
+import { ExternalIPFinder } from "./ExternalIPFinder";
 import { WebSocketHandler } from "./WebSocketHandler";
 
 import { RouteAction } from "@spt-aki/di/Router";
 import { ConfigTypes } from "@spt-aki/models/enums/ConfigTypes";
 import { IPostDBLoadMod } from "@spt-aki/models/external/IPostDBLoadMod";
 import { ConfigServer } from "@spt-aki/servers/ConfigServer";
+import { ApplicationContext } from "@spt-aki/context/ApplicationContext";
 
 import { SITConfig } from "./SITConfig";
 import moment = require("moment");
@@ -28,6 +30,7 @@ import AzureWAH = require("./AzureWebAppHelper");
 // Custom Traders (needs to be refactored into SITCustomTraders.ts)
 import { CoopMatchResponse } from "./CoopMatchResponse";
 import { friendlyAI } from "./FriendlyAI";
+import { SITCustomTraders } from "./Traders/SITCustomTraders";
 // -------------------------------------------------------------------------
 
 // Overrides ---------------------------------------------------------------
@@ -43,10 +46,11 @@ import { LocationController } from "@spt-aki/controllers/LocationController";
 // Callbacks ---------------------------------------------------------------
 import { BundleCallbacks } from "@spt-aki/callbacks/BundleCallbacks";
 import { InraidCallbacks } from "@spt-aki/callbacks/InraidCallbacks";
-import { GameCallbacks } from "@spt-aki/callbacks/GameCallbacks";
-import { ProfileCallbacks } from "@spt-aki/callbacks/ProfileCallbacks";
-import { HashUtil } from "@spt-aki/utils/HashUtil";
-import { SITHelpers } from "./SITHelpers";
+import { CoopWeatherController } from "./Extentions/CoopWeatherController";
+import { CoopWeatherGenerator } from "./Extentions/CoopWeatherGenerator";
+import { WeatherCallbacksOverride } from "./Overrides/WeatherCallbacksOverride";
+import { CoopGameController } from "./Extentions/CoopGameController";
+import { ApplicationContextOverride } from "./Overrides/ApplicationContextOverride";
 // -------------------------------------------------------------------------
 
 @tsyringe.injectable()
@@ -59,6 +63,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
     protected httpResponse: HttpResponseUtil;
     databaseServer: DatabaseServer;
     public webSocketHandler: WebSocketHandler;
+    public externalIPFinder: ExternalIPFinder;
     public coopConfig: CoopConfig;
     public sitConfig: SITConfig;
     configServer: ConfigServer;
@@ -66,8 +71,6 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
     bundleCallbacks: BundleCallbacks;
     locationController: LocationController;
     inraidCallbacks: InraidCallbacks;
-    gameCallbacks: GameCallbacks;
-    profileCallbacks: ProfileCallbacks;
 
     public traders: any[] = [];
 
@@ -99,8 +102,6 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         this.bundleCallbacks = container.resolve<BundleCallbacks>("BundleCallbacks");
         this.inraidCallbacks = container.resolve<InraidCallbacks>("InraidCallbacks");
         this.httpResponse = container.resolve<HttpResponseUtil>("HttpResponseUtil");
-        this.gameCallbacks = container.resolve<GameCallbacks>("GameCallbacks");
-        this.profileCallbacks = container.resolve<ProfileCallbacks>("ProfileCallbacks");
 
         CoopMatch.saveServer = this.saveServer;
         CoopMatch.locationController = this.locationController;
@@ -114,7 +115,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         this.webSocketHandler = new WebSocketHandler(this.coopConfig.webSocketPort, logger);
 
         // this.traders.push(new SITCustomTraders(), new CoopGroupTrader(), new UsecTrader(), new BearTrader());
-        // this.traders.push(new SITCustomTraders());
+        this.traders.push(new SITCustomTraders());
     }
 
     public preAkiLoad(container: tsyringe.DependencyContainer): void {
@@ -129,17 +130,30 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         for(const t of this.traders) {
             t.preAkiLoad(container);
         }
-
+        
+        
         // ----------------------- Bundle Loader overrides ------------------------------------------------
         const bundleLoaderOverride = new BundleLoaderOverride(container);
         bundleLoaderOverride.override();
 
         // ----------------------- Game Controller overrides -------------------------------------------------
-        const gameControllerOverride = new GameControllerOverride(container);
-        gameControllerOverride.override();
+        const applicationContextOverride = new ApplicationContextOverride(container);
+        applicationContextOverride.override();
+
+        container.register<CoopGameController>("CoopGameController", CoopGameController);
+        container.register("GameController", {useToken: "CoopGameController"});
+        
+        container.register<CoopWeatherController>("CoopWeatherController", CoopWeatherController);
+        container.register("WeatherController", {useToken: "CoopWeatherController"});
+        
+        container.register<CoopWeatherGenerator>("CoopWeatherGenerator", CoopWeatherGenerator);
+        container.register("WeatherGenerator", {useToken: "CoopWeatherGenerator"});
+        
+        const weatherCallbacksOverride = new WeatherCallbacksOverride(container);
+        weatherCallbacksOverride.override();
 
         // ----------------------- Launcher Controller overrides -------------------------------------------------
-        const launcherControllerOverride = new LauncherControllerOverride(container, gameControllerOverride, this.coopConfig, this.httpConfig);
+        const launcherControllerOverride = new LauncherControllerOverride(container, this.coopConfig, this.httpConfig);
         launcherControllerOverride.override();
 
         // ----------------------- TODO: Azure WebApp Helper (trying to fix this ASAP) ------------------------------------------------
@@ -594,24 +608,42 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                         return output;
                     }
                 },
-                {
-                    url: "/client/game/start",
-                    action: (url: string, info: any, sessionID: string, output: string): any => 
-                    {
-                        new SITHelpers().fixProfileEquipmentId(container, sessionID);
-                        return StayInTarkovMod.Instance.gameCallbacks.gameStart(url, info, sessionID);
-                    }
-                },
-                {
-                    url: "/client/game/profile/create",
-                    action: (url: string, info: any, sessionID: string, output: string): any => 
-                    {
-                        const profileC = StayInTarkovMod.Instance.profileCallbacks.createProfile(url, info, sessionID);
-                        new SITHelpers().fixProfileEquipmentId(container, sessionID);
-                        return profileC;
-                    }
+                // {
+                //     url: "/client/match/group/current",
+                //     action: (url: string, info: any, sessionID: string, output: string): any => 
+                //     {
+                //         logger.info("/client/match/group/current")
+                //         logger.info("TODO: Look into Getting Group Current")
 
-                },
+                //         const myAccount = this.saveServer.getProfile(sessionID);
+                //         if(myAccount === undefined) { 
+                //             console.log("own account cannot be found");
+                //             return null;
+                //         }
+                //         let squadList: Friend[] = [];
+                //         // console.log(allAccounts);
+                //         // {
+                //         //     let squadMember: Friend = {
+                //         //         _id: myAccount.info.id,
+                //         //         Info: {
+                //         //             Level: myAccount.characters.pmc.Info.Level,
+                //         //             Nickname: myAccount.info.username,
+                //         //             Side: myAccount.characters.pmc.Info.Side,
+                //         //             MemberCategory: MemberCategory.DEFAULT
+                //         //         }
+                //         //     };
+                //         //     squadList.push(squadMember);
+                //         // }
+
+
+                //         const obj = {
+                //             squad: squadList,
+                //             raidSettings: {}
+                //         };
+                //         output = JSON.stringify({ data: obj, err: 0, errmsg: null });
+                //         return output;
+                //     }
+                // },
                 {
                     url: "/client/match/group/exit_from_menu",
                     action: (url: string, info: any, sessionID: string, output: string): any => 
@@ -698,9 +730,65 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
             "aki"
         );
 
+        /**
+         * WIP/UNUSED FEATURE: GET FRIENDS LIST
+         */
+        // container.afterResolution("DialogueController", (_t, result: DialogueController) => 
+        // {
+        //     // We want to replace the original method logic with something different
+        //     result.getFriendList = (sessionID: string) => 
+        //     {
+        //         return this.getFriendsList(sessionID);
+        //     }
+        //     // The modifier Always makes sure this replacement method is ALWAYS replaced
+        // }, {frequency: "Always"});
+        
+        /**
+         * MUST HAVE: REPLACE GAME CONFIG SO IP CAN BE EXTERNAL
+         */
     }
 
-    
+    // public getFriendsList(sessionID: string): IGetFriendListDataResponse
+    // {
+    //     console.log("getFriendsList");
+    //     const friends = this.getFriendsForUser(sessionID);
+
+    //     return {
+    //         "Friends": friends,
+    //         "Ignore": [],
+    //         "InIgnoreList": []
+    //     };
+    // }
+
+    // public getFriendsForUser(sessionID: string): Friend[]
+    // {
+    //     const allAccounts = this.saveServer.getProfiles();
+	// 	const myAccount = this.saveServer.getProfile(sessionID);
+	// 	if(myAccount === undefined) { 
+	// 		console.log("own account cannot be found");
+	// 		return null;
+	// 	}
+    //     let friendList: Friend[] = [];
+    //     // console.log(allAccounts);
+    //     for (const id in allAccounts)
+    //     {
+    //         if(id == sessionID)
+    //             continue;
+    //         let accountProfile = this.saveServer.getProfile(id);
+    //         let friend: Friend = {
+    //             _id: accountProfile.info.id,
+    //             Info: {
+    //                 Level: accountProfile.characters.pmc.Info.Level,
+    //                 Nickname: accountProfile.info.username,
+    //                 Side: accountProfile.characters.pmc.Info.Side,
+    //                 MemberCategory: MemberCategory.MemberCategory.DEFAULT
+    //             }
+    //         };
+    //         friendList.push(friend);
+    //     }
+
+    //     return friendList;
+    // }
 
     postDBLoad(container: tsyringe.DependencyContainer): void {
         StayInTarkovMod.container = container;
@@ -739,8 +827,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
             "rezervbase",
             "shoreline",
             "tarkovstreets",
-            "woods",
-            "sandbox"
+            "woods"
         ];
         
         // Loop through each location
@@ -800,8 +887,6 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                 return "E1_2,E6_1,E2_3,E3_4,E4_5,E5_6,E6_1"
             case "Woods":
                 return "House,Old Station";
-            case "Sandbox":
-                return "east,west";
             default:
                 return "";
         }

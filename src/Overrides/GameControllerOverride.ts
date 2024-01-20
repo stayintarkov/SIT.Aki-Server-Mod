@@ -1,5 +1,6 @@
 import { DependencyContainer } from "tsyringe";
 import { GameController } from "@spt-aki/controllers/GameController";
+import { ApplicationContext } from "@spt-aki/context/ApplicationContext";
 import { IGameConfigResponse } from "@spt-aki/models/eft/game/IGameConfigResponse";
 import { ProfileHelper } from "@spt-aki/helpers/ProfileHelper";
 import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
@@ -10,12 +11,13 @@ export class GameControllerOverride
 
     profileHelper: ProfileHelper;
     databaseServer: DatabaseServer;
+    applicationContext: ApplicationContext;
     
     protected sessionBackendUrl: Record<string, string> = {};
     
     constructor
     (
-        container: DependencyContainer
+        container: DependencyContainer,
     )
     {
         this.container = container;
@@ -70,6 +72,7 @@ export class GameControllerOverride
 
                 return this.getGameConfig(sessionID, backendUrl);
             }
+
             // The modifier Always makes sure this replacement method is ALWAYS replaced
         }, {frequency: "Always"});
     }

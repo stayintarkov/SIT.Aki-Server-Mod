@@ -86,3 +86,19 @@ export interface LootMultiplier {
     terminal: number;
     town: number;
 }
+
+export interface IScavRaidTimeLocationSettings
+{
+    /** Should loot be reduced by same percent length of raid is reduced by */
+    reduceLootByPercent: boolean;
+    /** Smallest % of container loot that should be spawned */
+    minStaticLootPercent: number;
+/** Smallest % of loose loot that should be spawned */
+    minDynamicLootPercent: number;
+    /** Chance raid time is reduced */
+    reducedChancePercent: number;
+    /** How much should raid time be reduced - weighted */
+    reductionPercentWeights: Record<string, number>;
+    /** Should bot waves be removed / spawn times be adjusted */
+    adjustWaves: boolean;
+}
