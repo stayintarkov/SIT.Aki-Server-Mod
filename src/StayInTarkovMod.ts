@@ -257,6 +257,13 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                             // Get Instance of CoopMatch
                             const m = CoopMatch.CoopMatches[itemKey];
 
+                            // Filter out Scav raids from PMC raids
+                            if(info.side.toLowerCase() != "savage" && m.Side.toLowerCase() == "savage")
+                                continue;
+
+                            if(info.side.toLowerCase() == "savage" && m.Side.toLowerCase() != "savage")
+                                continue;
+
                             // Filter out Raids that have Not Started or Empty
                             if(m.ConnectedPlayers.length === 0)
                                 continue;
