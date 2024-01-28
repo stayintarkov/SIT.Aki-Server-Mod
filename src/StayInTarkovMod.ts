@@ -450,6 +450,10 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                         output = JSON.stringify(coopMatch !== null ? 
                             { 
                                 serverId: coopMatch.ServerId,
+                                serverType: coopMatch.ServerType,
+                                serverNat: coopMatch.ServerNat,
+                                serverIp: coopMatch.ServerIp,
+                                serverPort: coopMatch.ServerPort,
                                 timestamp: coopMatch.Timestamp,
                                 expectedNumberOfPlayers: coopMatch.ExpectedNumberOfPlayers,
                                 sitVersion: coopMatch.SITVersion,
@@ -566,55 +570,6 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
             ],
             "sit-coop"
             // "aki"
-        );
-
-        /* Get Connection Info */
-        dynamicRouterModService.registerDynamicRouter(
-            "SIT-GetConnectionInfo",
-            [
-                new RouteAction(
-                    "/coop/server/connectionInfo",
-                    (url: string, info: any, sessionID: string, output: string): any =>
-                    {
-                        const splitUrl = url.split("/");
-                        const matchId = splitUrl.pop();
-
-                        const coopMatch = this.getCoopMatch(matchId);
-
-                        output = JSON.stringify(
-                            { 
-                                serverType: coopMatch.ServerType,
-                                serverNat: coopMatch.ServerNat,
-                                serverIp: coopMatch.ServerIp !== undefined ? coopMatch.ServerIp : "",
-                                serverPort: coopMatch.ServerPort !== undefined ? coopMatch.ServerPort : ""
-                            });
-
-                        return output;
-                    }
-                )
-            ], "sit-coop"
-        );
-
-        /* Set Connection Info */
-        staticRouterModService.registerStaticRouter(
-            "SIT-SetConnectionInfo",
-            [
-                {
-                    url: "/coop/server/connectionInfo",
-                    action: (url, info, sessionId, output) =>
-                    {
-                        console.log(info);
-                        
-                        CoopMatch.CoopMatches[info.serverId].ServerType = info.serverType;
-                        CoopMatch.CoopMatches[info.serverId].ServerNat = info.serverNat;
-                        CoopMatch.CoopMatches[info.serverId].ServerIp = info.serverIp !== undefined ? info.serverIp : undefined;
-                        CoopMatch.CoopMatches[info.serverId].ServerPort = info.serverPort !== undefined ? info.serverPort : undefined;
-
-                        output = JSON.stringify({ response: "OK" });
-                        return output;
-                    }
-                }
-            ], "sit-coop"
         );
         
         // Hook up to existing AKI static route
