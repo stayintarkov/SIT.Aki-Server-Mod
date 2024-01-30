@@ -99,17 +99,27 @@ export class NatHelper {
 
         console.log(msg.toString());
 
-        if(msgObj.getEndPointsRequest !== undefined)
+        if(msgObj.requestId !== undefined && msgObj.requestType !== undefined)
         {
-            // send punch to server (server punches client NAT)
-            this.webSockets[msgObj.serverId].send(msg.toString());
+            if(msgObj.requestType == "getEndPointsRequest")
+            {
+                this.webSockets[msgObj.serverId].send(msg.toString());
+            }
 
-            return;
-        }
+            if(msgObj.requestType == "natPunchRequest")
+            {
+                this.webSockets[msgObj.serverId].send(msg.toString());
+            }
 
-        if(msgObj.getEndPointsResponse !== undefined)
-        {
-            this.webSockets[msgObj.profileId].send(msg.toString());
+            if(msgObj.requestType == "getEndPointsResponse")
+            {
+                this.webSockets[msgObj.profileId].send(msg.toString());
+            }
+
+            if(msgObj.requestType == "natPunchResponse")
+            {
+                this.webSockets[msgObj.profileId].send(msg.toString());
+            }
         }
     }
 
