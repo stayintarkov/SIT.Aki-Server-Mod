@@ -89,8 +89,8 @@ export class CoopMatch {
 
     friendlyAI: friendlyAI;
 
-    private CheckStartTimeout : NodeJS.Timeout;
-    private CheckStillRunningInterval: NodeJS.Timeout;
+    // private CheckStartTimeout : NodeJS.Timeout;
+    // private CheckStillRunningInterval: NodeJS.Timeout;
 
     /** A STATIC Dictonary of Coop Matches. The Key is the Account Id of the Player that created it */
     public static CoopMatches: Record<string, CoopMatch> = {}; 
@@ -128,15 +128,15 @@ export class CoopMatch {
         });
 
         // This checks to see if the WebSockets can still be communicated with. If it cannot for any reason. The match/raid/session will close down.
-        this.CheckStartTimeout = setTimeout(() => {
-            this.CheckStillRunningInterval = setInterval(() => {
+    //     this.CheckStartTimeout = setTimeout(() => {
+    //         this.CheckStillRunningInterval = setInterval(() => {
 
-                if(!WebSocketHandler.Instance.areThereAnyWebSocketsOpen(this.ConnectedPlayers)) {
-                    this.endSession(CoopMatchEndSessionMessages.WEBSOCKET_TIMEOUT_MESSAGE);
-                }
+    //             if(!WebSocketHandler.Instance.areThereAnyWebSocketsOpen(this.ConnectedPlayers)) {
+    //                 this.endSession(CoopMatchEndSessionMessages.WEBSOCKET_TIMEOUT_MESSAGE);
+    //             }
     
-            }, CoopConfig.Instance.webSocketTimeoutSeconds * 1000);
-        }, CoopConfig.Instance.webSocketTimeoutCheckStartSeconds * 1000);        
+    //         }, CoopConfig.Instance.webSocketTimeoutSeconds * 1000);
+    //     }, CoopConfig.Instance.webSocketTimeoutCheckStartSeconds * 1000);        
     }
 
     public ProcessData(info: any, logger: ILogger) {
@@ -310,8 +310,8 @@ export class CoopMatch {
         this.Status = CoopMatchStatus.Complete;
         
         //clearTimeout(this.SendLastDataInterval);
-        clearTimeout(this.CheckStartTimeout);
-        clearInterval(this.CheckStillRunningInterval);
+        // clearTimeout(this.CheckStartTimeout);
+        // clearInterval(this.CheckStillRunningInterval);
 
         this.LocationData = null;
 
