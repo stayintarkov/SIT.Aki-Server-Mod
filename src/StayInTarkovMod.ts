@@ -43,7 +43,7 @@ import { LocationController } from "@spt-aki/controllers/LocationController";
 // Callbacks ---------------------------------------------------------------
 import { BundleCallbacks } from "@spt-aki/callbacks/BundleCallbacks";
 import { InraidCallbacks } from "@spt-aki/callbacks/InraidCallbacks";
-import { NatPunchHelper } from "./NatPunchHelper";
+import { NatHelper } from "./NatHelper";
 // -------------------------------------------------------------------------
 
 @tsyringe.injectable()
@@ -56,7 +56,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
     protected httpResponse: HttpResponseUtil;
     databaseServer: DatabaseServer;
     public webSocketHandler: WebSocketHandler;
-    public natPunchHelper: NatPunchHelper;
+    public natHelper: NatHelper;
     public coopConfig: CoopConfig;
     public sitConfig: SITConfig;
     configServer: ConfigServer;
@@ -110,7 +110,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         this.webSocketHandler = new WebSocketHandler(this.coopConfig.webSocketPort, logger);
 
         // Nat punch helper
-        this.natPunchHelper = new NatPunchHelper(this.coopConfig.natPunchHelperPort, logger);
+        this.natHelper = new NatHelper(this.coopConfig.natHelperPort, logger);
 
         // this.traders.push(new SITCustomTraders(), new CoopGroupTrader(), new UsecTrader(), new BearTrader());
         // this.traders.push(new SITCustomTraders());
@@ -451,9 +451,6 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                             { 
                                 serverId: coopMatch.ServerId,
                                 serverType: coopMatch.ServerType,
-                                serverNat: coopMatch.ServerNat,
-                                serverIp: coopMatch.ServerIp,
-                                serverPort: coopMatch.ServerPort,
                                 timestamp: coopMatch.Timestamp,
                                 expectedNumberOfPlayers: coopMatch.ExpectedNumberOfPlayers,
                                 sitVersion: coopMatch.SITVersion,

@@ -30,20 +30,20 @@ class EndPoints {
     }
 }
 
-export class NatPunchHelper {
+export class NatHelper {
 
     public webSockets: Record<string, WebSocket.WebSocket> = {};
     public serverEndpoints: Record<string, EndPoints> = {};
 
     logger: ILogger;
-    public static Instance: NatPunchHelper;
+    public static Instance: NatHelper;
 
     constructor(
         webSocketPort: number
         , logger: ILogger
         )
         { 
-            NatPunchHelper.Instance = this;
+            NatHelper.Instance = this;
             this.logger = logger;
             const webSocketServer = new WebSocket.Server({
                 port: webSocketPort,
@@ -61,7 +61,7 @@ export class NatPunchHelper {
     
             webSocketServer.addListener("listening", () => 
             {
-                console.log(`Nat Punch Helper started on port ${webSocketPort}!`);
+                console.log(`Nat Helper started on port ${webSocketPort}!`);
             });
     
             webSocketServer.addListener("connection", this.wsOnConnection.bind(this));
@@ -90,44 +90,26 @@ export class NatPunchHelper {
         });
 
         this.webSockets[sessionID] = ws;
-        console.log(`${sessionID} has connected to Nat Punch Helper!`);
+        console.log(`${sessionID} has connected to Nat Helper!`);
     }
 
     private async processMessage(msg: RawData) {
 
-        const msgStr = msg.toString();
+        const msgObj = JSON.parse(msg.toString());
 
-        console.log("received message: " + msgStr);
+        console.log(msg.toString());
 
-        const msgSplit = msgStr.split(":");
-
-        if(msgSplit[0] == "punch_request")
+        if(msgObj.getEndPointsRequest !== undefined)
         {
-            // punch_request:serverId:profileId:clientPublicIp:clientPublicPort
-
-            const serverId = msgSplit[1];
-            const profileId = msgSplit[2];
-            const clientPublicIp = msgSplit[3];
-            const clientPublicPort = msgSplit[4];
-
             // send punch to server (server punches client NAT)
-            this.webSockets[serverId].send(`punch_request:${profileId}:${clientPublicIp}:${clientPublicPort}`);
-
-            // send punch to client (client punches server NAT)
-            //this.webSockets[profileId].send(`punch:${serverEndpoint.StunIp}:${serverEndpoint.StunPort}`);
+            this.webSockets[msgObj.serverId].send(msg.toString());
 
             return;
         }
 
-        if(msgSplit[0] == "punch_response")
+        if(msgObj.getEndPointsResponse !== undefined)
         {
-            // punch_response:profileId:serverIp:serverPort
-
-            const profileId = msgSplit[1];
-            const serverIp = msgSplit[2];
-            const serverPort = msgSplit[3];
-
-            this.webSockets[profileId].send(`punch_response:${serverIp}:${serverPort}`);
+            this.webSockets[msgObj.profileId].send(msg.toString());
         }
     }
 
@@ -135,7 +117,7 @@ export class NatPunchHelper {
 
         // console.log("processClose");
         // console.log(ws);
-        console.log(`Web Socket ${sessionId} has disconnected from Nat Punch Helper!`);
+        console.log(`Web Socket ${sessionId} has disconnected from Nat Helper!`);
 
         if(this.webSockets[sessionId] !== undefined)
             delete this.webSockets[sessionId];

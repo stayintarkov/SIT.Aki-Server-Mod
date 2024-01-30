@@ -120,9 +120,6 @@ export class CoopMatch {
         // Server settings
         this.ServerId = inData.serverId;
         this.ServerType = inData.serverType;
-        this.ServerNat = inData.serverNat;
-        this.ServerIp = inData.serverIp;
-        this.ServerPort = inData.serverPort;
         this.Password = inData.password !== undefined ? inData.password : undefined;
 
         this.GameVersion = inData.gameVersion;
