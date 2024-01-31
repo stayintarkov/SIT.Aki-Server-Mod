@@ -32,15 +32,13 @@ class EndPoints {
 
 export class NatHelper {
 
-    public webSockets: Record<string, WebSocket.WebSocket> = {};
-    public serverEndpoints: Record<string, EndPoints> = {};
-
-    logger: ILogger;
     public static Instance: NatHelper;
+    logger: ILogger;
+    public webSockets: Record<string, WebSocket.WebSocket> = {};
 
     constructor(
-        webSocketPort: number
-        , logger: ILogger
+        webSocketPort: number,
+        logger: ILogger
         )
         { 
             NatHelper.Instance = this;
@@ -81,7 +79,7 @@ export class NatHelper {
         
         ws.on("message", async function message(msg) 
         {
-            wsh.processMessage(msg);
+            wsh.processMessage(msg, req);
         });
 
         ws.on("close", async (code: number, reason: Buffer) =>
@@ -93,7 +91,10 @@ export class NatHelper {
         console.log(`${sessionID} has connected to Nat Helper!`);
     }
 
-    private async processMessage(msg: RawData) {
+    // Requests are sent to the serverId (host)
+    // Responses are sent back to the requester's profileId (client)
+
+    private async processMessage(msg: RawData, req: IncomingMessage) {
 
         const msgObj = JSON.parse(msg.toString());
 
@@ -113,7 +114,16 @@ export class NatHelper {
 
             if(msgObj.requestType == "getEndPointsResponse")
             {
-                this.webSockets[msgObj.profileId].send(msg.toString());
+                // This is a hack to provide the host's external or local IP address
+                if(msgObj.publicEndPoints["remote"] !== undefined)
+                {
+                    const udpPort = msgObj.publicEndPoints["remote"].split(":")[1];
+
+                    msgObj.publicEndPoints["remote"] = `${req.socket.remoteAddress.split(":")[3]}:${udpPort}`;
+                }
+
+                console.log(JSON.stringify(msgObj));
+                this.webSockets[msgObj.profileId].send(JSON.stringify(msgObj));
             }
 
             if(msgObj.requestType == "natPunchResponse")

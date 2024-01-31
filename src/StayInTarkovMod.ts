@@ -14,6 +14,7 @@ import { IGetLocationRequestData } from "@spt-aki/models/eft/location/IGetLocati
 import { CoopConfig } from "./CoopConfig";
 import { CoopMatch, CoopMatchEndSessionMessages, CoopMatchStatus } from "./CoopMatch";
 import { WebSocketHandler } from "./WebSocketHandler";
+import { NatHelper } from "./NatHelper";
 
 import { RouteAction } from "@spt-aki/di/Router";
 import { ConfigTypes } from "@spt-aki/models/enums/ConfigTypes";
@@ -43,7 +44,6 @@ import { LocationController } from "@spt-aki/controllers/LocationController";
 // Callbacks ---------------------------------------------------------------
 import { BundleCallbacks } from "@spt-aki/callbacks/BundleCallbacks";
 import { InraidCallbacks } from "@spt-aki/callbacks/InraidCallbacks";
-import { NatHelper } from "./NatHelper";
 // -------------------------------------------------------------------------
 
 @tsyringe.injectable()
@@ -109,7 +109,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         // Relay server
         this.webSocketHandler = new WebSocketHandler(this.coopConfig.webSocketPort, logger);
 
-        // Nat punch helper
+        // Nat Helper (for P2P connection)
         this.natHelper = new NatHelper(this.coopConfig.natHelperPort, logger);
 
         // this.traders.push(new SITCustomTraders(), new CoopGroupTrader(), new UsecTrader(), new BearTrader());
