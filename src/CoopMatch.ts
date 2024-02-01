@@ -28,6 +28,9 @@ export class CoopMatch {
     /** The ServerId. The ProfileId of the host player. */
     ServerId: string;
 
+    /** The Side of the match. */
+    Side: string;
+
     /** The time the match was created. Useful for clearing out old matches. */
     CreatedDateTime: Date = new Date();
 
@@ -110,6 +113,7 @@ export class CoopMatch {
         if(inData.settings === undefined)
             return;
 
+        this.Side = inData.settings.side;
         this.Location = inData.settings.location;
         this.Time = inData.settings.timeVariant;
         this.WeatherSettings = inData.settings.timeAndWeatherSettings;
