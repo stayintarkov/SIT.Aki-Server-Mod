@@ -4,6 +4,7 @@ import { SaveServer } from "@spt-aki/servers/SaveServer";
 import { LauncherController } from "@spt-aki/controllers/LauncherController";
 import { CoopConfig } from "./../CoopConfig";
 import { GameControllerOverride } from "./GameControllerOverride";
+import { SITHelpers } from "./../SITHelpers"
 
 export class LauncherControllerOverride
 {
@@ -58,6 +59,7 @@ export class LauncherControllerOverride
             // /launcher/profile/login
             result.login = (info: any) =>
             {
+
                 return this.login(info);
             }
         }, {frequency: "Always"});

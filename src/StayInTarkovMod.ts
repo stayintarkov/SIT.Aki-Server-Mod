@@ -44,6 +44,10 @@ import { LocationController } from "@spt-aki/controllers/LocationController";
 // Callbacks ---------------------------------------------------------------
 import { BundleCallbacks } from "@spt-aki/callbacks/BundleCallbacks";
 import { InraidCallbacks } from "@spt-aki/callbacks/InraidCallbacks";
+import { GameCallbacks } from "@spt-aki/callbacks/GameCallbacks";
+import { ProfileCallbacks } from "@spt-aki/callbacks/ProfileCallbacks";
+import { HashUtil } from "@spt-aki/utils/HashUtil";
+import { SITHelpers } from "./SITHelpers";
 // -------------------------------------------------------------------------
 
 @tsyringe.injectable()
@@ -64,6 +68,8 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
     bundleCallbacks: BundleCallbacks;
     locationController: LocationController;
     inraidCallbacks: InraidCallbacks;
+    gameCallbacks: GameCallbacks;
+    profileCallbacks: ProfileCallbacks;
 
     public traders: any[] = [];
 
@@ -95,6 +101,8 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         this.bundleCallbacks = container.resolve<BundleCallbacks>("BundleCallbacks");
         this.inraidCallbacks = container.resolve<InraidCallbacks>("InraidCallbacks");
         this.httpResponse = container.resolve<HttpResponseUtil>("HttpResponseUtil");
+        this.gameCallbacks = container.resolve<GameCallbacks>("GameCallbacks");
+        this.profileCallbacks = container.resolve<ProfileCallbacks>("ProfileCallbacks");
 
         CoopMatch.saveServer = this.saveServer;
         CoopMatch.locationController = this.locationController;
@@ -255,6 +263,13 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
 
                             // Get Instance of CoopMatch
                             const m = CoopMatch.CoopMatches[itemKey];
+
+                            // Filter out Scav raids from PMC raids
+                            if(info.side.toLowerCase() != "savage" && m.Side.toLowerCase() == "savage")
+                                continue;
+
+                            if(info.side.toLowerCase() == "savage" && m.Side.toLowerCase() != "savage")
+                                continue;
 
                             // Filter out Raids that have Not Started or Empty
 
@@ -588,42 +603,24 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                         return output;
                     }
                 },
-                // {
-                //     url: "/client/match/group/current",
-                //     action: (url: string, info: any, sessionID: string, output: string): any => 
-                //     {
-                //         logger.info("/client/match/group/current")
-                //         logger.info("TODO: Look into Getting Group Current")
+                {
+                    url: "/client/game/start",
+                    action: (url: string, info: any, sessionID: string, output: string): any => 
+                    {
+                        new SITHelpers().fixProfileEquipmentId(container, sessionID);
+                        return StayInTarkovMod.Instance.gameCallbacks.gameStart(url, info, sessionID);
+                    }
+                },
+                {
+                    url: "/client/game/profile/create",
+                    action: (url: string, info: any, sessionID: string, output: string): any => 
+                    {
+                        const profileC = StayInTarkovMod.Instance.profileCallbacks.createProfile(url, info, sessionID);
+                        new SITHelpers().fixProfileEquipmentId(container, sessionID);
+                        return profileC;
+                    }
 
-                //         const myAccount = this.saveServer.getProfile(sessionID);
-                //         if(myAccount === undefined) { 
-                //             console.log("own account cannot be found");
-                //             return null;
-                //         }
-                //         let squadList: Friend[] = [];
-                //         // console.log(allAccounts);
-                //         // {
-                //         //     let squadMember: Friend = {
-                //         //         _id: myAccount.info.id,
-                //         //         Info: {
-                //         //             Level: myAccount.characters.pmc.Info.Level,
-                //         //             Nickname: myAccount.info.username,
-                //         //             Side: myAccount.characters.pmc.Info.Side,
-                //         //             MemberCategory: MemberCategory.DEFAULT
-                //         //         }
-                //         //     };
-                //         //     squadList.push(squadMember);
-                //         // }
-
-
-                //         const obj = {
-                //             squad: squadList,
-                //             raidSettings: {}
-                //         };
-                //         output = JSON.stringify({ data: obj, err: 0, errmsg: null });
-                //         return output;
-                //     }
-                // },
+                },
                 {
                     url: "/client/match/group/exit_from_menu",
                     action: (url: string, info: any, sessionID: string, output: string): any => 
@@ -710,65 +707,9 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
             "aki"
         );
 
-        /**
-         * WIP/UNUSED FEATURE: GET FRIENDS LIST
-         */
-        // container.afterResolution("DialogueController", (_t, result: DialogueController) => 
-        // {
-        //     // We want to replace the original method logic with something different
-        //     result.getFriendList = (sessionID: string) => 
-        //     {
-        //         return this.getFriendsList(sessionID);
-        //     }
-        //     // The modifier Always makes sure this replacement method is ALWAYS replaced
-        // }, {frequency: "Always"});
-        
-        /**
-         * MUST HAVE: REPLACE GAME CONFIG SO IP CAN BE EXTERNAL
-         */
     }
 
-    // public getFriendsList(sessionID: string): IGetFriendListDataResponse
-    // {
-    //     console.log("getFriendsList");
-    //     const friends = this.getFriendsForUser(sessionID);
-
-    //     return {
-    //         "Friends": friends,
-    //         "Ignore": [],
-    //         "InIgnoreList": []
-    //     };
-    // }
-
-    // public getFriendsForUser(sessionID: string): Friend[]
-    // {
-    //     const allAccounts = this.saveServer.getProfiles();
-	// 	const myAccount = this.saveServer.getProfile(sessionID);
-	// 	if(myAccount === undefined) { 
-	// 		console.log("own account cannot be found");
-	// 		return null;
-	// 	}
-    //     let friendList: Friend[] = [];
-    //     // console.log(allAccounts);
-    //     for (const id in allAccounts)
-    //     {
-    //         if(id == sessionID)
-    //             continue;
-    //         let accountProfile = this.saveServer.getProfile(id);
-    //         let friend: Friend = {
-    //             _id: accountProfile.info.id,
-    //             Info: {
-    //                 Level: accountProfile.characters.pmc.Info.Level,
-    //                 Nickname: accountProfile.info.username,
-    //                 Side: accountProfile.characters.pmc.Info.Side,
-    //                 MemberCategory: MemberCategory.MemberCategory.DEFAULT
-    //             }
-    //         };
-    //         friendList.push(friend);
-    //     }
-
-    //     return friendList;
-    // }
+    
 
     postDBLoad(container: tsyringe.DependencyContainer): void {
         StayInTarkovMod.container = container;

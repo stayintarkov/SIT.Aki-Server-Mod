@@ -39,6 +39,8 @@ export class CoopMatch {
 
     /* Server Port */
     ServerPort: number;
+    /** The Side of the match. */
+    Side: string;
 
     /** The time the match was created. Useful for clearing out old matches. */
     CreatedDateTime: Date = new Date();
@@ -97,8 +99,8 @@ export class CoopMatch {
 
     friendlyAI: friendlyAI;
 
-    private CheckStartTimeout : NodeJS.Timeout;
-    private CheckStillRunningInterval: NodeJS.Timeout;
+    // private CheckStartTimeout : NodeJS.Timeout;
+    // private CheckStillRunningInterval: NodeJS.Timeout;
 
     /** A STATIC Dictonary of Coop Matches. The Key is the Account Id of the Player that created it */
     public static CoopMatches: Record<string, CoopMatch> = {}; 
@@ -109,6 +111,20 @@ export class CoopMatch {
     public static locationController: LocationController;
 
     public constructor(inData: any) {
+
+        this.ServerId = inData.serverId;
+        this.Status = CoopMatchStatus.Loading;
+        this.CreatedDateTime = new Date(Date.now());
+        this.LastUpdateDateTime = new Date(Date.now());
+
+        if(inData.settings === undefined)
+            return;
+
+        this.Side = inData.settings.side;
+        this.Location = inData.settings.location;
+        this.Time = inData.settings.timeVariant;
+        this.WeatherSettings = inData.settings.timeAndWeatherSettings;
+        this.friendlyAI = new friendlyAI();
 
         if(CoopMatch.CoopMatches[inData.serverId] !== undefined) {
             delete CoopMatch.CoopMatches[inData.serverId];
@@ -145,15 +161,15 @@ export class CoopMatch {
         this.friendlyAI = new friendlyAI();
 
         // This checks to see if the WebSockets can still be communicated with. If it cannot for any reason. The match/raid/session will close down.
-        this.CheckStartTimeout = setTimeout(() => {
-            this.CheckStillRunningInterval = setInterval(() => {
+    //     this.CheckStartTimeout = setTimeout(() => {
+    //         this.CheckStillRunningInterval = setInterval(() => {
 
-                if(!WebSocketHandler.Instance.areThereAnyWebSocketsOpen(this.ConnectedPlayers)) {
-                    this.endSession(CoopMatchEndSessionMessages.WEBSOCKET_TIMEOUT_MESSAGE);
-                }
+    //             if(!WebSocketHandler.Instance.areThereAnyWebSocketsOpen(this.ConnectedPlayers)) {
+    //                 this.endSession(CoopMatchEndSessionMessages.WEBSOCKET_TIMEOUT_MESSAGE);
+    //             }
     
-            }, CoopConfig.Instance.webSocketTimeoutSeconds * 1000);
-        }, CoopConfig.Instance.webSocketTimeoutCheckStartSeconds * 1000);        
+    //         }, CoopConfig.Instance.webSocketTimeoutSeconds * 1000);
+    //     }, CoopConfig.Instance.webSocketTimeoutCheckStartSeconds * 1000);        
     }
 
     public ProcessData(info: any, logger: ILogger) {
@@ -188,7 +204,7 @@ export class CoopMatch {
                 console.log(`SIT ${info}. Will just redirect this out to Clients.`)
                 // const newJObj = { data: info };
                 // this.ProcessData(newJObj, logger);
-                WebSocketHandler.Instance.sendToWebSockets(this.ConnectedUsers, info);
+                WebSocketHandler.Instance.sendToWebSockets(this.ConnectedUsers, undefined, info);
             }
             return;
         }
@@ -269,7 +285,7 @@ export class CoopMatch {
 
         // console.log(info);
 
-        WebSocketHandler.Instance.sendToWebSockets(this.ConnectedUsers, serializedData);
+        WebSocketHandler.Instance.sendToWebSockets(this.ConnectedUsers, undefined, serializedData);
     }
 
     public UpdateStatus(inStatus: CoopMatchStatus) {
@@ -317,18 +333,18 @@ export class CoopMatch {
     }
 
     public Ping(profileId: string, timestamp: string) {
-        WebSocketHandler.Instance.sendToWebSockets([profileId], JSON.stringify({ pong: timestamp }));
+        WebSocketHandler.Instance.sendToWebSockets([profileId], undefined, JSON.stringify({ pong: timestamp }));
     }
 
     public endSession(reason: string) {
         console.log(`COOP SESSION ${this.ServerId} HAS BEEN ENDED: ${reason}`);
-        WebSocketHandler.Instance.sendToWebSockets(this.ConnectedPlayers, JSON.stringify({ "endSession": true, reason: reason }));
+        WebSocketHandler.Instance.sendToWebSockets(this.ConnectedPlayers, undefined, JSON.stringify({ "endSession": true, reason: reason }));
 
         this.Status = CoopMatchStatus.Complete;
         
         //clearTimeout(this.SendLastDataInterval);
-        clearTimeout(this.CheckStartTimeout);
-        clearInterval(this.CheckStillRunningInterval);
+        // clearTimeout(this.CheckStartTimeout);
+        // clearInterval(this.CheckStillRunningInterval);
 
         this.LocationData = null;
 

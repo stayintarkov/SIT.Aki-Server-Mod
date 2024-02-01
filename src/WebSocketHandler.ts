@@ -19,17 +19,7 @@ export class WebSocketHandler {
             const webSocketServer = new WebSocket.Server({
                 port: webSocketPort,
                 clientTracking: true,
-                skipUTF8Validation: true,
-                perMessageDeflate: {
-                    // Other options settable:
-                    clientNoContextTakeover: true, // Defaults to negotiated value.
-                    serverNoContextTakeover: true, // Defaults to negotiated value.
-                    serverMaxWindowBits: 10, // Defaults to negotiated value.
-                    // Below options specified as default values.
-                    concurrencyLimit: 10, // Limits zlib concurrency for perf.
-                    threshold: 1024 // Size (in bytes) below which messages
-                    // should not be compressed if context takeover is disabled.
-                }
+                skipUTF8Validation: true
             });
 
             // const pinger = setInterval(function ping() {
@@ -50,7 +40,9 @@ export class WebSocketHandler {
             });
     
             webSocketServer.addListener("connection", this.wsOnConnection.bind(this));
-        }
+
+            
+    }
 
     protected wsOnConnection(ws: WebSocket.WebSocket, req: IncomingMessage): void 
     {
@@ -94,7 +86,7 @@ export class WebSocketHandler {
 
         const msgStr = msg.toString();
 
-        this.processMessageString(msgStr);
+        this.processMessageString(msg, msgStr);
     }
 
     private async processClose(ws: WebSocket, sessionId: string) {
@@ -109,7 +101,8 @@ export class WebSocketHandler {
     }
 
 
-    private async processMessageString(msgStr: string) {        
+    private async processMessageString(msg: RawData, msgStr: string) {
+
         // If is SIT serialized string -- This is NEVER stored.
         if(msgStr.startsWith("SIT")) {
             // console.log(`received ${msgStr}`);
@@ -133,8 +126,9 @@ export class WebSocketHandler {
                 let d = messageWithoutSITPrefixes.substring(messageWithoutSITPrefixes.indexOf('?')).replace('?', '')
                 d = d.replace(method, ""); // remove method
                 // d = d.substring(1); // remove method length prefix
-                const resultObj = { m: method, data: d, fullData: msgStr };
-                WebSocketHandler.Instance.sendToWebSockets(match.ConnectedUsers, JSON.stringify(resultObj));
+                // const resultObj = { m: method, data: d, message: msgStr };
+                // WebSocketHandler.Instance.sendToWebSockets(match.ConnectedUsers, JSON.stringify(resultObj));
+                WebSocketHandler.Instance.sendToWebSockets(match.ConnectedUsers, msg, undefined);
             }
             else {
                 console.log(`couldn't find match ${serverId}`);
@@ -170,21 +164,25 @@ export class WebSocketHandler {
                 match.ProcessData(jsonObject, this.logger);
             }
         } else {
-            this.sendToAllWebSockets(JSON.stringify(jsonObject));
+            this.sendToAllWebSockets(undefined, JSON.stringify(jsonObject));
         }
     }
 
-    public sendToAllWebSockets(data: string) {
-        this.sendToWebSockets(Object.keys(this.webSockets), data);
+    public sendToAllWebSockets(data: RawData, dataString: string) {
+        this.sendToWebSockets(Object.keys(this.webSockets), data, dataString);
     }
 
-    public sendToWebSockets(sessions: string[], data: string) {
+    public sendToWebSockets(sessions: string[], data: RawData, dataString: string) {
         for(let session of sessions) {
             if(this.webSockets[session] !== undefined)
             {
                 if (this.webSockets[session].readyState === WebSocket.OPEN) 
                 {
-                    this.webSockets[session].send(data);
+                    if (data !== undefined)
+                        this.webSockets[session].send(data);
+
+                    if (dataString !== undefined)
+                        this.webSockets[session].send(dataString);
                 }
                 else 
                 {
