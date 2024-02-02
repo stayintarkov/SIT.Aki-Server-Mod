@@ -33,10 +33,7 @@ export class WebSocketHandler {
     
             webSocketServer.addListener("listening", () => 
             {
-                console.log("=======================================================================");
-                console.log(`COOP MOD: Web Socket Server is listening on ${webSocketPort}`);
-                console.log("A temporary Web Socket Server until SPT-Aki open theirs up for modding!");
-                console.log("=======================================================================");
+                console.log(`SIT: TCP Relay WebSocket is listening on ${webSocketPort}`);
             });
     
             webSocketServer.addListener("connection", this.wsOnConnection.bind(this));

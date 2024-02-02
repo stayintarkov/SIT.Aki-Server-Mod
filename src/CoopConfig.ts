@@ -4,18 +4,14 @@ import path from "path";
 export class CoopConfig {
     public webSocketPort: number;
     public natHelperPort: number;
-    public webSocketUseHttps: boolean;
-    public webSocketTimeoutSeconds: number;
-    public webSocketTimeoutCheckStartSeconds: number;
+    public useUPNP: boolean;
 
     public static Instance: CoopConfig;
 
     constructor() {
         this.webSocketPort = 6970;
         this.natHelperPort = 6971;
-        this.webSocketUseHttps = false;
-        this.webSocketTimeoutSeconds = 5;
-        this.webSocketTimeoutCheckStartSeconds = 120;
+        this.useUPNP = true;
 
         const configFilePath = path.join(__dirname, "..", "config");
         if(!fs.existsSync(configFilePath))

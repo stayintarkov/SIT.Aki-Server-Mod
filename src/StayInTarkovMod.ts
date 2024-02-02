@@ -48,6 +48,7 @@ import { GameCallbacks } from "@spt-aki/callbacks/GameCallbacks";
 import { ProfileCallbacks } from "@spt-aki/callbacks/ProfileCallbacks";
 import { HashUtil } from "@spt-aki/utils/HashUtil";
 import { SITHelpers } from "./SITHelpers";
+import { UPNPHelper } from "./UPNPHelper";
 // -------------------------------------------------------------------------
 
 @tsyringe.injectable()
@@ -119,6 +120,9 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
 
         // Nat Helper (for P2P connection)
         this.natHelper = new NatHelper(this.coopConfig.natHelperPort, logger);
+
+        // UPNP Helper (UPNP map the ports used by AKI and SIT)
+        new UPNPHelper(this.httpConfig.port);
 
         // this.traders.push(new SITCustomTraders(), new CoopGroupTrader(), new UsecTrader(), new BearTrader());
         // this.traders.push(new SITCustomTraders());

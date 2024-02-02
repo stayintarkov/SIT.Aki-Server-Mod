@@ -59,7 +59,7 @@ export class NatHelper {
     
             webSocketServer.addListener("listening", () => 
             {
-                console.log(`Nat Helper started on port ${webSocketPort}!`);
+                console.log(`SIT: TCP Nat Helper WebSocket is listening on ${webSocketPort}`);
             });
     
             webSocketServer.addListener("connection", this.wsOnConnection.bind(this));
