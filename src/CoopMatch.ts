@@ -77,14 +77,9 @@ export class CoopMatch {
     /** All characters in the game. Including AI */
     public Characters: any[] = [];
 
-    LastDataByProfileId: Record<string, Record<string, Record<string, any>>> = {};
+    public Protocol: string;
 
-    // @TODO: Delete
-    // LastDataReceivedByAccountId: Record<string, number> = {};
-    // LastData: Record<string, Record<string, any>> = {};
-    // LastMoves: Record<string, any> = {};
-    // LastRotates: Record<string, any> = {};
-    // DamageArray: any[] = [];
+    LastDataByProfileId: Record<string, Record<string, Record<string, any>>> = {};
 
     PreviousSentData: string[] = [];
 	PreviousSentDataMaxSize: number = 128;
@@ -135,9 +130,8 @@ export class CoopMatch {
 
         // Server settings
         this.ServerId = inData.serverId;
-        this.ServerType = inData.serverType;
         this.Password = inData.password !== undefined ? inData.password : undefined;
-
+        this.Protocol = inData.protocol;
         this.GameVersion = inData.gameVersion;
         this.SITVersion = inData.sitVersion;
         this.AuthorizedUsers.push(inData.serverId);

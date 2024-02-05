@@ -10,4 +10,5 @@ export class CoopMatchResponse {
     GameVersion: string;
     SITVersion: string;
     IsPasswordLocked: boolean;
+    Protocol: string;
 }
