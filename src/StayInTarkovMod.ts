@@ -423,7 +423,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                             return output;
                         }
 
-                        if (coopMatch.Password !== "") {
+                        if (coopMatch.Password !== undefined && coopMatch.Password !== "") {
                             if(info.password == "")
                             {
                                 output = JSON.stringify(
