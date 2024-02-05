@@ -11,4 +11,5 @@ export class CoopMatchResponse {
     SITVersion: string;
     IsPasswordLocked: boolean;
     Protocol: string;
+    IPAddress: string;
 }

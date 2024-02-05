@@ -321,6 +321,8 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                             matchResponse.ServerId = itemKey;
                             // SIT Protocol (Tcp, Udp etc.)
                             matchResponse.Protocol = m.Protocol;
+                            // IP Address (v4)
+                            matchResponse.IPAddress = m.IPAddress;
 
                             matches.push(matchResponse);
                         }
@@ -476,7 +478,8 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                                 expectedNumberOfPlayers: coopMatch.ExpectedNumberOfPlayers,
                                 sitVersion: coopMatch.SITVersion,
                                 gameVersion: coopMatch.GameVersion,
-                                protocol: coopMatch.Protocol
+                                protocol: coopMatch.Protocol,
+                                ipAddress: coopMatch.IPAddress
                             } : null);
 
                         console.log("JoinMatch Result Ouput:");

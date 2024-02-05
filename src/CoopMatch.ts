@@ -77,7 +77,11 @@ export class CoopMatch {
     /** All characters in the game. Including AI */
     public Characters: any[] = [];
 
+    /** The Protocol the Match is using (P2P, Relay, etc) */
     public Protocol: string;
+
+    /** The IP Address the Match is using. Only set when the host desired. Otherwise, it is auto selected by the Client. */
+    public IPAddress: string;
 
     LastDataByProfileId: Record<string, Record<string, Record<string, any>>> = {};
 
@@ -132,6 +136,7 @@ export class CoopMatch {
         this.ServerId = inData.serverId;
         this.Password = inData.password !== undefined ? inData.password : undefined;
         this.Protocol = inData.protocol;
+        this.IPAddress = inData.ipAddress;
         this.GameVersion = inData.gameVersion;
         this.SITVersion = inData.sitVersion;
         this.AuthorizedUsers.push(inData.serverId);
