@@ -549,6 +549,11 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                             return output; 
                         }
 
+                        if(info.m == "PlayerSpawn" && info.isAI)
+                        {
+                            coopMatch.AuthorizedUsers.push(info.profileId);
+                        }
+
                         coopMatch.ProcessData(info, logger);
                         
 
