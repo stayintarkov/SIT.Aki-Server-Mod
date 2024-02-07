@@ -27,18 +27,7 @@ export class CoopMatch {
 
     /** The ServerId. The ProfileId of the host player. */
     ServerId: string;
-
-    /* Server Type (relay, p2p) */
-    ServerType: string;
     
-    /* Server Nat Method (upnp, natpunch, portforward) */
-    ServerNat: string;
-
-    /* Server Ip */
-    ServerIp: string;
-
-    /* Server Port */
-    ServerPort: number;
     /** The Side of the match. */
     Side: string;
 
@@ -82,6 +71,8 @@ export class CoopMatch {
 
     /** The IP Address the Match is using. Only set when the host desired. Otherwise, it is auto selected by the Client. */
     public IPAddress: string;
+
+    public Port: number;
 
     LastDataByProfileId: Record<string, Record<string, Record<string, any>>> = {};
 
@@ -137,6 +128,7 @@ export class CoopMatch {
         this.Password = inData.password !== undefined ? inData.password : undefined;
         this.Protocol = inData.protocol;
         this.IPAddress = inData.ipAddress;
+        this.Port = inData.port;
         this.GameVersion = inData.gameVersion;
         this.SITVersion = inData.sitVersion;
         this.AuthorizedUsers.push(inData.serverId);

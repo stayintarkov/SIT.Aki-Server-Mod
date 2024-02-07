@@ -28,6 +28,8 @@
     },
     "dependencies": {
         "@megachips/nat-upnp": "^1.1.1",
+        "axios": "^1.6.7",
+        "fast-xml-parser": "^4.3.4",
         "ws": "^8.14.2"
     }
 }

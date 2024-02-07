@@ -2,6 +2,7 @@ import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
 import { IncomingMessage } from "http";
 import WebSocket, { RawData } from "ws";
 import { CoopMatch } from "./CoopMatch";
+import { StayInTarkovMod } from "./StayInTarkovMod";
 
 class EndPoints {
     StunIp: string;
@@ -114,16 +115,13 @@ export class NatHelper {
 
             if(msgObj.requestType == "getEndPointsResponse")
             {
-                // This is a hack to provide the host's external or local IP address
-                if(msgObj.publicEndPoints["remote"] !== undefined)
+                const coopMatch = StayInTarkovMod.Instance.getCoopMatch(msgObj.serverId);
+
+                if(coopMatch !== undefined)
                 {
-                    const udpPort = msgObj.publicEndPoints["remote"].split(":")[1];
-
-                    msgObj.publicEndPoints["remote"] = `${req.socket.remoteAddress.split(":")[3]}:${udpPort}`;
+                    msgObj.publicEndPoints["remote"] = `${req.socket.remoteAddress.split(":")[3]}:${coopMatch.Port}`;
+                    this.webSockets[msgObj.profileId].send(JSON.stringify(msgObj));
                 }
-
-                console.log(JSON.stringify(msgObj));
-                this.webSockets[msgObj.profileId].send(JSON.stringify(msgObj));
             }
 
             if(msgObj.requestType == "natPunchResponse")

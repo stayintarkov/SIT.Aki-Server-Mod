@@ -121,11 +121,11 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         // Nat Helper (for P2P connection)
         this.natHelper = new NatHelper(this.coopConfig.natHelperPort, logger);
 
-        // UPNP Helper (UPNP map the ports used by AKI and SIT)
-        new UPNPHelper(this.httpConfig.port);
-
         // this.traders.push(new SITCustomTraders(), new CoopGroupTrader(), new UsecTrader(), new BearTrader());
         // this.traders.push(new SITCustomTraders());
+        
+        // UPNP Helper (UPNP map the ports used by AKI and SIT)
+        new UPNPHelper(this.httpConfig.port);
     }
 
     public preAkiLoad(container: tsyringe.DependencyContainer): void {
@@ -473,13 +473,13 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                         output = JSON.stringify(coopMatch !== null ? 
                             { 
                                 serverId: coopMatch.ServerId,
-                                serverType: coopMatch.ServerType,
                                 timestamp: coopMatch.Timestamp,
                                 expectedNumberOfPlayers: coopMatch.ExpectedNumberOfPlayers,
                                 sitVersion: coopMatch.SITVersion,
                                 gameVersion: coopMatch.GameVersion,
                                 protocol: coopMatch.Protocol,
-                                ipAddress: coopMatch.IPAddress
+                                ipAddress: coopMatch.IPAddress,
+                                port: coopMatch.Port
                             } : null);
 
                         console.log("JoinMatch Result Ouput:");
