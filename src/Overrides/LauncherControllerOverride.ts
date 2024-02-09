@@ -11,27 +11,21 @@ export class LauncherControllerOverride
     container: DependencyContainer;
     saveServer: SaveServer;
     gameControllerOverride: GameControllerOverride;
-    coopConfig: CoopConfig;
-    httpConfig: any;
     
     constructor
     (
         container: DependencyContainer,
         gameControllerOverride: GameControllerOverride,
-        coopConfig: CoopConfig,
-        httpConfig: any
     )
     {
         this.container = container;
         this.saveServer = container.resolve<SaveServer>("SaveServer");
         this.gameControllerOverride = gameControllerOverride;
-        this.coopConfig = coopConfig;
-        this.httpConfig = httpConfig;
     }
 
     private login(info: any)
     {
-        let backendUrl: string = `${this.coopConfig.protocol}://${this.coopConfig.externalIP}:${this.httpConfig.port}`;
+        //let backendUrl: string = `${this.coopConfig.protocol}://${this.coopConfig.externalIP}:${this.httpConfig.port}`;
         
         for (const sessionID in this.saveServer.getProfiles())
         {
@@ -43,12 +37,10 @@ export class LauncherControllerOverride
                 {
                     if(info.backendUrl !== undefined && info.backendUrl !== "")
                     {
-                        backendUrl = info.backendUrl;
-                    }
-
-                    this.gameControllerOverride.setSessionBackendUrl(sessionID, backendUrl);
+                        this.gameControllerOverride.setSessionBackendUrl(sessionID, info.backendUrl);
                     
-                    return sessionID;
+                        return sessionID;
+                    }
                 }
                 else
                 {

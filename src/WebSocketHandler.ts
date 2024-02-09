@@ -17,7 +17,7 @@ export class WebSocketHandler {
             WebSocketHandler.Instance = this;
             this.logger = logger;
             const webSocketServer = new WebSocket.Server({
-                "port": webSocketPort,
+                port: webSocketPort,
                 clientTracking: true,
                 skipUTF8Validation: true
             });
@@ -33,10 +33,7 @@ export class WebSocketHandler {
     
             webSocketServer.addListener("listening", () => 
             {
-                console.log(`=======================================================================`);
-                console.log(`COOP MOD: Web Socket Server is listening on ${webSocketPort}`);
-                console.log(`A temporary Web Socket Server until SPT-Aki open theirs up for modding!`);
-                console.log(`=======================================================================`);
+                console.log(`SIT: TCP Relay WebSocket is listening on ${webSocketPort}`);
             });
     
             webSocketServer.addListener("connection", this.wsOnConnection.bind(this));
@@ -47,6 +44,7 @@ export class WebSocketHandler {
     protected wsOnConnection(ws: WebSocket.WebSocket, req: IncomingMessage): void 
     {
         const wsh = this;
+
         // Strip request and break it into sections
         const splitUrl = req.url.substring(0, req.url.indexOf("?")).split("/");
 
@@ -154,7 +152,7 @@ export class WebSocketHandler {
 
         const match = CoopMatch.CoopMatches[jsonObject["serverId"]];
         if(match !== undefined) {
-
+            
             if(jsonObject["connect"] == true) {
                 match.PlayerJoined(jsonObject["profileId"]);
             }

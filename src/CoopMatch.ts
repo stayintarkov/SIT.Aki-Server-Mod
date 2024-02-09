@@ -27,7 +27,7 @@ export class CoopMatch {
 
     /** The ServerId. The ProfileId of the host player. */
     ServerId: string;
-
+    
     /** The Side of the match. */
     Side: string;
 
@@ -39,10 +39,6 @@ export class CoopMatch {
 
     /** The state of the match. */
     State: any;
-    /** The IP of the match. Unused. */
-    Ip: string;
-    /** The Port of the match. Unused. */
-    Port: string;
 
     /** The expected number of players. Used to hold the match before starting. Unused. */
     ExpectedNumberOfPlayers: number = 1;
@@ -70,14 +66,15 @@ export class CoopMatch {
     /** All characters in the game. Including AI */
     public Characters: any[] = [];
 
-    LastDataByProfileId: Record<string, Record<string, Record<string, any>>> = {};
+    /** The Protocol the Match is using (P2P, Relay, etc) */
+    public Protocol: string;
 
-    // @TODO: Delete
-    // LastDataReceivedByAccountId: Record<string, number> = {};
-    // LastData: Record<string, Record<string, any>> = {};
-    // LastMoves: Record<string, any> = {};
-    // LastRotates: Record<string, any> = {};
-    // DamageArray: any[] = [];
+    /** The IP Address the Match is using. Only set when the host desired. Otherwise, it is auto selected by the Client. */
+    public IPAddress: string;
+
+    public Port: number;
+
+    LastDataByProfileId: Record<string, Record<string, Record<string, any>>> = {};
 
     PreviousSentData: string[] = [];
 	PreviousSentDataMaxSize: number = 128;
@@ -123,13 +120,36 @@ export class CoopMatch {
             delete CoopMatch.CoopMatches[inData.serverId];
         }
 
-        // Generate match location data (Loot)
+        if(inData.settings === undefined)
+            return;
+
+        // Server settings
+        this.ServerId = inData.serverId;
+        this.Password = inData.password !== undefined ? inData.password : undefined;
+        this.Protocol = inData.protocol;
+        this.IPAddress = inData.ipAddress;
+        this.Port = inData.port;
+        this.GameVersion = inData.gameVersion;
+        this.SITVersion = inData.sitVersion;
+        this.AuthorizedUsers.push(inData.serverId);
+        this.Status = CoopMatchStatus.Loading;
+        this.CreatedDateTime = new Date(Date.now());
+        this.LastUpdateDateTime = new Date(Date.now());
+
+        // Raid settings
+        this.Timestamp = inData.timestamp;
+        this.Location = inData.settings.location;
+        this.Time = inData.settings.timeVariant;
+        this.WeatherSettings = inData.settings.timeAndWeatherSettings;
+        this.ExpectedNumberOfPlayers = inData.expectedNumberOfPlayers;
         this.LocationData = CoopMatch.locationController.get("", 
         {
             crc: 0, /* unused */
             locationId: this.Location,
             variantId: 0 /* unused */
         });
+
+        this.friendlyAI = new friendlyAI();
 
         // This checks to see if the WebSockets can still be communicated with. If it cannot for any reason. The match/raid/session will close down.
     //     this.CheckStartTimeout = setTimeout(() => {

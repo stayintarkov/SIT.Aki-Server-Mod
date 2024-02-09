@@ -14,6 +14,7 @@ import { IGetLocationRequestData } from "@spt-aki/models/eft/location/IGetLocati
 import { CoopConfig } from "./CoopConfig";
 import { CoopMatch, CoopMatchEndSessionMessages, CoopMatchStatus } from "./CoopMatch";
 import { WebSocketHandler } from "./WebSocketHandler";
+import { NatHelper } from "./NatHelper";
 
 import { RouteAction } from "@spt-aki/di/Router";
 import { ConfigTypes } from "@spt-aki/models/enums/ConfigTypes";
@@ -47,6 +48,7 @@ import { GameCallbacks } from "@spt-aki/callbacks/GameCallbacks";
 import { ProfileCallbacks } from "@spt-aki/callbacks/ProfileCallbacks";
 import { HashUtil } from "@spt-aki/utils/HashUtil";
 import { SITHelpers } from "./SITHelpers";
+import { UPNPHelper } from "./UPNPHelper";
 // -------------------------------------------------------------------------
 
 @tsyringe.injectable()
@@ -59,6 +61,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
     protected httpResponse: HttpResponseUtil;
     databaseServer: DatabaseServer;
     public webSocketHandler: WebSocketHandler;
+    public natHelper: NatHelper;
     public coopConfig: CoopConfig;
     public sitConfig: SITConfig;
     configServer: ConfigServer;
@@ -111,10 +114,18 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         this.coopConfig = new CoopConfig();
         this.sitConfig = new SITConfig();
         this.sitConfig.routeHandler(container);
+        
+        // Relay server
         this.webSocketHandler = new WebSocketHandler(this.coopConfig.webSocketPort, logger);
+
+        // Nat Helper (for P2P connection)
+        this.natHelper = new NatHelper(this.coopConfig.natHelperPort, logger);
 
         // this.traders.push(new SITCustomTraders(), new CoopGroupTrader(), new UsecTrader(), new BearTrader());
         // this.traders.push(new SITCustomTraders());
+        
+        // UPNP Helper (UPNP map the ports used by AKI and SIT)
+        new UPNPHelper(this.httpConfig.port);
     }
 
     public preAkiLoad(container: tsyringe.DependencyContainer): void {
@@ -139,7 +150,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         gameControllerOverride.override();
 
         // ----------------------- Launcher Controller overrides -------------------------------------------------
-        const launcherControllerOverride = new LauncherControllerOverride(container, gameControllerOverride, this.coopConfig, this.httpConfig);
+        const launcherControllerOverride = new LauncherControllerOverride(container, gameControllerOverride);
         launcherControllerOverride.override();
 
         // ----------------------- TODO: Azure WebApp Helper (trying to fix this ASAP) ------------------------------------------------
@@ -265,8 +276,10 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                                 continue;
 
                             // Filter out Raids that have Not Started or Empty
-                            if(m.ConnectedPlayers.length === 0)
-                                continue;
+
+                            // TEMP FOR UDP TESTING
+                            //if(m.ConnectedPlayers.length === 0)
+                                //continue;
 
                             // Filter out Raids that are on a different time
                             if (m.Time != info.timeVariant)
@@ -306,6 +319,10 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                             matchResponse.SITVersion = m.SITVersion;
                             // Server Id
                             matchResponse.ServerId = itemKey;
+                            // SIT Protocol (Tcp, Udp etc.)
+                            matchResponse.Protocol = m.Protocol;
+                            // IP Address (v4)
+                            matchResponse.IPAddress = m.IPAddress;
 
                             matches.push(matchResponse);
                         }
@@ -328,16 +345,8 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                         }
 
                         CoopMatch.CoopMatches[info.serverId] = new CoopMatch(info);
-                        CoopMatch.CoopMatches[info.serverId].Timestamp = info.timestamp;
-                        CoopMatch.CoopMatches[info.serverId].Location = info.settings.location;
-                        CoopMatch.CoopMatches[info.serverId].Time = info.settings.timeVariant;
-                        CoopMatch.CoopMatches[info.serverId].WeatherSettings = info.settings.timeAndWeatherSettings;
-                        CoopMatch.CoopMatches[info.serverId].ExpectedNumberOfPlayers = info.expectedNumberOfPlayers;
-                        CoopMatch.CoopMatches[info.serverId].GameVersion = info.gameVersion;
-                        CoopMatch.CoopMatches[info.serverId].SITVersion = info.sitVersion;
-                        CoopMatch.CoopMatches[info.serverId].Password = info.password !== undefined ? info.password : undefined;
-                        CoopMatch.CoopMatches[info.serverId].AuthorizedUsers.push(info.serverId);
-                        output = JSON.stringify({ serverId:  info.serverId });
+
+                        output = JSON.stringify({serverId:  info.serverId});
                         return output;
                     }
                 },
@@ -414,7 +423,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                             return output;
                         }
 
-                        if (coopMatch.Password !== "") {
+                        if (coopMatch.Password !== undefined && coopMatch.Password !== "") {
                             if(info.password == "")
                             {
                                 output = JSON.stringify(
@@ -463,12 +472,18 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
 
                         output = JSON.stringify(coopMatch !== null ? 
                             { 
-                                serverId: coopMatch.ServerId
-                                , timestamp: coopMatch.Timestamp
-                                , expectedNumberOfPlayers: coopMatch.ExpectedNumberOfPlayers 
-                                , sitVersion: coopMatch.SITVersion 
-                                , gameVersion: coopMatch.GameVersion
+                                serverId: coopMatch.ServerId,
+                                timestamp: coopMatch.Timestamp,
+                                expectedNumberOfPlayers: coopMatch.ExpectedNumberOfPlayers,
+                                sitVersion: coopMatch.SITVersion,
+                                gameVersion: coopMatch.GameVersion,
+                                protocol: coopMatch.Protocol,
+                                ipAddress: coopMatch.IPAddress,
+                                port: coopMatch.Port
                             } : null);
+
+                        console.log("JoinMatch Result Ouput:");
+                        console.log(output);
                         return output;
                     }
                 },
@@ -532,6 +547,11 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
 
                             output = JSON.stringify({});
                             return output; 
+                        }
+
+                        if(info.m == "PlayerSpawn" && info.isAI)
+                        {
+                            coopMatch.AuthorizedUsers.push(info.profileId);
                         }
 
                         coopMatch.ProcessData(info, logger);
