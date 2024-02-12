@@ -27,9 +27,9 @@
         "typescript": "5.2.2"
     },
     "dependencies": {
-        "@megachips/nat-upnp": "^1.1.1",
-        "axios": "^1.6.7",
+        "cross-fetch-ponyfill": "^1.0.3",
         "fast-xml-parser": "^4.3.4",
-        "ws": "^8.14.2"
+        "ws": "^8.14.2",
+        "xml2js": "^0.6.2"
     }
 }

@@ -1,4 +1,4 @@
-import tsyringe = require("tsyringe");
+import { injectable, DependencyContainer } from "tsyringe";
 
 import { SaveServer } from "@spt-aki/servers/SaveServer";
 import { HttpResponseUtil } from "@spt-aki/utils/HttpResponseUtil";
@@ -22,8 +22,6 @@ import { IPostDBLoadMod } from "@spt-aki/models/external/IPostDBLoadMod";
 import { ConfigServer } from "@spt-aki/servers/ConfigServer";
 
 import { SITConfig } from "./SITConfig";
-import moment = require("moment");
-import AzureWAH = require("./AzureWebAppHelper");
 
 // -------------------------------------------------------------------------
 // Custom Traders (needs to be refactored into SITCustomTraders.ts)
@@ -48,14 +46,14 @@ import { GameCallbacks } from "@spt-aki/callbacks/GameCallbacks";
 import { ProfileCallbacks } from "@spt-aki/callbacks/ProfileCallbacks";
 import { HashUtil } from "@spt-aki/utils/HashUtil";
 import { SITHelpers } from "./SITHelpers";
-import { UPNPHelper } from "./UPNPHelper";
+import { UPNPHelper } from "./upnp/UPNPHelper";
 // -------------------------------------------------------------------------
 
-@tsyringe.injectable()
+@injectable()
 export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
 {
     public static Instance: StayInTarkovMod;
-    private static container: tsyringe.DependencyContainer;
+    private static container: DependencyContainer;
 
     saveServer: SaveServer;
     protected httpResponse: HttpResponseUtil;
@@ -89,7 +87,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         return CoopMatch.CoopMatches[serverId];
     }
 
-    private InitializeVariables(container: tsyringe.DependencyContainer): void { 
+    private InitializeVariables(container: DependencyContainer): void { 
         // ----------------------------------------------------------------
         // Initialize & resolve variables
         StayInTarkovMod.container = container;
@@ -125,10 +123,10 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         // this.traders.push(new SITCustomTraders());
         
         // UPNP Helper (UPNP map the ports used by AKI and SIT)
-        new UPNPHelper(this.httpConfig.port);
+        new UPNPHelper(this.httpConfig.ip, this.httpConfig.port);
     }
 
-    public preAkiLoad(container: tsyringe.DependencyContainer): void {
+    public preAkiLoad(container: DependencyContainer): void {
 
         const logger = container.resolve<ILogger>("WinstonLogger");
         const dynamicRouterModService = container.resolve<DynamicRouterModService>("DynamicRouterModService");
@@ -152,9 +150,6 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         // ----------------------- Launcher Controller overrides -------------------------------------------------
         const launcherControllerOverride = new LauncherControllerOverride(container, gameControllerOverride);
         launcherControllerOverride.override();
-
-        // ----------------------- TODO: Azure WebApp Helper (trying to fix this ASAP) ------------------------------------------------
-        new AzureWAH.AzureWebAppHelper(this.configServer);
 
         // Connect to this module
         staticRouterModService.registerStaticRouter(
@@ -729,7 +724,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
 
     
 
-    postDBLoad(container: tsyringe.DependencyContainer): void {
+    postDBLoad(container: DependencyContainer): void {
         StayInTarkovMod.container = container;
 
         const dbTables = StayInTarkovMod.container.resolve<DatabaseServer>("DatabaseServer").getTables();
