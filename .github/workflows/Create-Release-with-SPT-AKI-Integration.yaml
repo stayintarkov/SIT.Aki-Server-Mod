@@ -25,9 +25,13 @@ jobs:
       - name: Build SIT-Server-Mod
         run: npm run build
 
+      - name: Read package.json
+        id: read_package_json
+        run: echo "::set-output name=version::$(node -e 'console.log(require("./package.json").version)')"
+
       - name: Clone SPT-AKI Server
         run: |
-          git clone -b 3.8.0 --single-branch https://dev.sp-tarkov.com/SPT-AKI/Server.git SPT-AKI-Server
+          git clone -b 3.8.0 --single-branch https://dev.sp-tarkov.com/SPT-AKI/Server.git SPT-AKI-Server # For the moment we use the 3.8 Branch of SPT
           cd SPT-AKI-Server
           git lfs fetch
           git lfs pull
