@@ -1,0 +1,88 @@
+on:
+  workflow_dispatch:
+
+name: Create Release with SPT-AKI Integration
+
+jobs:
+  build:
+    permissions: write-all
+    name: Create Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout SIT-Server-Mod Branch
+        uses: actions/checkout@v2
+        with:
+          ref: 'master'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.10.0'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build SIT-Server-Mod
+        run: npm run build
+
+      - name: Clone SPT-AKI Server
+        run: |
+          git clone -b 3.8.0 --single-branch https://dev.sp-tarkov.com/SPT-AKI/Server.git SPT-AKI-Server
+          cd SPT-AKI-Server
+          git lfs fetch
+          git lfs pull
+
+      - name: Build SPT-AKI Server
+        run: |
+          cd SPT-AKI-Server/project
+          npm install
+          npm run build:debug # Or build:release based on your needs
+
+      - name: Prepare SITCoop Mod
+        run: |
+          # Ensure the mod build output directory exists, replace "dist" with your actual build output directory inside SITCoop if different
+          if [ -d "./SITCoop" ]; then
+            mkdir -p SPT-AKI-Server/project/user/mods
+            cp -r SITCoop SPT-AKI-Server/project/user/mods/SITCoop
+          else
+            echo "Build output directory does not exist."
+            exit 1
+          fi
+
+
+      - name: Zip the SPT-AKI Server Build including SITCoop Mod
+        run: |
+          # Ensure the build directory exists
+          if [ -d "SPT-AKI-Server/project/build" ]; then
+            # Navigate into the build directory
+            cd SPT-AKI-Server/project/build
+            # Zip all contents of the build directory
+            zip -r ../../../SPT-AKI-with-SITCoop.zip .
+          else
+            echo "SPT-AKI Server build directory does not exist."
+            exit 1
+          fi
+          # Ensure the SITCoop mod directory exists
+          if [ -d "../user/mods/SITCoop" ]; then
+            # Navigate to the directory that includes user/mods to preserve the directory structure in the zip
+            cd ..
+            # Add the SITCoop mod directory to the zip file, preserving the directory structure
+            zip -r ../../SPT-AKI-with-SITCoop.zip user/mods/SITCoop
+          else
+            echo "SITCoop mod directory does not exist."
+            exit 1
+          fi
+
+
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ steps.read_package_json.outputs.version }}
+          name: SPT-AKI-with-SITCoop-${{ github.run_number }}
+          files: SPT-AKI-with-SITCoop.zip
+          draft: true
+          prerelease: false
+          generate_release_notes: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
