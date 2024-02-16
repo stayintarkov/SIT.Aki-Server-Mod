@@ -40,7 +40,7 @@ jobs:
         run: |
           cd SPT-AKI-Server/project
           npm install
-          npm run build:debug # Or build:release based on your needs
+          npm run build:release # Or build:debug based on your needs
 
       - name: Prepare SITCoop Mod
         run: |
