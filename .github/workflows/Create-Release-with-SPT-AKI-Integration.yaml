@@ -1,13 +1,13 @@
 on:
   workflow_dispatch:
 
-name: Create Release with SPT-AKI Integration
+name: Create Release with SPT-AKI Integration on Windows
 
 jobs:
   build:
     permissions: write-all
     name: Create Release
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
     steps:
       - name: Checkout SIT-Server-Mod Branch
         uses: actions/checkout@v2
@@ -27,57 +27,48 @@ jobs:
 
       - name: Read package.json
         id: read_package_json
-        run: echo "::set-output name=version::$(node -e 'console.log(require("./package.json").version)')"
+        run: echo "::set-output name=version::$(node -e 'console.log(require(`./package.json`).version)')"
 
       - name: Clone SPT-AKI Server
         run: |
-          git clone -b 3.8.0 --single-branch https://dev.sp-tarkov.com/SPT-AKI/Server.git SPT-AKI-Server # For the moment we use the 3.8 Branch of SPT
+          git clone -b 3.8.0 --single-branch https://dev.sp-tarkov.com/SPT-AKI/Server.git SPT-AKI-Server
           cd SPT-AKI-Server
           git lfs fetch
           git lfs pull
 
       - name: Build SPT-AKI Server
         run: |
-          cd SPT-AKI-Server/project
+          cd SPT-AKI-Server\project
           npm install
-          npm run build:release # Or build:debug based on your needs
+          npm run build:release
+        shell: pwsh
 
-      - name: Prepare SITCoop Mod
+      - name: Setup temporary directory for zipping
         run: |
-          # Ensure the mod build output directory exists, replace "dist" with your actual build output directory inside SITCoop if different
-          if [ -d "./SITCoop" ]; then
-            mkdir -p SPT-AKI-Server/project/user/mods
-            cp -r SITCoop SPT-AKI-Server/project/user/mods/SITCoop
-          else
-            echo "Build output directory does not exist."
-            exit 1
-          fi
-
-
-      - name: Zip the SPT-AKI Server Build including SITCoop Mod
+          $tempPath = "tempZipContents"
+          New-Item -ItemType Directory -Force -Path $tempPath
+          New-Item -ItemType Directory -Force -Path "$tempPath\user\mods\SITCoop"
+        shell: pwsh
+        
+      - name: Copy build contents to temporary directory
         run: |
-          # Ensure the build directory exists
-          if [ -d "SPT-AKI-Server/project/build" ]; then
-            # Navigate into the build directory
-            cd SPT-AKI-Server/project/build
-            # Zip all contents of the build directory
-            zip -r ../../../SPT-AKI-with-SITCoop.zip .
-          else
-            echo "SPT-AKI Server build directory does not exist."
-            exit 1
-          fi
-          # Ensure the SITCoop mod directory exists
-          if [ -d "../user/mods/SITCoop" ]; then
-            # Navigate to the directory that includes user/mods to preserve the directory structure in the zip
-            cd ..
-            # Add the SITCoop mod directory to the zip file, preserving the directory structure
-            zip -r ../../SPT-AKI-with-SITCoop.zip user/mods/SITCoop
-          else
-            echo "SITCoop mod directory does not exist."
-            exit 1
-          fi
-
-
+          Copy-Item -Path "SPT-AKI-Server\project\build\*" -Destination "tempZipContents" -Recurse
+        shell: pwsh
+        
+      - name: Copy SITCoop mod to temporary directory
+        run: |
+          Copy-Item -Path "SITCoop\*" -Destination "tempZipContents\user\mods\SITCoop" -Recurse
+        shell: pwsh
+  
+      - name: Zip the temporary directory
+        run: |
+          Compress-Archive -Path "tempZipContents\*" -DestinationPath "SPT-AKI-with-SITCoop.zip" -Force
+        shell: pwsh
+  
+      - name: Cleanup temporary directory
+        run: |
+          Remove-Item -Path "tempZipContents" -Recurse -Force
+        shell: pwsh
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
