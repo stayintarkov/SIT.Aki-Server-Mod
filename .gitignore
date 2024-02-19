@@ -4,3 +4,7 @@ SITConfig*.json
 mod.js
 dist/
 *dynamicAssort.json
+Aki-Server
+SITCoop
+tempZipContents
+*.zip

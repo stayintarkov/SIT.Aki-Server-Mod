@@ -5,77 +5,38 @@ name: Create Release with SPT-AKI Integration on Windows
 
 jobs:
   build:
+    strategy:
+      matrix:
+        os: [ "ubuntu-latest", "windows-latest" ]
     permissions: write-all
     name: Create Release
-    runs-on: windows-latest
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout SIT-Server-Mod Branch
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
         with:
           ref: 'master'
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '20.10.0'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build SIT-Server-Mod
-        run: npm run build
 
       - name: Read package.json
         id: read_package_json
         run: echo "::set-output name=version::$(node -e 'console.log(require(`./package.json`).version)')"
 
-      - name: Clone SPT-AKI Server
-        run: |
-          git clone -b 3.8.0 --single-branch https://dev.sp-tarkov.com/SPT-AKI/Server.git SPT-AKI-Server
-          cd SPT-AKI-Server
-          git lfs fetch
-          git lfs pull
-
-      - name: Build SPT-AKI Server
-        run: |
-          cd SPT-AKI-Server\project
-          npm install
-          npm run build:release
+      - name: Build Release Package
+        id: build
         shell: pwsh
-
-      - name: Setup temporary directory for zipping
-        run: |
-          $tempPath = "tempZipContents"
-          New-Item -ItemType Directory -Force -Path $tempPath
-          New-Item -ItemType Directory -Force -Path "$tempPath\user\mods\SITCoop"
-        shell: pwsh
-        
-      - name: Copy build contents to temporary directory
-        run: |
-          Copy-Item -Path "SPT-AKI-Server\project\build\*" -Destination "tempZipContents" -Recurse
-        shell: pwsh
-        
-      - name: Copy SITCoop mod to temporary directory
-        run: |
-          Copy-Item -Path "SITCoop\*" -Destination "tempZipContents\user\mods\SITCoop" -Recurse
-        shell: pwsh
-  
-      - name: Zip the temporary directory
-        run: |
-          Compress-Archive -Path "tempZipContents\*" -DestinationPath "SPT-AKI-with-SITCoop.zip" -Force
-        shell: pwsh
-  
-      - name: Cleanup temporary directory
-        run: |
-          Remove-Item -Path "tempZipContents" -Recurse -Force
-        shell: pwsh
+        run: ./package_release_with_server.ps1 -Overwrite -Branch 3.8.0
 
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.read_package_json.outputs.version }}
           name: SPT-AKI-with-SITCoop-${{ github.run_number }}
-          files: SPT-AKI-with-SITCoop.zip
+          files: ${{ steps.build.outputs.ZIP_NAME }}
           draft: true
           prerelease: false
           generate_release_notes: true
