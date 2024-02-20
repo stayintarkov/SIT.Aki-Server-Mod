@@ -39,7 +39,8 @@ const ignoreList = [
     "packageBuild.ts",
     "mod.code-workspace",
     "package-lock.json",
-    "tsconfig.json"
+    "tsconfig.json",
+    "*.ps1"
 ];
 const exclude = glob.sync(`{${ignoreList.join(",")}}`, { realpath: true, dot: true });
 
@@ -65,6 +66,7 @@ const filesToRemove = [
     ".git/",
     ".gitea/",
     ".gitignore",
+    "package_release_with_server.ps1",
 ];
   
 filesToRemove.forEach((file) => {
