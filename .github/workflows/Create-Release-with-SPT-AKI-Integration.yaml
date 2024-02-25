@@ -49,7 +49,7 @@ jobs:
         with:
           tag_name: ${{ steps.read_package_json.outputs.version }}
           #name: SITCoop-${{ steps.read_package_json.outputs.version }}-WithAki-${{ env.AKI_VERSION }}-${{ env.COMMIT_SHORT }}
-          name: SITCoop-${{ env.SITCoopVer }}-WithAki-${{ env.AKI_VERSION }}-${{ env.COMMIT_SHORT }}
+          name: SITCoop-${{ steps.read_package_json.outputs.version }}-WithAki-${{ env.AKI_VERSION }}-${{ env.COMMIT_SHORT }}
           files: |
             ${{ env.ZIP_NAME }}
           draft: true
