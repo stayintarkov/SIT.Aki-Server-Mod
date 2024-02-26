@@ -563,10 +563,32 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                 {
                     url: "/coop/server/delete",
                     action: (url, info, sessionId, output) => {
-                        // logger.info("Update a Coop Server");
-                        console.log(info);
-                        output = JSON.stringify({ response: "OK" });
-                        return JSON.stringify({ response: "OK" });
+                        logger.debug(`Request to delete Coop Server ${info.serverId}`);
+                        
+                        const response = { response: "NOT_EXIST" };
+                        if(CoopMatch.CoopMatches[info.serverId] !== undefined) {
+
+                            if(info.serverId == sessionId) {
+                                delete CoopMatch.CoopMatches[info.serverId];
+                                response.response = "OK";
+                                logger.success(`Successfully deleted Coop Server ${info.serverId}`);
+                            }
+                            else {
+                                response.response = "UNAUTHORIZED";
+                            }
+                        }
+
+                        switch(response.response) {
+                            case "UNAUTHORIZED":
+                                logger.warning(`Request to delete Coop Server ${info.serverId} denied`);
+                                break;
+                            case "NOT_EXIST":
+                                logger.debug(`Request to delete Coop Server ${info.serverId}. Server doesn't exist.`);
+                                break;
+                        }
+
+                        output = JSON.stringify(response);
+                        return JSON.stringify(response);
                     }
                 },
                 {
