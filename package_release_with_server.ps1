@@ -6,7 +6,10 @@ Param(
     [string] $Branch,
 
     [Parameter(Mandatory = $false)]
-    [string] $Commit
+    [string] $Commit,
+
+    [Parameter(Mandatory = $true)]
+    [string] $SITCoopVer
 )
 
 $ErrorActionPreference = "Stop"
@@ -19,7 +22,7 @@ npm ci
 npm run build
 
 if ($LASTEXITCODE -ne 0) {
-    throw ("coop mod npm run build failed, exit code $LASTEXITCODE")
+    throw "coop mod npm run build failed, exit code $LASTEXITCODE"
 }
 
 # clone aki server
@@ -34,11 +37,10 @@ if (Test-Path -Path $SERVER_DIR) {
 }
 
 Write-Output "clone repo"
-if ( $Branch.Length -gt 0 ) {
+if ($Branch.Length -gt 0) {
     Write-Output "Cloning branch/tag $Branch"
     git clone --depth 1 -b $Branch $SOURCE_REPO $SERVER_DIR
-} 
-else {
+} else {
     Write-Output "Cloning default branch"
     git clone --depth 1 $SOURCE_REPO $SERVER_DIR
 }
@@ -51,22 +53,15 @@ if ($Commit.Length -gt 0) {
     git checkout $Commit
 
     if ($LASTEXITCODE -ne 0) {
-        throw ("Commit $Commit checkout failed. It doesn't exist? git exit code $LASTEXITCODE")
+        throw "Commit $Commit checkout failed. It doesn't exist? git exit code $LASTEXITCODE"
     }
+} else {
+    $Commit = git rev-parse HEAD
 }
 
-#$Head = git rev-parse --short HEAD
-#$Branch = git rev-parse --abbrev-ref HEAD
-#$CTime = git log -1 --format="%at"
-#$CTimeS = (([System.DateTimeOffset]::FromUnixTimeSeconds($CTime)).DateTime).ToString("yyyyMMddHHmmss")
-#
-#Write-Output "Current HEAD is at $Head in $Branch committed at $CTimeS"
-#
-#$Tag = git describe --tags --abbrev=0 $Head
-#$IsTag = $LASTEXITCODE -eq 0
-#if ($IsTag) {
-#    Write-Output "We also have a tag $Tag at HEAD"
-#}
+$packageJsonPath = "./project/package.json"
+$akiVer = (Get-Content $packageJsonPath -Raw | ConvertFrom-Json).version
+Write-Output "AKI_VERSION=$akiVer" >> "$env:GITHUB_OUTPUT"
 
 Write-Output "lfs"
 git lfs fetch
@@ -78,24 +73,8 @@ npm install
 npm run build:release
 
 if ($LASTEXITCODE -ne 0) {
-    throw ("npm run build:$Target failed, exit code $LASTEXITCODE")
+    throw "npm run build:release failed, exit code $LASTEXITCODE"
 }
-
-Get-ChildItem ./build
-#$AkiMeta = (Get-Content ./build/Aki_Data/Server/configs/core.json | ConvertFrom-Json -AsHashtable)
-#Write-Output $akiMeta
-#
-#if ($IsTag) {
-#    $CInfo = "tag-$Tag"
-#}
-#elseif ($Branch.Equals("HEAD")) {
-#    $CInfo = "$Head-$CTimeS"
-#}
-#else {
-#    $CInfo = "$Branch-$Head-$CTimeS"
-#}
-#
-#$Suffix = "$Target-v$($akimeta.akiVersion)-$CInfo-Tarkov$($akimeta.compatibleTarkovVersion)"
 
 Set-Location ../../
 
@@ -105,14 +84,17 @@ Copy-Item -Path "./SITCoop" -Destination "$ZIP_Folder/user/mods/" -Recurse
 
 # make release package
 if ($IsWindows) {
-    $ZipName = "Aki-Server-win-with-SITCoop.zip"
+    $CommitShort = $Commit.Substring(0, 6)
+    $ZipName = "SITCoop-$SITCoopVer-WithAki$akiVer-$CommitShort-win.zip"
     Compress-Archive -Path "$ZIP_Folder/*" -DestinationPath "$ZipName" -Force
-}
-else{
-    $ZipName = "Aki-Server-linux-with-SITCoop.tar.gz"
+} else {
+    $CommitShort = $Commit.Substring(0, 6)
+    $ZipName = "SITCoop-$SITCoopVer-WithAki$akiVer-$CommitShort-linux.tar.gz"
     Set-Location "$ZIP_Folder"
-    tar --overwrite -cz -f "../$ZipName" ./*
+    tar --overwrite -czf "../$ZipName" ./*
 }
 
-Write-Output "Built file: $ZipName"
-Write-Output "ZIP_NAME=$ZipName" >> "$env:GITHUB_OUTPUT"
+# After calculating $ZipName, $akiVer, and $CommitShort
+Write-Output "ZIP_NAME=$ZipName" | Out-File -Append -FilePath $Env:GITHUB_ENV
+Write-Output "AKI_VERSION=$akiVer" | Out-File -Append -FilePath $Env:GITHUB_ENV
+Write-Output "COMMIT_SHORT=$CommitShort" | Out-File -Append -FilePath $Env:GITHUB_ENV

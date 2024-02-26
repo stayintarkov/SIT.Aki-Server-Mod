@@ -1,7 +1,7 @@
 on:
   workflow_dispatch:
 
-name: Create Release with SPT-AKI Integration on Windows
+name: Create Release with SPT-AKI Integration
 
 jobs:
   build:
@@ -11,6 +11,7 @@ jobs:
     permissions: write-all
     name: Create Release
     runs-on: ${{ matrix.os }}
+    
     steps:
       - name: Checkout SIT-Server-Mod Branch
         uses: actions/checkout@v4
@@ -25,18 +26,29 @@ jobs:
       - name: Read package.json
         id: read_package_json
         run: echo "::set-output name=version::$(node -e 'console.log(require(`./package.json`).version)')"
-
+      
       - name: Build Release Package
         id: build
         shell: pwsh
-        run: ./package_release_with_server.ps1 -Overwrite -Branch 3.8.0
-
+        run: |
+          ./package_release_with_server.ps1 -Overwrite -Branch "3.8.0" -SITCoopVer ${{ steps.read_package_json.outputs.version }}
+          echo "ZIP_NAME=$(Get-Content "$env:GITHUB_OUTPUT" | Select-String -Pattern "^ZIP_NAME=").Value.Split('=')[1]" >> $GITHUB_ENV
+          echo "COMMIT_SHORT=$(Get-Content "$env:GITHUB_OUTPUT" | Select-String -Pattern "^CommitShort=").Value.Split('=')[1]" >> $GITHUB_ENV
+          echo "AKI_VERSION=$(Get-Content "$env:GITHUB_OUTPUT" | Select-String -Pattern "^AKI_VERSION=").Value.Split('=')[1]" >> $GITHUB_ENV
+      
+      - name: Debug output variables
+        run: |
+          echo "AKI_VERSION: ${{ env.AKI_VERSION }}"
+          echo "COMMIT_SHORT: ${{ env.COMMIT_SHORT }}"
+          echo "ZIP_NAME: ${{ env.ZIP_NAME }}"
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.read_package_json.outputs.version }}
-          name: SPT-AKI-with-SITCoop-${{ github.run_number }}
-          files: ${{ steps.build.outputs.ZIP_NAME }}
+          #name: SITCoop-${{ steps.read_package_json.outputs.version }}-WithAki-${{ env.AKI_VERSION }}-${{ env.COMMIT_SHORT }}
+          name: SITCoop-${{ steps.read_package_json.outputs.version }}-WithAki-${{ env.AKI_VERSION }}-${{ env.COMMIT_SHORT }}
+          files: |
+            ${{ env.ZIP_NAME }}
           draft: true
           prerelease: false
           generate_release_notes: true
