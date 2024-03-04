@@ -20,7 +20,7 @@ export class HttpServerHelperOverride {
         const originalUrl = this.httpServerHelper.buildUrl();
         console.log(`Original Message WS Url is ${originalUrl}`);
         if (CoopConfig.Instance.useMessageWSUrlOverride) {
-            console.log(`Override Message WS Url to ${originalUrl}`);
+            console.log(`Override Message WS Url to ${CoopConfig.Instance.messageWSUrlOverride}`);
             return `ws://${CoopConfig.Instance.messageWSUrlOverride}`;
         } else {
             return `ws://${originalUrl}`;
