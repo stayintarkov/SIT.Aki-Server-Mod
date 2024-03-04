@@ -33,6 +33,7 @@ import { friendlyAI } from "./FriendlyAI";
 import { BundleLoaderOverride } from "./Overrides/BundleLoaderOverride";
 import { LauncherControllerOverride } from "./Overrides/LauncherControllerOverride";
 import { GameControllerOverride } from "./Overrides/GameControllerOverride";
+import { HttpServerHelperOverride } from "./Overrides/HttpServerHelperOverride";
 // -------------------------------------------------------------------------
 
 // Controllers -------------------------------------------------------------
@@ -150,6 +151,10 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         // ----------------------- Launcher Controller overrides -------------------------------------------------
         const launcherControllerOverride = new LauncherControllerOverride(container, gameControllerOverride);
         launcherControllerOverride.override();
+
+        // ----------------------- Http Server Helper overrides ------------------------------------------------
+        const httpServerHelperOverride = new HttpServerHelperOverride(container);
+        httpServerHelperOverride.override();
 
         // Connect to this module
         staticRouterModService.registerStaticRouter(
