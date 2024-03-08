@@ -5,6 +5,8 @@ export class CoopConfig {
     public webSocketPort: number;
     public natHelperPort: number;
     public useUPNP: boolean;
+    public useMessageWSUrlOverride: boolean;
+    public messageWSUrlOverride: string;
 
     public static Instance: CoopConfig;
 
@@ -12,6 +14,8 @@ export class CoopConfig {
         this.webSocketPort = 6970;
         this.natHelperPort = 6971;
         this.useUPNP = true;
+        this.useMessageWSUrlOverride = false;
+        this.messageWSUrlOverride = '127.0.0.1:6969';
 
         const configFilePath = path.join(__dirname, "..", "config");
         if(!fs.existsSync(configFilePath))
