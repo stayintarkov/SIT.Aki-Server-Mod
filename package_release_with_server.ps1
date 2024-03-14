@@ -69,7 +69,7 @@ git lfs pull
 
 Write-Output "build"
 Set-Location ./project
-rm -f package-lock.json
+rm -force package-lock.json
 npm cache clean --force
 npm install
 npm run build:release
