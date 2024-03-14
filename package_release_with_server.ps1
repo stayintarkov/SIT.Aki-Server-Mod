@@ -18,7 +18,7 @@ $SERVER_DIR = "./Aki-Server"
 $ZIP_Folder = "./tempZipContents"
 
 # build coop mod
-npm ci
+npm install
 npm run build
 
 if ($LASTEXITCODE -ne 0) {
