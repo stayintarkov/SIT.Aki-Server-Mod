@@ -36,7 +36,7 @@ if (Test-Path -Path $SERVER_DIR) {
     }
 }
 
-Write-Output "clone repo"
+Write-Output "Cloning repo"
 if ($Branch.Length -gt 0) {
     Write-Output "Cloning branch/tag $Branch"
     git clone --depth 1 -b $Branch $SOURCE_REPO $SERVER_DIR
@@ -63,14 +63,15 @@ $packageJsonPath = "./project/package.json"
 $akiVer = (Get-Content $packageJsonPath -Raw | ConvertFrom-Json).version
 Write-Output "AKI_VERSION=$akiVer" >> "$env:GITHUB_OUTPUT"
 
-Write-Output "lfs"
+Write-Output "LFS setup"
 git lfs fetch
 git lfs pull
 
-Write-Output "build"
+Write-Output "Building project"
 Set-Location ./project
-npm i @pnpm/linux-x64
-npm i @pnpm/linux-arm64
+# The following two lines are commented out due to previous issues reported
+# npm i @pnpm/linux-x64
+# npm i @pnpm/linux-arm64
 npm install
 npm run build:release
 
@@ -84,7 +85,7 @@ New-Item -ItemType Directory -Force -Path "$ZIP_Folder/user/mods/"
 Copy-Item -Path "$SERVER_DIR/project/build\*" -Destination "$ZIP_Folder" -Recurse
 Copy-Item -Path "./SITCoop" -Destination "$ZIP_Folder/user/mods/" -Recurse
 
-# make release package
+# Make release package
 if ($IsWindows) {
     $CommitShort = $Commit.Substring(0, 6)
     $ZipName = "SITCoop-$SITCoopVer-WithAki$akiVer-$CommitShort-win.zip"
