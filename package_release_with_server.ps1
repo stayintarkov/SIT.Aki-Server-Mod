@@ -73,7 +73,7 @@ rm -rf node_modules
 rm -f package-lock.json
 npm cache clean --force
 
-npm install
+npm ci
 npm run build:release
 
 if ($LASTEXITCODE -ne 0) {
