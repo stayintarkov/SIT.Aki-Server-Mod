@@ -76,7 +76,7 @@ if ($IsWindows) {
     rm -rf node_modules
     rm -f package-lock.json
     npm cache clean --force
-    }
+}
 
 if ($LASTEXITCODE -ne 0) {
     throw "npm run build:release failed, exit code $LASTEXITCODE"
