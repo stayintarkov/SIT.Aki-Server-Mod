@@ -18,7 +18,7 @@ $SERVER_DIR = "./Aki-Server"
 $ZIP_Folder = "./tempZipContents"
 
 # build coop mod
-npm install
+npm ci
 npm run build
 
 if ($LASTEXITCODE -ne 0) {
@@ -36,7 +36,7 @@ if (Test-Path -Path $SERVER_DIR) {
     }
 }
 
-Write-Output "Cloning repo"
+Write-Output "clone repo"
 if ($Branch.Length -gt 0) {
     Write-Output "Cloning branch/tag $Branch"
     git clone --depth 1 -b $Branch $SOURCE_REPO $SERVER_DIR
@@ -63,16 +63,12 @@ $packageJsonPath = "./project/package.json"
 $akiVer = (Get-Content $packageJsonPath -Raw | ConvertFrom-Json).version
 Write-Output "AKI_VERSION=$akiVer" >> "$env:GITHUB_OUTPUT"
 
-Write-Output "LFS setup"
+Write-Output "lfs"
 git lfs fetch
 git lfs pull
 
-Write-Output "Building project"
+Write-Output "build"
 Set-Location ./project
-npm install -g cross-env
-# The following two lines are commented out due to previous issues reported
-# npm i @pnpm/linux-x64
-# npm i @pnpm/linux-arm64
 npm install
 npm run build:release
 
@@ -86,7 +82,7 @@ New-Item -ItemType Directory -Force -Path "$ZIP_Folder/user/mods/"
 Copy-Item -Path "$SERVER_DIR/project/build\*" -Destination "$ZIP_Folder" -Recurse
 Copy-Item -Path "./SITCoop" -Destination "$ZIP_Folder/user/mods/" -Recurse
 
-# Make release package
+# make release package
 if ($IsWindows) {
     $CommitShort = $Commit.Substring(0, 6)
     $ZipName = "SITCoop-$SITCoopVer-WithAki$akiVer-$CommitShort-win.zip"
