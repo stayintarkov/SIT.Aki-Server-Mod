@@ -69,6 +69,7 @@ git lfs pull
 
 Write-Output "build"
 Set-Location ./project
+
 if ($IsWindows) {
     npm install
     npm run build:release
@@ -76,7 +77,12 @@ if ($IsWindows) {
     rm -rf node_modules
     rm -f package-lock.json
     npm cache clean --force
+    
+    npm install
+    npm run build:release
 }
+
+
 
 if ($LASTEXITCODE -ne 0) {
     throw "npm run build:release failed, exit code $LASTEXITCODE"
@@ -85,7 +91,7 @@ if ($LASTEXITCODE -ne 0) {
 Set-Location ../../
 
 New-Item -ItemType Directory -Force -Path "$ZIP_Folder/user/mods/"
-Copy-Item -Path "$SERVER_DIR/project/build/*" -Destination "$ZIP_Folder" -Recurse
+Copy-Item -Path "$SERVER_DIR/project/build\*" -Destination "$ZIP_Folder" -Recurse
 Copy-Item -Path "./SITCoop" -Destination "$ZIP_Folder/user/mods/" -Recurse
 
 # make release package
