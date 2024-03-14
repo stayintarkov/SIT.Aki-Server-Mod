@@ -7,7 +7,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ "windows-latest" ]
+        os: [ "ubuntu-22.04" ]
     permissions: write-all
     name: Create Release
     runs-on: ${{ matrix.os }}
