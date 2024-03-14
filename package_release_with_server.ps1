@@ -69,6 +69,7 @@ git lfs pull
 
 Write-Output "build"
 Set-Location ./project
+npm i @pnpm/linux-x64
 npm install
 npm run build:release
 
