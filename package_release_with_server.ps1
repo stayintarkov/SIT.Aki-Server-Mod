@@ -67,13 +67,14 @@ Write-Output "lfs"
 git lfs fetch
 git lfs pull
 
-Write-Output "build"
+Write-Output "prepare to build"
 Set-Location ./project
 rm -rf node_modules
 rm -f package-lock.json
 npm cache clean --force
 
-npm ci
+Write-Output "build"
+npm install
 npm run build:release
 
 if ($LASTEXITCODE -ne 0) {
