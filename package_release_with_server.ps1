@@ -85,7 +85,7 @@ if ($LASTEXITCODE -ne 0) {
 Set-Location ../../
 
 New-Item -ItemType Directory -Force -Path "$ZIP_Folder/user/mods/"
-Copy-Item -Path "$SERVER_DIR/project/build\*" -Destination "$ZIP_Folder" -Recurse
+Copy-Item -Path "$SERVER_DIR/project/build/*" -Destination "$ZIP_Folder" -Recurse
 Copy-Item -Path "./SITCoop" -Destination "$ZIP_Folder/user/mods/" -Recurse
 
 # make release package
