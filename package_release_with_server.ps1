@@ -69,8 +69,20 @@ git lfs pull
 
 Write-Output "build"
 Set-Location ./project
-npm install
-npm run build:release
+
+if ($IsWindows) {
+    npm install
+    npm run build:release
+} else {
+    rm -rf node_modules
+    rm -f package-lock.json
+    npm cache clean --force
+    
+    npm install
+    npm run build:release
+}
+
+
 
 if ($LASTEXITCODE -ne 0) {
     throw "npm run build:release failed, exit code $LASTEXITCODE"
