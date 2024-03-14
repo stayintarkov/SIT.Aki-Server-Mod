@@ -77,10 +77,6 @@ if ($IsWindows) {
     rm -f package-lock.json
     npm cache clean --force
 
-    npm install
-    npm run build:release
-}
-
 if ($LASTEXITCODE -ne 0) {
     throw "npm run build:release failed, exit code $LASTEXITCODE"
 }
