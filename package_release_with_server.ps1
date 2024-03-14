@@ -69,6 +69,7 @@ git lfs pull
 
 Write-Output "Building project"
 Set-Location ./project
+npm install -g cross-env
 # The following two lines are commented out due to previous issues reported
 # npm i @pnpm/linux-x64
 # npm i @pnpm/linux-arm64
