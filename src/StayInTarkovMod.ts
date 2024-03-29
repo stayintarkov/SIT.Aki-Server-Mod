@@ -1,3 +1,6 @@
+import fs from 'fs';
+import path from 'path';
+
 import { injectable, DependencyContainer } from "tsyringe";
 
 import { SaveServer } from "@spt-aki/servers/SaveServer";
@@ -134,6 +137,8 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         const staticRouterModService = container.resolve<StaticRouterModService>("StaticRouterModService");
 
         this.InitializeVariables(container);
+
+        this.clearCache();
 
         // Initialize Custom Traders
         for(const t of this.traders) {
@@ -749,6 +754,37 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
 
     }
 
+    clearCache() {
+        console.log("Attempting to clear cache...");
+        const cacheDirectory = path.join(process.cwd(), 'user', 'cache');
+    
+        // Check if the cache directory exists
+        if (!fs.existsSync(cacheDirectory)) {
+            console.log("Cache directory does not exist, skipping cache clearing.");
+            return;
+        } 
+        else {
+            console.log(`Cache directory found at ${cacheDirectory}`);
+        }
+    
+        // Get the list of files in the cache directory
+        const files = fs.readdirSync(cacheDirectory);
+        if (files.length === 0) {
+            console.log("Cache directory is already empty.");
+        } else {
+            console.log(`Found ${files.length} file(s) in the cache directory. Attempting to delete...`);
+        }
+    
+        for (const file of files) {
+            try {
+                const filePath = path.join(cacheDirectory, file);
+                fs.unlinkSync(filePath);
+                console.log(`Successfully deleted ${filePath}`);
+            } catch (err) {
+                console.error(`Error deleting file ${filePath}:`, err);
+            }
+        }
+    }
     
 
     postDBLoad(container: DependencyContainer): void {
