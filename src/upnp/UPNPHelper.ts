@@ -40,7 +40,12 @@ export class UPNPHelper {
         Promise.all(new Array(akiPromise, sitWSPromise, natPromise, p2pPromise)).then((x) => {
             console.log(`SIT: UPNP: Successfully mapped ${this.akiPort},${this.coopConfig.webSocketPort},${this.coopConfig.natHelperPort},6972`);
         }).catch((rejectedReason) => { 
-            console.log(`SIT: UPNP: Unable to Map: ${rejectedReason}`);
+            if (rejectedReason instanceof Error && rejectedReason.message.includes('Timeout')) {
+                console.log(`SIT: UPNP: UPnP request timed out. Ignore if port forwarding or direct connection is in place.`);
+            }
+            else {
+                console.log(`SIT: UPNP: Unable to Map: ${rejectedReason}`);
+            }
         });
     }
 
