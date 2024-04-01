@@ -1,4 +1,6 @@
 export declare enum SkillTypes {
+    BOT_RELOAD = "BotReload",
+    BOT_SOUND = "BotSound",
     HIDEOUT_MANAGEMENT = "HideoutManagement",
     CRAFTING = "Crafting",
     METABOLISM = "Metabolism",
@@ -19,6 +21,7 @@ export declare enum SkillTypes {
     ATTENTION = "Attention",
     CHARISMA = "Charisma",
     MEMORY = "Memory",
+    MELEE = "Melee",
     SURGERY = "Surgery",
     AIM_DRILLS = "AimDrills",
     TROUBLESHOOTING = "TroubleShooting",
@@ -31,6 +34,7 @@ export declare enum SkillTypes {
     NIGHT_OPS = "NightOps",
     SILENT_OPS = "SilentOps",
     LOCKPICKING = "Lockpicking",
+    /** Also called Weapon Maintenance*/
     WEAPON_TREATMENT = "WeaponTreatment",
     MAG_DRILLS = "MagDrills",
     FREE_TRADING = "Freetrading",

@@ -1,13 +1,13 @@
-import { QuestRewardType } from "../../../enums/QuestRewardType";
-import { QuestStatus } from "../../../enums/QuestStatus";
-import { QuestTypeEnum } from "../../../enums/QuestTypeEnum";
-import { Item } from "./IItem";
+import { Item } from "@spt-aki/models/eft/common/tables/IItem";
+import { QuestRewardType } from "@spt-aki/models/enums/QuestRewardType";
+import { QuestStatus } from "@spt-aki/models/enums/QuestStatus";
+import { QuestTypeEnum } from "@spt-aki/models/enums/QuestTypeEnum";
 export interface IQuest {
     /** SPT addition - human readable quest name */
     QuestName?: string;
     _id: string;
     canShowNotificationsInGame: boolean;
-    conditions: Conditions;
+    conditions: IQuestConditionTypes;
     description: string;
     failMessageText: string;
     name: string;
@@ -24,8 +24,11 @@ export interface IQuest {
     secretQuest: boolean;
     startedMessageText: string;
     successMessageText: string;
+    acceptPlayerMessage: string;
+    declinePlayerMessage: string;
+    completePlayerMessage: string;
     templateId: string;
-    rewards: Rewards;
+    rewards: IQuestRewards;
     /** Becomes 'AppearStatus' inside client */
     status: string | number;
     KeyQuest: boolean;
@@ -35,28 +38,24 @@ export interface IQuest {
     /** Status of quest to player */
     sptStatus?: QuestStatus;
 }
-export interface Conditions {
-    Started: AvailableForConditions[];
-    AvailableForFinish: AvailableForConditions[];
-    AvailableForStart: AvailableForConditions[];
-    Success: AvailableForConditions[];
-    Fail: AvailableForConditions[];
+export interface IQuestConditionTypes {
+    Started: IQuestCondition[];
+    AvailableForFinish: IQuestCondition[];
+    AvailableForStart: IQuestCondition[];
+    Success: IQuestCondition[];
+    Fail: IQuestCondition[];
 }
-export interface AvailableForConditions {
-    _parent: string;
-    _props: AvailableForProps;
-    dynamicLocale?: boolean;
-}
-export interface AvailableForProps {
+export interface IQuestCondition {
     id: string;
-    index: number;
-    parentId: string;
-    isEncoded: boolean;
-    dynamicLocale: boolean;
-    value?: string | number;
+    index?: number;
     compareMethod?: string;
+    dynamicLocale: boolean;
     visibilityConditions?: VisibilityCondition[];
-    target?: string | string[];
+    globalQuestCounterId?: string;
+    parentId?: string;
+    target: string[] | string;
+    value?: string | number;
+    type?: boolean;
     status?: QuestStatus[];
     availableAfter?: number;
     dispersion?: number;
@@ -66,55 +65,81 @@ export interface AvailableForProps {
     dogtagLevel?: number;
     maxDurability?: number;
     minDurability?: number;
-    counter?: AvailableForCounter;
+    counter?: IQuestConditionCounter;
     plantTime?: number;
     zoneId?: string;
-    type?: boolean;
     countInRaid?: boolean;
-    globalQuestCounterId?: any;
+    completeInSeconds?: number;
+    isEncoded?: boolean;
+    conditionType?: string;
 }
-export interface AvailableForCounter {
+export interface IQuestConditionCounter {
     id: string;
-    conditions: CounterCondition[];
+    conditions: IQuestConditionCounterCondition[];
 }
-export interface CounterCondition {
-    _parent: string;
-    _props: CounterProps;
-}
-export interface CounterProps {
+export interface IQuestConditionCounterCondition {
     id: string;
-    target: string[] | string;
+    dynamicLocale: boolean;
+    target?: string[] | string;
+    completeInSeconds?: number;
+    energy?: IValueCompare;
+    exitName?: string;
+    hydration?: IValueCompare;
+    time?: IValueCompare;
     compareMethod?: string;
-    value?: string;
+    value?: number;
     weapon?: string[];
+    distance?: ICounterConditionDistance;
     equipmentInclusive?: string[][];
     weaponModsInclusive?: string[][];
+    weaponModsExclusive?: string[][];
+    enemyEquipmentInclusive?: string[][];
+    enemyEquipmentExclusive?: string[][];
+    weaponCaliber?: string[];
+    savageRole?: string[];
     status?: string[];
     bodyPart?: string[];
-    daytime?: DaytimeCounter;
+    daytime?: IDaytimeCounter;
+    conditionType?: string;
+    enemyHealthEffects?: IEnemyHealthEffect[];
+    resetOnSessionEnd?: boolean;
 }
-export interface DaytimeCounter {
+export interface IEnemyHealthEffect {
+    bodyParts: string[];
+    effects: string[];
+}
+export interface IValueCompare {
+    compareMethod: string;
+    value: number;
+}
+export interface ICounterConditionDistance {
+    value: number;
+    compareMethod: string;
+}
+export interface IDaytimeCounter {
     from: number;
     to: number;
 }
 export interface VisibilityCondition {
     id: string;
-    value: number;
-    dynamicLocale: boolean;
+    target: string;
+    value?: number;
+    dynamicLocale?: boolean;
     oneSessionOnly: boolean;
+    conditionType: string;
 }
-export interface Rewards {
-    AvailableForStart: Reward[];
-    AvailableForFinish: Reward[];
-    Started: Reward[];
-    Success: Reward[];
-    Fail: Reward[];
-    FailRestartable: Reward[];
-    Expired: Reward[];
+export interface IQuestRewards {
+    AvailableForStart?: IQuestReward[];
+    AvailableForFinish?: IQuestReward[];
+    Started?: IQuestReward[];
+    Success?: IQuestReward[];
+    Fail?: IQuestReward[];
+    FailRestartable?: IQuestReward[];
+    Expired?: IQuestReward[];
 }
-export interface Reward extends Item {
+export interface IQuestReward {
     value?: string | number;
-    id: string;
+    id?: string;
     type: QuestRewardType;
     index: number;
     target?: string;

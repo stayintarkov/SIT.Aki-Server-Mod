@@ -24,5 +24,6 @@ export declare enum ConfigTypes {
     WEATHER = "aki-weather",
     SEASONAL_EVENT = "aki-seasonalevents",
     LOST_ON_DEATH = "aki-lostondeath",
-    GIFTS = "aki-gifts"
+    GIFTS = "aki-gifts",
+    BTR = "aki-btr"
 }

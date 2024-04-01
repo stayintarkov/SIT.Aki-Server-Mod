@@ -1,11 +1,11 @@
-import { IEmptyRequestData } from "../../eft/common/IEmptyRequestData";
-import { IGlobals } from "../../eft/common/IGlobals";
-import { IHideoutArea } from "../../eft/hideout/IHideoutArea";
-import { IHideoutProduction } from "../../eft/hideout/IHideoutProduction";
-import { IHideoutScavCase } from "../../eft/hideout/IHideoutScavCase";
-import { IHideoutSettingsBase } from "../../eft/hideout/IHideoutSettingsBase";
-import { IGetBodyResponseData } from "../../eft/httpResponse/IGetBodyResponseData";
-import { ISettingsBase } from "../server/ISettingsBase";
+import { IEmptyRequestData } from "@spt-aki/models/eft/common/IEmptyRequestData";
+import { IGlobals } from "@spt-aki/models/eft/common/IGlobals";
+import { IHideoutArea } from "@spt-aki/models/eft/hideout/IHideoutArea";
+import { IHideoutProduction } from "@spt-aki/models/eft/hideout/IHideoutProduction";
+import { IHideoutScavCase } from "@spt-aki/models/eft/hideout/IHideoutScavCase";
+import { IHideoutSettingsBase } from "@spt-aki/models/eft/hideout/IHideoutSettingsBase";
+import { IGetBodyResponseData } from "@spt-aki/models/eft/httpResponse/IGetBodyResponseData";
+import { ISettingsBase } from "@spt-aki/models/spt/server/ISettingsBase";
 export interface IDataCallbacks {
     getSettings(url: string, info: IEmptyRequestData, sessionID: string): IGetBodyResponseData<ISettingsBase>;
     getGlobals(url: string, info: IEmptyRequestData, sessionID: string): IGetBodyResponseData<IGlobals>;

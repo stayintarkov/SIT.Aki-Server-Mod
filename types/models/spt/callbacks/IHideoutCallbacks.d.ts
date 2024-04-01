@@ -1,14 +1,14 @@
-import { IPmcData } from "../../eft/common/IPmcData";
-import { IHideoutUpgradeRequestData } from "../../eft/hideout/IHideoutUpgradeRequestData";
-import { IHideoutUpgradeCompleteRequestData } from "../../eft/hideout/IHideoutUpgradeCompleteRequestData";
-import { IHideoutScavCaseStartRequestData } from "../../eft/hideout/IHideoutScavCaseStartRequestData";
-import { IHideoutPutItemInRequestData } from "../../eft/hideout/IHideoutPutItemInRequestData";
-import { IHideoutTakeItemOutRequestData } from "../../eft/hideout/IHideoutTakeItemOutRequestData";
-import { IHideoutToggleAreaRequestData } from "../../eft/hideout/IHideoutToggleAreaRequestData";
-import { IHideoutSingleProductionStartRequestData } from "../../eft/hideout/IHideoutSingleProductionStartRequestData";
-import { IHideoutContinuousProductionStartRequestData } from "../../eft/hideout/IHideoutContinuousProductionStartRequestData";
-import { IHideoutTakeProductionRequestData } from "../../eft/hideout/IHideoutTakeProductionRequestData";
-import { IItemEventRouterResponse } from "../../eft/itemEvent/IItemEventRouterResponse";
+import { IPmcData } from "@spt-aki/models/eft/common/IPmcData";
+import { IHideoutContinuousProductionStartRequestData } from "@spt-aki/models/eft/hideout/IHideoutContinuousProductionStartRequestData";
+import { IHideoutPutItemInRequestData } from "@spt-aki/models/eft/hideout/IHideoutPutItemInRequestData";
+import { IHideoutScavCaseStartRequestData } from "@spt-aki/models/eft/hideout/IHideoutScavCaseStartRequestData";
+import { IHideoutSingleProductionStartRequestData } from "@spt-aki/models/eft/hideout/IHideoutSingleProductionStartRequestData";
+import { IHideoutTakeItemOutRequestData } from "@spt-aki/models/eft/hideout/IHideoutTakeItemOutRequestData";
+import { IHideoutTakeProductionRequestData } from "@spt-aki/models/eft/hideout/IHideoutTakeProductionRequestData";
+import { IHideoutToggleAreaRequestData } from "@spt-aki/models/eft/hideout/IHideoutToggleAreaRequestData";
+import { IHideoutUpgradeCompleteRequestData } from "@spt-aki/models/eft/hideout/IHideoutUpgradeCompleteRequestData";
+import { IHideoutUpgradeRequestData } from "@spt-aki/models/eft/hideout/IHideoutUpgradeRequestData";
+import { IItemEventRouterResponse } from "@spt-aki/models/eft/itemEvent/IItemEventRouterResponse";
 export interface IHideoutCallbacks {
     upgrade(pmcData: IPmcData, body: IHideoutUpgradeRequestData, sessionID: string): IItemEventRouterResponse;
     upgradeComplete(pmcData: IPmcData, body: IHideoutUpgradeCompleteRequestData, sessionID: string): IItemEventRouterResponse;

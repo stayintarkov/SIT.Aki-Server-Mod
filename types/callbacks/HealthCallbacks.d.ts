@@ -1,14 +1,14 @@
-import { HealthController } from "../controllers/HealthController";
-import { ProfileHelper } from "../helpers/ProfileHelper";
-import { IPmcData } from "../models/eft/common/IPmcData";
-import { IHealthTreatmentRequestData } from "../models/eft/health/IHealthTreatmentRequestData";
-import { IOffraidEatRequestData } from "../models/eft/health/IOffraidEatRequestData";
-import { IOffraidHealRequestData } from "../models/eft/health/IOffraidHealRequestData";
-import { ISyncHealthRequestData } from "../models/eft/health/ISyncHealthRequestData";
-import { IGetBodyResponseData } from "../models/eft/httpResponse/IGetBodyResponseData";
-import { IItemEventRouterResponse } from "../models/eft/itemEvent/IItemEventRouterResponse";
-import { IWorkoutData } from "../models/eft/health/IWorkoutData";
-import { HttpResponseUtil } from "../utils/HttpResponseUtil";
+import { HealthController } from "@spt-aki/controllers/HealthController";
+import { ProfileHelper } from "@spt-aki/helpers/ProfileHelper";
+import { IPmcData } from "@spt-aki/models/eft/common/IPmcData";
+import { IHealthTreatmentRequestData } from "@spt-aki/models/eft/health/IHealthTreatmentRequestData";
+import { IOffraidEatRequestData } from "@spt-aki/models/eft/health/IOffraidEatRequestData";
+import { IOffraidHealRequestData } from "@spt-aki/models/eft/health/IOffraidHealRequestData";
+import { ISyncHealthRequestData } from "@spt-aki/models/eft/health/ISyncHealthRequestData";
+import { IWorkoutData } from "@spt-aki/models/eft/health/IWorkoutData";
+import { IGetBodyResponseData } from "@spt-aki/models/eft/httpResponse/IGetBodyResponseData";
+import { IItemEventRouterResponse } from "@spt-aki/models/eft/itemEvent/IItemEventRouterResponse";
+import { HttpResponseUtil } from "@spt-aki/utils/HttpResponseUtil";
 export declare class HealthCallbacks {
     protected httpResponse: HttpResponseUtil;
     protected profileHelper: ProfileHelper;

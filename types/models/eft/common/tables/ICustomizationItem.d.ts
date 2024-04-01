@@ -1,4 +1,4 @@
-import { Ixyz } from "../Ixyz";
+import { Ixyz } from "@spt-aki/models/eft/common/Ixyz";
 export interface ICustomizationItem {
     _id: string;
     _name: string;

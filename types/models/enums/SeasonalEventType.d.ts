@@ -3,5 +3,6 @@ export declare enum SeasonalEventType {
     CHRISTMAS = "Christmas",
     HALLOWEEN = "Halloween",
     NEW_YEARS = "NewYears",
-    PROMO = "Promo"
+    PROMO = "Promo",
+    SNOW = "Snow"
 }

@@ -1,6 +1,6 @@
-import { IBotBase } from "../models/eft/common/tables/IBotBase";
-import { ILogger } from "../models/spt/utils/ILogger";
-import { LocalisationService } from "./LocalisationService";
+import { IBotBase } from "@spt-aki/models/eft/common/tables/IBotBase";
+import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
+import { LocalisationService } from "@spt-aki/services/LocalisationService";
 /** Cache bots in a dictionary, keyed by the bots name, keying by name isnt ideal as its not unique but this is used by the post-raid system which doesnt have any bot ids, only name */
 export declare class MatchBotDetailsCacheService {
     protected logger: ILogger;

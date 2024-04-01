@@ -1,15 +1,15 @@
-import { OnLoad } from "../di/OnLoad";
-import { IHttpConfig } from "../models/spt/config/IHttpConfig";
-import { ILogger } from "../models/spt/utils/ILogger";
-import { ImageRouter } from "../routers/ImageRouter";
-import { ConfigServer } from "../servers/ConfigServer";
-import { DatabaseServer } from "../servers/DatabaseServer";
-import { LocalisationService } from "../services/LocalisationService";
-import { EncodingUtil } from "./EncodingUtil";
-import { HashUtil } from "./HashUtil";
-import { ImporterUtil } from "./ImporterUtil";
-import { JsonUtil } from "./JsonUtil";
-import { VFS } from "./VFS";
+import { OnLoad } from "@spt-aki/di/OnLoad";
+import { IHttpConfig } from "@spt-aki/models/spt/config/IHttpConfig";
+import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
+import { ImageRouter } from "@spt-aki/routers/ImageRouter";
+import { ConfigServer } from "@spt-aki/servers/ConfigServer";
+import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
+import { LocalisationService } from "@spt-aki/services/LocalisationService";
+import { EncodingUtil } from "@spt-aki/utils/EncodingUtil";
+import { HashUtil } from "@spt-aki/utils/HashUtil";
+import { ImporterUtil } from "@spt-aki/utils/ImporterUtil";
+import { JsonUtil } from "@spt-aki/utils/JsonUtil";
+import { VFS } from "@spt-aki/utils/VFS";
 export declare class DatabaseImporter implements OnLoad {
     protected logger: ILogger;
     protected vfs: VFS;

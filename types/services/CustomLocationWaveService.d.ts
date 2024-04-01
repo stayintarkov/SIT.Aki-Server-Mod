@@ -1,10 +1,10 @@
-import { BossLocationSpawn, Wave } from "../models/eft/common/ILocationBase";
-import { ILocationConfig } from "../models/spt/config/ILocationConfig";
-import { ILogger } from "../models/spt/utils/ILogger";
-import { ConfigServer } from "../servers/ConfigServer";
-import { DatabaseServer } from "../servers/DatabaseServer";
-import { JsonUtil } from "../utils/JsonUtil";
-import { RandomUtil } from "../utils/RandomUtil";
+import { BossLocationSpawn, Wave } from "@spt-aki/models/eft/common/ILocationBase";
+import { ILocationConfig } from "@spt-aki/models/spt/config/ILocationConfig";
+import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
+import { ConfigServer } from "@spt-aki/servers/ConfigServer";
+import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
+import { JsonUtil } from "@spt-aki/utils/JsonUtil";
+import { RandomUtil } from "@spt-aki/utils/RandomUtil";
 export declare class CustomLocationWaveService {
     protected logger: ILogger;
     protected randomUtil: RandomUtil;

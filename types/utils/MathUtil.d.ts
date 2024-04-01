@@ -1,9 +1,9 @@
 export declare class MathUtil {
     /**
      * Helper to create the sum of all array elements
-    * @param   {array}     values          The array with numbers of which to calculate the sum
-    * @return  {number}                    sum(values)
-    */
+     * @param   {array}     values          The array with numbers of which to calculate the sum
+     * @return  {number}                    sum(values)
+     */
     arraySum(values: number[]): number;
     /**
      * Helper to create the cumulative sum of all array elements
@@ -41,13 +41,13 @@ export declare class MathUtil {
      */
     mapToRange(x: number, minIn: number, maxIn: number, minOut: number, maxOut: number): number;
     /**
-    * Linear interpolation
-    * e.g. used to do a continuous integration for quest rewards which are defined for specific support centers of pmcLevel
-    *
-    * @param   {string}    xp              the point of x at which to interpolate
-    * @param   {array}     x               support points in x (of same length as y)
-    * @param   {array}     y               support points in y (of same length as x)
-    * @return  {number}                    y(xp)
-    */
+     * Linear interpolation
+     * e.g. used to do a continuous integration for quest rewards which are defined for specific support centers of pmcLevel
+     *
+     * @param   {string}    xp              the point of x at which to interpolate
+     * @param   {array}     x               support points in x (of same length as y)
+     * @param   {array}     y               support points in y (of same length as x)
+     * @return  {number}                    y(xp)
+     */
     interp1(xp: number, x: number[], y: number[]): number;
 }

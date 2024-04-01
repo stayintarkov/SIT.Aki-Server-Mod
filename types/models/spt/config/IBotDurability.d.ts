@@ -7,6 +7,9 @@ export interface IBotDurability {
     cursedassault: BotDurability;
     marksman: BotDurability;
     pmcbot: BotDurability;
+    arenafighterevent: BotDurability;
+    arenafighter: BotDurability;
+    crazyassaultevent: BotDurability;
     exusec: BotDurability;
     gifter: BotDurability;
     sectantpriest: BotDurability;

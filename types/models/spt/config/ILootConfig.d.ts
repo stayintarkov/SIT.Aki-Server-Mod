@@ -1,5 +1,5 @@
-import { Spawnpoint } from "../../../models/eft/common/ILooseLoot";
-import { IBaseConfig } from "./IBaseConfig";
+import { Spawnpoint } from "@spt-aki/models/eft/common/ILooseLoot";
+import { IBaseConfig } from "@spt-aki/models/spt/config/IBaseConfig";
 export interface ILootConfig extends IBaseConfig {
     kind: "aki-loot";
     /** Spawn positions to add into a map, key=mapid */

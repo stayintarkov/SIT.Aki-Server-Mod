@@ -7,5 +7,5 @@ export declare enum LogTextColor {
     MAGENTA = "magenta",
     CYAN = "cyan",
     WHITE = "white",
-    GRAY = ""
+    GRAY = "gray"
 }

@@ -1,4 +1,4 @@
-import { IBaseConfig } from "./IBaseConfig";
+import { IBaseConfig } from "@spt-aki/models/spt/config/IBaseConfig";
 export interface IHttpConfig extends IBaseConfig {
     webSocketPingDelayMs: number;
     kind: "aki-http";

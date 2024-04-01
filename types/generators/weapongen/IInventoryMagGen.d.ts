@@ -1,4 +1,4 @@
-import { InventoryMagGen } from "./InventoryMagGen";
+import { InventoryMagGen } from "@spt-aki/generators/weapongen/InventoryMagGen";
 export interface IInventoryMagGen {
     getPriority(): number;
     canHandleInventoryMagGen(inventoryMagGen: InventoryMagGen): boolean;

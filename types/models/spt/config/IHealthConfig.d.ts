@@ -1,4 +1,4 @@
-import { IBaseConfig } from "./IBaseConfig";
+import { IBaseConfig } from "@spt-aki/models/spt/config/IBaseConfig";
 export interface IHealthConfig extends IBaseConfig {
     kind: "aki-health";
     healthMultipliers: HealthMultipliers;

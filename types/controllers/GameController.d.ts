@@ -1,36 +1,41 @@
-import { ApplicationContext } from "../context/ApplicationContext";
-import { HideoutHelper } from "../helpers/HideoutHelper";
-import { HttpServerHelper } from "../helpers/HttpServerHelper";
-import { ProfileHelper } from "../helpers/ProfileHelper";
-import { PreAkiModLoader } from "../loaders/PreAkiModLoader";
-import { IEmptyRequestData } from "../models/eft/common/IEmptyRequestData";
-import { IPmcData } from "../models/eft/common/IPmcData";
-import { ICheckVersionResponse } from "../models/eft/game/ICheckVersionResponse";
-import { ICurrentGroupResponse } from "../models/eft/game/ICurrentGroupResponse";
-import { IGameConfigResponse } from "../models/eft/game/IGameConfigResponse";
-import { IGameKeepAliveResponse } from "../models/eft/game/IGameKeepAliveResponse";
-import { IServerDetails } from "../models/eft/game/IServerDetails";
-import { IAkiProfile } from "../models/eft/profile/IAkiProfile";
-import { ICoreConfig } from "../models/spt/config/ICoreConfig";
-import { IHttpConfig } from "../models/spt/config/IHttpConfig";
-import { ILocationConfig } from "../models/spt/config/ILocationConfig";
-import { ILootConfig } from "../models/spt/config/ILootConfig";
-import { IPmcConfig } from "../models/spt/config/IPmcConfig";
-import { IRagfairConfig } from "../models/spt/config/IRagfairConfig";
-import { ILogger } from "../models/spt/utils/ILogger";
-import { ConfigServer } from "../servers/ConfigServer";
-import { DatabaseServer } from "../servers/DatabaseServer";
-import { CustomLocationWaveService } from "../services/CustomLocationWaveService";
-import { GiftService } from "../services/GiftService";
-import { ItemBaseClassService } from "../services/ItemBaseClassService";
-import { LocalisationService } from "../services/LocalisationService";
-import { OpenZoneService } from "../services/OpenZoneService";
-import { ProfileFixerService } from "../services/ProfileFixerService";
-import { SeasonalEventService } from "../services/SeasonalEventService";
-import { HashUtil } from "../utils/HashUtil";
-import { JsonUtil } from "../utils/JsonUtil";
-import { RandomUtil } from "../utils/RandomUtil";
-import { TimeUtil } from "../utils/TimeUtil";
+import { ApplicationContext } from "@spt-aki/context/ApplicationContext";
+import { HideoutHelper } from "@spt-aki/helpers/HideoutHelper";
+import { HttpServerHelper } from "@spt-aki/helpers/HttpServerHelper";
+import { ProfileHelper } from "@spt-aki/helpers/ProfileHelper";
+import { PreAkiModLoader } from "@spt-aki/loaders/PreAkiModLoader";
+import { IEmptyRequestData } from "@spt-aki/models/eft/common/IEmptyRequestData";
+import { IPmcData } from "@spt-aki/models/eft/common/IPmcData";
+import { ICheckVersionResponse } from "@spt-aki/models/eft/game/ICheckVersionResponse";
+import { ICurrentGroupResponse } from "@spt-aki/models/eft/game/ICurrentGroupResponse";
+import { IGameConfigResponse } from "@spt-aki/models/eft/game/IGameConfigResponse";
+import { IGameKeepAliveResponse } from "@spt-aki/models/eft/game/IGameKeepAliveResponse";
+import { IGetRaidTimeRequest } from "@spt-aki/models/eft/game/IGetRaidTimeRequest";
+import { IGetRaidTimeResponse } from "@spt-aki/models/eft/game/IGetRaidTimeResponse";
+import { IServerDetails } from "@spt-aki/models/eft/game/IServerDetails";
+import { IAkiProfile } from "@spt-aki/models/eft/profile/IAkiProfile";
+import { IBotConfig } from "@spt-aki/models/spt/config/IBotConfig";
+import { ICoreConfig } from "@spt-aki/models/spt/config/ICoreConfig";
+import { IHideoutConfig } from "@spt-aki/models/spt/config/IHideoutConfig";
+import { IHttpConfig } from "@spt-aki/models/spt/config/IHttpConfig";
+import { ILocationConfig } from "@spt-aki/models/spt/config/ILocationConfig";
+import { ILootConfig } from "@spt-aki/models/spt/config/ILootConfig";
+import { IPmcConfig } from "@spt-aki/models/spt/config/IPmcConfig";
+import { IRagfairConfig } from "@spt-aki/models/spt/config/IRagfairConfig";
+import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
+import { ConfigServer } from "@spt-aki/servers/ConfigServer";
+import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
+import { CustomLocationWaveService } from "@spt-aki/services/CustomLocationWaveService";
+import { GiftService } from "@spt-aki/services/GiftService";
+import { ItemBaseClassService } from "@spt-aki/services/ItemBaseClassService";
+import { LocalisationService } from "@spt-aki/services/LocalisationService";
+import { OpenZoneService } from "@spt-aki/services/OpenZoneService";
+import { ProfileFixerService } from "@spt-aki/services/ProfileFixerService";
+import { RaidTimeAdjustmentService } from "@spt-aki/services/RaidTimeAdjustmentService";
+import { SeasonalEventService } from "@spt-aki/services/SeasonalEventService";
+import { HashUtil } from "@spt-aki/utils/HashUtil";
+import { JsonUtil } from "@spt-aki/utils/JsonUtil";
+import { RandomUtil } from "@spt-aki/utils/RandomUtil";
+import { TimeUtil } from "@spt-aki/utils/TimeUtil";
 export declare class GameController {
     protected logger: ILogger;
     protected databaseServer: DatabaseServer;
@@ -49,30 +54,30 @@ export declare class GameController {
     protected seasonalEventService: SeasonalEventService;
     protected itemBaseClassService: ItemBaseClassService;
     protected giftService: GiftService;
+    protected raidTimeAdjustmentService: RaidTimeAdjustmentService;
     protected applicationContext: ApplicationContext;
     protected configServer: ConfigServer;
-    protected os: any;
     protected httpConfig: IHttpConfig;
     protected coreConfig: ICoreConfig;
     protected locationConfig: ILocationConfig;
     protected ragfairConfig: IRagfairConfig;
+    protected hideoutConfig: IHideoutConfig;
     protected pmcConfig: IPmcConfig;
     protected lootConfig: ILootConfig;
-    constructor(logger: ILogger, databaseServer: DatabaseServer, jsonUtil: JsonUtil, timeUtil: TimeUtil, hashUtil: HashUtil, preAkiModLoader: PreAkiModLoader, httpServerHelper: HttpServerHelper, randomUtil: RandomUtil, hideoutHelper: HideoutHelper, profileHelper: ProfileHelper, profileFixerService: ProfileFixerService, localisationService: LocalisationService, customLocationWaveService: CustomLocationWaveService, openZoneService: OpenZoneService, seasonalEventService: SeasonalEventService, itemBaseClassService: ItemBaseClassService, giftService: GiftService, applicationContext: ApplicationContext, configServer: ConfigServer);
+    protected botConfig: IBotConfig;
+    constructor(logger: ILogger, databaseServer: DatabaseServer, jsonUtil: JsonUtil, timeUtil: TimeUtil, hashUtil: HashUtil, preAkiModLoader: PreAkiModLoader, httpServerHelper: HttpServerHelper, randomUtil: RandomUtil, hideoutHelper: HideoutHelper, profileHelper: ProfileHelper, profileFixerService: ProfileFixerService, localisationService: LocalisationService, customLocationWaveService: CustomLocationWaveService, openZoneService: OpenZoneService, seasonalEventService: SeasonalEventService, itemBaseClassService: ItemBaseClassService, giftService: GiftService, raidTimeAdjustmentService: RaidTimeAdjustmentService, applicationContext: ApplicationContext, configServer: ConfigServer);
     load(): void;
     /**
      * Handle client/game/start
      */
     gameStart(_url: string, _info: IEmptyRequestData, sessionID: string, startTimeStampMS: number): void;
+    protected adjustLocationBotValues(): void;
+    /**
+     * Out of date/incorrectly made trader mods forget this data
+     */
+    protected checkTraderRepairValuesExist(): void;
     protected addCustomLooseLootPositions(): void;
     protected adjustLooseLootSpawnProbabilities(): void;
-    protected setHideoutAreasAndCraftsTo40Secs(): void;
-    /**
-     * 3.7.0 moved AIDs to be numeric, old profiles need to be migrated
-     * We store the old AID value in new field `sessionId`
-     * @param fullProfile Profile to update
-     */
-    protected fixIncorrectAidValue(fullProfile: IAkiProfile): void;
     /** Apply custom limits on bot types as defined in configs/location.json/botTypeLimits */
     protected adjustMapBotLimits(): void;
     /**
@@ -96,6 +101,10 @@ export declare class GameController {
      */
     getKeepAlive(sessionId: string): IGameKeepAliveResponse;
     /**
+     * Handle singleplayer/settings/getRaidTime
+     */
+    getRaidTime(sessionId: string, request: IGetRaidTimeRequest): IGetRaidTimeResponse;
+    /**
      * BSG have two values for shotgun dispersion, we make sure both have the same value
      */
     protected fixShotgunDispersions(): void;
@@ -107,8 +116,7 @@ export declare class GameController {
     protected flagAllItemsInDbAsSellableOnFlea(): void;
     /**
      * When player logs in, iterate over all active effects and reduce timer
-     * TODO - add body part HP regen
-     * @param pmcProfile
+     * @param pmcProfile Profile to adjust values for
      */
     protected updateProfileHealthValues(pmcProfile: IPmcData): void;
     /**
@@ -125,7 +133,8 @@ export declare class GameController {
      */
     protected sendPraporGiftsToNewProfiles(pmcProfile: IPmcData): void;
     /**
-     * Find and split waves with large numbers of bots into smaller waves - BSG appears to reduce the size of these waves to one bot when they're waiting to spawn for too long
+     * Find and split waves with large numbers of bots into smaller waves - BSG appears to reduce the size of these
+     * waves to one bot when they're waiting to spawn for too long
      */
     protected splitBotWavesIntoSingleWaves(): void;
     /**
@@ -134,7 +143,7 @@ export declare class GameController {
      */
     protected saveActiveModsToProfile(fullProfile: IAkiProfile): void;
     /**
-     * Check for any missing assorts inside each traders assort.json data, checking against traders qeustassort.json
+     * Check for any missing assorts inside each traders assort.json data, checking against traders questassort.json
      */
     protected validateQuestAssortUnlocksExist(): void;
     /**

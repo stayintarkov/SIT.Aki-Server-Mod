@@ -1,30 +1,34 @@
 {
     "name": "sit-coop",
-    "version": "1.6.2",
+    "version": "1.6.3",
     "main": "src/StayInTarkovMod.js",
     "license": "MIT",
-    "author": "Paulov",
-    "akiVersion": "3.8.0",
+    "author": "Paulov and SIT Team",
+    "akiVersion": "~3.8",
     "engines": {
-        "node": "18.15.0"
+        "node": "20.11.1"
     },
     "scripts": {
         "setup": "npm i",
         "build": "node ./packageBuild.ts"
     },
     "devDependencies": {
-        "@types/node": "18.18.4",
         "@types/ws": "8.5.7",
-        "@typescript-eslint/eslint-plugin": "6.7.5",
-        "@typescript-eslint/parser": "6.7.5",
         "bestzip": "2.2.1",
-        "eslint": "8.51.0",
-        "fs-extra": "11.1.1",
         "glob": "10.3.3",
         "moment": "^2.29.4",
         "selfsigned": "^2.0.1",
+        "@types/node": "20.11",
+        "@typescript-eslint/eslint-plugin": "7.2",
+        "@typescript-eslint/parser": "7.2",
+        "archiver": "^6.0",
+        "eslint": "8.57",
+        "fs-extra": "11.2",
+        "ignore": "^5.2",
+        "os": "^0.1",
         "tsyringe": "4.8.0",
-        "typescript": "5.2.2"
+        "typescript": "5.4",
+        "winston": "3.12"
     },
     "dependencies": {
         "cross-fetch-ponyfill": "^1.0.3",

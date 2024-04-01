@@ -1,22 +1,21 @@
-import { ContainerHelper } from "../helpers/ContainerHelper";
-import { ItemHelper } from "../helpers/ItemHelper";
-import { PresetHelper } from "../helpers/PresetHelper";
-import { RagfairServerHelper } from "../helpers/RagfairServerHelper";
-import { IContainerMinMax, IStaticContainer } from "../models/eft/common/ILocation";
-import { ILocationBase } from "../models/eft/common/ILocationBase";
-import { ILooseLoot, Spawnpoint, SpawnpointTemplate, SpawnpointsForced } from "../models/eft/common/ILooseLoot";
-import { Item } from "../models/eft/common/tables/IItem";
-import { IStaticAmmoDetails, IStaticContainerData, IStaticForcedProps, IStaticLootDetails } from "../models/eft/common/tables/ILootBase";
-import { ILocationConfig } from "../models/spt/config/ILocationConfig";
-import { ILogger } from "../models/spt/utils/ILogger";
-import { ConfigServer } from "../servers/ConfigServer";
-import { DatabaseServer } from "../servers/DatabaseServer";
-import { LocalisationService } from "../services/LocalisationService";
-import { SeasonalEventService } from "../services/SeasonalEventService";
-import { JsonUtil } from "../utils/JsonUtil";
-import { MathUtil } from "../utils/MathUtil";
-import { ObjectId } from "../utils/ObjectId";
-import { ProbabilityObjectArray, RandomUtil } from "../utils/RandomUtil";
+import { ContainerHelper } from "@spt-aki/helpers/ContainerHelper";
+import { ItemHelper } from "@spt-aki/helpers/ItemHelper";
+import { PresetHelper } from "@spt-aki/helpers/PresetHelper";
+import { IContainerMinMax, IStaticContainer } from "@spt-aki/models/eft/common/ILocation";
+import { ILocationBase } from "@spt-aki/models/eft/common/ILocationBase";
+import { ILooseLoot, Spawnpoint, SpawnpointTemplate, SpawnpointsForced } from "@spt-aki/models/eft/common/ILooseLoot";
+import { Item } from "@spt-aki/models/eft/common/tables/IItem";
+import { IStaticAmmoDetails, IStaticContainerData, IStaticForcedProps, IStaticLootDetails } from "@spt-aki/models/eft/common/tables/ILootBase";
+import { ILocationConfig } from "@spt-aki/models/spt/config/ILocationConfig";
+import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
+import { ConfigServer } from "@spt-aki/servers/ConfigServer";
+import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
+import { LocalisationService } from "@spt-aki/services/LocalisationService";
+import { SeasonalEventService } from "@spt-aki/services/SeasonalEventService";
+import { JsonUtil } from "@spt-aki/utils/JsonUtil";
+import { MathUtil } from "@spt-aki/utils/MathUtil";
+import { ObjectId } from "@spt-aki/utils/ObjectId";
+import { ProbabilityObjectArray, RandomUtil } from "@spt-aki/utils/RandomUtil";
 export interface IContainerItem {
     items: Item[];
     width: number;
@@ -34,7 +33,6 @@ export declare class LocationGenerator {
     protected jsonUtil: JsonUtil;
     protected objectId: ObjectId;
     protected randomUtil: RandomUtil;
-    protected ragfairServerHelper: RagfairServerHelper;
     protected itemHelper: ItemHelper;
     protected mathUtil: MathUtil;
     protected seasonalEventService: SeasonalEventService;
@@ -43,7 +41,7 @@ export declare class LocationGenerator {
     protected localisationService: LocalisationService;
     protected configServer: ConfigServer;
     protected locationConfig: ILocationConfig;
-    constructor(logger: ILogger, databaseServer: DatabaseServer, jsonUtil: JsonUtil, objectId: ObjectId, randomUtil: RandomUtil, ragfairServerHelper: RagfairServerHelper, itemHelper: ItemHelper, mathUtil: MathUtil, seasonalEventService: SeasonalEventService, containerHelper: ContainerHelper, presetHelper: PresetHelper, localisationService: LocalisationService, configServer: ConfigServer);
+    constructor(logger: ILogger, databaseServer: DatabaseServer, jsonUtil: JsonUtil, objectId: ObjectId, randomUtil: RandomUtil, itemHelper: ItemHelper, mathUtil: MathUtil, seasonalEventService: SeasonalEventService, containerHelper: ContainerHelper, presetHelper: PresetHelper, localisationService: LocalisationService, configServer: ConfigServer);
     /**
      * Create an array of container objects with randomised loot
      * @param locationBase Map base to generate containers for
@@ -121,11 +119,11 @@ export declare class LocationGenerator {
     generateDynamicLoot(dynamicLootDist: ILooseLoot, staticAmmoDist: Record<string, IStaticAmmoDetails[]>, locationName: string): SpawnpointTemplate[];
     /**
      * Add forced spawn point loot into loot parameter array
-     * @param loot array to add forced loot to
-     * @param forcedSpawnPoints forced loot to add
-     * @param name of map currently generating forced loot for
+     * @param lootLocationTemplates array to add forced loot spawn locations to
+     * @param forcedSpawnPoints forced Forced loot locations that must be added
+     * @param locationName Name of map currently having force loot created for
      */
-    protected addForcedLoot(loot: SpawnpointTemplate[], forcedSpawnPoints: SpawnpointsForced[], locationName: string): void;
+    protected addForcedLoot(lootLocationTemplates: SpawnpointTemplate[], forcedSpawnPoints: SpawnpointsForced[], locationName: string): void;
     /**
      * Create array of item (with child items) and return
      * @param chosenComposedKey Key we want to look up items for
@@ -147,5 +145,5 @@ export declare class LocationGenerator {
      * @returns Item object
      */
     protected getItemInArray(items: Item[], chosenTpl: string): Item;
-    protected createStaticLootItem(tpl: string, staticAmmoDist: Record<string, IStaticAmmoDetails[]>, parentId?: string): IContainerItem;
+    protected createStaticLootItem(chosenTpl: string, staticAmmoDist: Record<string, IStaticAmmoDetails[]>, parentId?: string): IContainerItem;
 }

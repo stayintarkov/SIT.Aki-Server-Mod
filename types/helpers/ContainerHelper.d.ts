@@ -28,13 +28,12 @@ export declare class ContainerHelper {
     protected locateSlot(container2D: number[][], containerX: number, containerY: number, x: number, y: number, itemW: number, itemH: number): boolean;
     /**
      * Find a free slot for an item to be placed at
-     * @param container2D Container to palce item in
+     * @param container2D Container to place item in
      * @param x Container x size
      * @param y Container y size
      * @param itemW Items width
      * @param itemH Items height
      * @param rotate is item rotated
-     * @returns Location to place item
      */
-    fillContainerMapWithItem(container2D: number[][], x: number, y: number, itemW: number, itemH: number, rotate: boolean): number[][];
+    fillContainerMapWithItem(container2D: number[][], x: number, y: number, itemW: number, itemH: number, rotate: boolean): void;
 }

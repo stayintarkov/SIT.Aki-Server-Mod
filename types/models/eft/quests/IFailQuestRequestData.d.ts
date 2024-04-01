@@ -1,5 +1,5 @@
 export interface IFailQuestRequestData {
-    Action: "QuestComplete";
+    Action: "QuestFail";
     qid: string;
     removeExcessItems: boolean;
 }

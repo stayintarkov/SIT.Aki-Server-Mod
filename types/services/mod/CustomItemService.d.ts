@@ -1,17 +1,21 @@
-import { ITemplateItem, Props } from "../../models/eft/common/tables/ITemplateItem";
-import { CreateItemResult, LocaleDetails, NewItemDetails, NewItemFromCloneDetails } from "../../models/spt/mod/NewItemDetails";
-import { IDatabaseTables } from "../../models/spt/server/IDatabaseTables";
-import { ILogger } from "../../models/spt/utils/ILogger";
-import { DatabaseServer } from "../../servers/DatabaseServer";
-import { HashUtil } from "../../utils/HashUtil";
-import { JsonUtil } from "../../utils/JsonUtil";
+import { ItemHelper } from "@spt-aki/helpers/ItemHelper";
+import { ITemplateItem, Props } from "@spt-aki/models/eft/common/tables/ITemplateItem";
+import { CreateItemResult, LocaleDetails, NewItemDetails, NewItemFromCloneDetails } from "@spt-aki/models/spt/mod/NewItemDetails";
+import { IDatabaseTables } from "@spt-aki/models/spt/server/IDatabaseTables";
+import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
+import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
+import { ItemBaseClassService } from "@spt-aki/services/ItemBaseClassService";
+import { HashUtil } from "@spt-aki/utils/HashUtil";
+import { JsonUtil } from "@spt-aki/utils/JsonUtil";
 export declare class CustomItemService {
     protected logger: ILogger;
     protected hashUtil: HashUtil;
     protected jsonUtil: JsonUtil;
     protected databaseServer: DatabaseServer;
+    protected itemHelper: ItemHelper;
+    protected itemBaseClassService: ItemBaseClassService;
     protected tables: IDatabaseTables;
-    constructor(logger: ILogger, hashUtil: HashUtil, jsonUtil: JsonUtil, databaseServer: DatabaseServer);
+    constructor(logger: ILogger, hashUtil: HashUtil, jsonUtil: JsonUtil, databaseServer: DatabaseServer, itemHelper: ItemHelper, itemBaseClassService: ItemBaseClassService);
     /**
      * Create a new item from a cloned item base
      * WARNING - If no item id is supplied, an id will be generated, this id will be random every time you add an item and will not be the same on each subsequent server start
@@ -77,4 +81,16 @@ export declare class CustomItemService {
      * @param fleaPriceRoubles Price of the new item
      */
     protected addToFleaPriceDb(newItemId: string, fleaPriceRoubles: number): void;
+    /**
+     * Add a weapon to the hideout weapon shelf whitelist
+     * @param newItemId Weapon id to add
+     */
+    protected addToWeaponShelf(newItemId: string): void;
+    /**
+     * Add a custom weapon to PMCs loadout
+     * @param weaponTpl Custom weapon tpl to add to PMCs
+     * @param weaponWeight The weighting for the weapon to be picked vs other weapons
+     * @param weaponSlot The slot the weapon should be added to (e.g. FirstPrimaryWeapon/SecondPrimaryWeapon/Holster)
+     */
+    addCustomWeaponToPMCs(weaponTpl: string, weaponWeight: number, weaponSlot: string): void;
 }

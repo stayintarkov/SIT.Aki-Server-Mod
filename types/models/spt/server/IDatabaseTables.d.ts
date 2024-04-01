@@ -1,26 +1,27 @@
-import { IQteData } from "../../../models/eft/hideout/IQteData";
-import { IEquipmentBuild } from "../../../models/eft/profile/IAkiProfile";
-import { IGlobals } from "../../eft/common/IGlobals";
-import { IBotBase } from "../../eft/common/tables/IBotBase";
-import { IBotCore } from "../../eft/common/tables/IBotCore";
-import { IBotType } from "../../eft/common/tables/IBotType";
-import { ICustomizationItem } from "../../eft/common/tables/ICustomizationItem";
-import { IHandbookBase } from "../../eft/common/tables/IHandbookBase";
-import { ILootBase } from "../../eft/common/tables/ILootBase";
-import { IMatch } from "../../eft/common/tables/IMatch";
-import { IProfileTemplates } from "../../eft/common/tables/IProfileTemplate";
-import { IQuest } from "../../eft/common/tables/IQuest";
-import { IRepeatableQuestDatabase } from "../../eft/common/tables/IRepeatableQuests";
-import { ITemplateItem } from "../../eft/common/tables/ITemplateItem";
-import { ITrader } from "../../eft/common/tables/ITrader";
-import { IHideoutArea } from "../../eft/hideout/IHideoutArea";
-import { IHideoutProduction } from "../../eft/hideout/IHideoutProduction";
-import { IHideoutScavCase } from "../../eft/hideout/IHideoutScavCase";
-import { IHideoutSettingsBase } from "../../eft/hideout/IHideoutSettingsBase";
-import { ILocaleBase } from "./ILocaleBase";
-import { ILocations } from "./ILocations";
-import { IServerBase } from "./IServerBase";
-import { ISettingsBase } from "./ISettingsBase";
+import { IGlobals } from "@spt-aki/models/eft/common/IGlobals";
+import { IAchievement } from "@spt-aki/models/eft/common/tables/IAchievement";
+import { IBotBase } from "@spt-aki/models/eft/common/tables/IBotBase";
+import { IBotCore } from "@spt-aki/models/eft/common/tables/IBotCore";
+import { IBotType } from "@spt-aki/models/eft/common/tables/IBotType";
+import { ICustomizationItem } from "@spt-aki/models/eft/common/tables/ICustomizationItem";
+import { IHandbookBase } from "@spt-aki/models/eft/common/tables/IHandbookBase";
+import { ILootBase } from "@spt-aki/models/eft/common/tables/ILootBase";
+import { IMatch } from "@spt-aki/models/eft/common/tables/IMatch";
+import { IProfileTemplates } from "@spt-aki/models/eft/common/tables/IProfileTemplate";
+import { IQuest } from "@spt-aki/models/eft/common/tables/IQuest";
+import { IRepeatableQuestDatabase } from "@spt-aki/models/eft/common/tables/IRepeatableQuests";
+import { ITemplateItem } from "@spt-aki/models/eft/common/tables/ITemplateItem";
+import { ITrader } from "@spt-aki/models/eft/common/tables/ITrader";
+import { IHideoutArea } from "@spt-aki/models/eft/hideout/IHideoutArea";
+import { IHideoutProduction } from "@spt-aki/models/eft/hideout/IHideoutProduction";
+import { IHideoutScavCase } from "@spt-aki/models/eft/hideout/IHideoutScavCase";
+import { IHideoutSettingsBase } from "@spt-aki/models/eft/hideout/IHideoutSettingsBase";
+import { IQteData } from "@spt-aki/models/eft/hideout/IQteData";
+import { IDefaultEquipmentPreset } from "@spt-aki/models/eft/profile/IAkiProfile";
+import { ILocaleBase } from "@spt-aki/models/spt/server/ILocaleBase";
+import { ILocations } from "@spt-aki/models/spt/server/ILocations";
+import { IServerBase } from "@spt-aki/models/spt/server/IServerBase";
+import { ISettingsBase } from "@spt-aki/models/spt/server/ISettingsBase";
 export interface IDatabaseTables {
     bots?: {
         types: Record<string, IBotType>;
@@ -50,7 +51,9 @@ export interface IDatabaseTables {
         /** Flea prices of items - gathered from online flea market dump */
         prices: Record<string, number>;
         /** Default equipment loadouts that show on main inventory screen */
-        defaultEquipmentPresets: IEquipmentBuild[];
+        defaultEquipmentPresets: IDefaultEquipmentPreset[];
+        /** Achievements */
+        achievements: IAchievement[];
     };
     traders?: Record<string, ITrader>;
     globals?: IGlobals;

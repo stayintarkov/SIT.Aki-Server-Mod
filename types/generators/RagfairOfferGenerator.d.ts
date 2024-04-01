@@ -1,27 +1,26 @@
-import { HandbookHelper } from "../helpers/HandbookHelper";
-import { ItemHelper } from "../helpers/ItemHelper";
-import { PaymentHelper } from "../helpers/PaymentHelper";
-import { PresetHelper } from "../helpers/PresetHelper";
-import { RagfairServerHelper } from "../helpers/RagfairServerHelper";
-import { Item } from "../models/eft/common/tables/IItem";
-import { ITemplateItem } from "../models/eft/common/tables/ITemplateItem";
-import { IBarterScheme } from "../models/eft/common/tables/ITrader";
-import { IRagfairOffer, OfferRequirement } from "../models/eft/ragfair/IRagfairOffer";
-import { Dynamic, IRagfairConfig } from "../models/spt/config/IRagfairConfig";
-import { ILogger } from "../models/spt/utils/ILogger";
-import { ConfigServer } from "../servers/ConfigServer";
-import { DatabaseServer } from "../servers/DatabaseServer";
-import { SaveServer } from "../servers/SaveServer";
-import { FenceService } from "../services/FenceService";
-import { LocalisationService } from "../services/LocalisationService";
-import { RagfairCategoriesService } from "../services/RagfairCategoriesService";
-import { RagfairOfferService } from "../services/RagfairOfferService";
-import { RagfairPriceService } from "../services/RagfairPriceService";
-import { HashUtil } from "../utils/HashUtil";
-import { JsonUtil } from "../utils/JsonUtil";
-import { RandomUtil } from "../utils/RandomUtil";
-import { TimeUtil } from "../utils/TimeUtil";
-import { RagfairAssortGenerator } from "./RagfairAssortGenerator";
+import { RagfairAssortGenerator } from "@spt-aki/generators/RagfairAssortGenerator";
+import { HandbookHelper } from "@spt-aki/helpers/HandbookHelper";
+import { ItemHelper } from "@spt-aki/helpers/ItemHelper";
+import { PaymentHelper } from "@spt-aki/helpers/PaymentHelper";
+import { PresetHelper } from "@spt-aki/helpers/PresetHelper";
+import { RagfairServerHelper } from "@spt-aki/helpers/RagfairServerHelper";
+import { Item } from "@spt-aki/models/eft/common/tables/IItem";
+import { ITemplateItem } from "@spt-aki/models/eft/common/tables/ITemplateItem";
+import { IBarterScheme } from "@spt-aki/models/eft/common/tables/ITrader";
+import { IRagfairOffer, OfferRequirement } from "@spt-aki/models/eft/ragfair/IRagfairOffer";
+import { Dynamic, IArmorPlateBlacklistSettings, IRagfairConfig } from "@spt-aki/models/spt/config/IRagfairConfig";
+import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
+import { ConfigServer } from "@spt-aki/servers/ConfigServer";
+import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
+import { SaveServer } from "@spt-aki/servers/SaveServer";
+import { FenceService } from "@spt-aki/services/FenceService";
+import { LocalisationService } from "@spt-aki/services/LocalisationService";
+import { RagfairOfferService } from "@spt-aki/services/RagfairOfferService";
+import { RagfairPriceService } from "@spt-aki/services/RagfairPriceService";
+import { HashUtil } from "@spt-aki/utils/HashUtil";
+import { JsonUtil } from "@spt-aki/utils/JsonUtil";
+import { RandomUtil } from "@spt-aki/utils/RandomUtil";
+import { TimeUtil } from "@spt-aki/utils/TimeUtil";
 export declare class RagfairOfferGenerator {
     protected logger: ILogger;
     protected jsonUtil: JsonUtil;
@@ -38,7 +37,6 @@ export declare class RagfairOfferGenerator {
     protected ragfairPriceService: RagfairPriceService;
     protected localisationService: LocalisationService;
     protected paymentHelper: PaymentHelper;
-    protected ragfairCategoriesService: RagfairCategoriesService;
     protected fenceService: FenceService;
     protected itemHelper: ItemHelper;
     protected configServer: ConfigServer;
@@ -47,7 +45,9 @@ export declare class RagfairOfferGenerator {
         tpl: string;
         price: number;
     }[];
-    constructor(logger: ILogger, jsonUtil: JsonUtil, hashUtil: HashUtil, randomUtil: RandomUtil, timeUtil: TimeUtil, databaseServer: DatabaseServer, ragfairServerHelper: RagfairServerHelper, handbookHelper: HandbookHelper, saveServer: SaveServer, presetHelper: PresetHelper, ragfairAssortGenerator: RagfairAssortGenerator, ragfairOfferService: RagfairOfferService, ragfairPriceService: RagfairPriceService, localisationService: LocalisationService, paymentHelper: PaymentHelper, ragfairCategoriesService: RagfairCategoriesService, fenceService: FenceService, itemHelper: ItemHelper, configServer: ConfigServer);
+    /** Internal counter to ensure each offer created has a unique value for its intId property */
+    protected offerCounter: number;
+    constructor(logger: ILogger, jsonUtil: JsonUtil, hashUtil: HashUtil, randomUtil: RandomUtil, timeUtil: TimeUtil, databaseServer: DatabaseServer, ragfairServerHelper: RagfairServerHelper, handbookHelper: HandbookHelper, saveServer: SaveServer, presetHelper: PresetHelper, ragfairAssortGenerator: RagfairAssortGenerator, ragfairOfferService: RagfairOfferService, ragfairPriceService: RagfairPriceService, localisationService: LocalisationService, paymentHelper: PaymentHelper, fenceService: FenceService, itemHelper: ItemHelper, configServer: ConfigServer);
     /**
      * Create a flea offer and store it in the Ragfair server offers array
      * @param userID Owner of the offer
@@ -119,23 +119,28 @@ export declare class RagfairOfferGenerator {
      * Create multiple offers for items by using a unique list of items we've generated previously
      * @param expiredOffers optional, expired offers to regenerate
      */
-    generateDynamicOffers(expiredOffers?: Item[]): Promise<void>;
+    generateDynamicOffers(expiredOffers?: Item[][]): Promise<void>;
     /**
-     *
-     * @param assortItemIndex Index of assort item
-     * @param assortItemsToProcess Item array containing index
-     * @param expiredOffers Currently expired offers on flea
+     * @param assortItemWithChildren Item with its children to process into offers
+     * @param isExpiredOffer is an expired offer
      * @param config Ragfair dynamic config
      */
-    protected createOffersForItems(assortItemIndex: string, assortItemsToProcess: Item[], expiredOffers: Item[], config: Dynamic): Promise<void>;
+    protected createOffersFromAssort(assortItemWithChildren: Item[], isExpiredOffer: boolean, config: Dynamic): Promise<void>;
+    /**
+     * iterate over an items chidren and look for plates above desired level and remove them
+     * @param presetWithChildren preset to check for plates
+     * @param plateSettings Settings
+     * @returns True if plate removed
+     */
+    protected removeBannedPlatesFromPreset(presetWithChildren: Item[], plateSettings: IArmorPlateBlacklistSettings): boolean;
     /**
      * Create one flea offer for a specific item
-     * @param items Item to create offer for
+     * @param itemWithChildren Item to create offer for
      * @param isPreset Is item a weapon preset
      * @param itemDetails raw db item details
      * @returns Item array
      */
-    protected createSingleOfferForItem(items: Item[], isPreset: boolean, itemDetails: [boolean, ITemplateItem]): Promise<void>;
+    protected createSingleOfferForItem(itemWithChildren: Item[], isPreset: boolean, itemDetails: [boolean, ITemplateItem]): Promise<void>;
     /**
      * Generate trader offers on flea using the traders assort data
      * @param traderID Trader to generate offers for
@@ -145,11 +150,10 @@ export declare class RagfairOfferGenerator {
      * Get array of an item with its mods + condition properties (e.g durability)
      * Apply randomisation adjustments to condition if item base is found in ragfair.json/dynamic/condition
      * @param userID id of owner of item
-     * @param itemWithMods Item and mods, get condition of first item (only first array item is used)
+     * @param itemWithMods Item and mods, get condition of first item (only first array item is modified)
      * @param itemDetails db details of first item
-     * @returns
      */
-    protected randomiseItemUpdProperties(userID: string, itemWithMods: Item[], itemDetails: ITemplateItem): Item[];
+    protected randomiseOfferItemUpdProperties(userID: string, itemWithMods: Item[], itemDetails: ITemplateItem): void;
     /**
      * Get the relevant condition id if item tpl matches in ragfair.json/condition
      * @param tpl Item to look for matching condition object
@@ -159,24 +163,32 @@ export declare class RagfairOfferGenerator {
     /**
      * Alter an items condition based on its item base type
      * @param conditionSettingsId also the parentId of item being altered
-     * @param item Item to adjust condition details of
+     * @param itemWithMods Item to adjust condition details of
      * @param itemDetails db item details of first item in array
      */
-    protected randomiseItemCondition(conditionSettingsId: string, item: Item, itemDetails: ITemplateItem): void;
+    protected randomiseItemCondition(conditionSettingsId: string, itemWithMods: Item[], itemDetails: ITemplateItem): void;
     /**
      * Adjust an items durability/maxDurability value
-     * @param item item (weapon/armor) to adjust
-     * @param multiplier Value to multiple durability by
+     * @param item item (weapon/armor) to Adjust
+     * @param itemDbDetails Weapon details from db
+     * @param maxMultiplier Value to multiply max durability by
+     * @param currentMultiplier Value to multiply current durability by
      */
-    protected randomiseDurabilityValues(item: Item, multiplier: number): void;
+    protected randomiseWeaponDurability(item: Item, itemDbDetails: ITemplateItem, maxMultiplier: number, currentMultiplier: number): void;
+    /**
+     * Randomise the durabiltiy values for an armors plates and soft inserts
+     * @param armorWithMods Armor item with its child mods
+     * @param currentMultiplier Chosen multipler to use for current durability value
+     * @param maxMultiplier Chosen multipler to use for max durability value
+     */
+    protected randomiseArmorDurabilityValues(armorWithMods: Item[], currentMultiplier: number, maxMultiplier: number): void;
     /**
      * Add missing conditions to an item if needed
      * Durabiltiy for repairable items
      * HpResource for medical items
      * @param item item to add conditions to
-     * @returns Item with conditions added
      */
-    protected addMissingConditions(item: Item): Item;
+    protected addMissingConditions(item: Item): void;
     /**
      * Create a barter-based barter scheme, if not possible, fall back to making barter scheme currency based
      * @param offerItems Items for sale in offer
@@ -193,10 +205,10 @@ export declare class RagfairOfferGenerator {
     }[];
     /**
      * Create a random currency-based barter scheme for an array of items
-     * @param offerItems Items on offer
+     * @param offerWithChildren Items on offer
      * @param isPackOffer Is the barter scheme being created for a pack offer
      * @param multipler What to multiply the resulting price by
      * @returns Barter scheme for offer
      */
-    protected createCurrencyBarterScheme(offerItems: Item[], isPackOffer: boolean, multipler?: number): IBarterScheme[];
+    protected createCurrencyBarterScheme(offerWithChildren: Item[], isPackOffer: boolean, multipler?: number): IBarterScheme[];
 }

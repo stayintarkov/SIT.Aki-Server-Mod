@@ -1,4 +1,4 @@
-import { IBaseInteractionRequestData } from "../common/request/IBaseInteractionRequestData";
+import { IBaseInteractionRequestData } from "@spt-aki/models/eft/common/request/IBaseInteractionRequestData";
 export interface IOffraidHealRequestData extends IBaseInteractionRequestData {
     Action: "Heal";
     item: string;

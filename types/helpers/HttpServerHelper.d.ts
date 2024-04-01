@@ -1,5 +1,5 @@
-import { IHttpConfig } from "../models/spt/config/IHttpConfig";
-import { ConfigServer } from "../servers/ConfigServer";
+import { IHttpConfig } from "@spt-aki/models/spt/config/IHttpConfig";
+import { ConfigServer } from "@spt-aki/servers/ConfigServer";
 export declare class HttpServerHelper {
     protected configServer: ConfigServer;
     protected httpConfig: IHttpConfig;

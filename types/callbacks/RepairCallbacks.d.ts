@@ -1,8 +1,8 @@
-import { RepairController } from "../controllers/RepairController";
-import { IPmcData } from "../models/eft/common/IPmcData";
-import { IItemEventRouterResponse } from "../models/eft/itemEvent/IItemEventRouterResponse";
-import { IRepairActionDataRequest } from "../models/eft/repair/IRepairActionDataRequest";
-import { ITraderRepairActionDataRequest } from "../models/eft/repair/ITraderRepairActionDataRequest";
+import { RepairController } from "@spt-aki/controllers/RepairController";
+import { IPmcData } from "@spt-aki/models/eft/common/IPmcData";
+import { IItemEventRouterResponse } from "@spt-aki/models/eft/itemEvent/IItemEventRouterResponse";
+import { IRepairActionDataRequest } from "@spt-aki/models/eft/repair/IRepairActionDataRequest";
+import { ITraderRepairActionDataRequest } from "@spt-aki/models/eft/repair/ITraderRepairActionDataRequest";
 export declare class RepairCallbacks {
     protected repairController: RepairController;
     constructor(repairController: RepairController);

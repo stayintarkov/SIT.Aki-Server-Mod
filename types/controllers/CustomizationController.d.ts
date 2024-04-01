@@ -1,14 +1,14 @@
-import { ProfileHelper } from "../helpers/ProfileHelper";
-import { IPmcData } from "../models/eft/common/IPmcData";
-import { ISuit } from "../models/eft/common/tables/ITrader";
-import { ClothingItem, IBuyClothingRequestData } from "../models/eft/customization/IBuyClothingRequestData";
-import { IWearClothingRequestData } from "../models/eft/customization/IWearClothingRequestData";
-import { IItemEventRouterResponse } from "../models/eft/itemEvent/IItemEventRouterResponse";
-import { ILogger } from "../models/spt/utils/ILogger";
-import { EventOutputHolder } from "../routers/EventOutputHolder";
-import { DatabaseServer } from "../servers/DatabaseServer";
-import { SaveServer } from "../servers/SaveServer";
-import { LocalisationService } from "../services/LocalisationService";
+import { ProfileHelper } from "@spt-aki/helpers/ProfileHelper";
+import { IPmcData } from "@spt-aki/models/eft/common/IPmcData";
+import { ISuit } from "@spt-aki/models/eft/common/tables/ITrader";
+import { ClothingItem, IBuyClothingRequestData } from "@spt-aki/models/eft/customization/IBuyClothingRequestData";
+import { IWearClothingRequestData } from "@spt-aki/models/eft/customization/IWearClothingRequestData";
+import { IItemEventRouterResponse } from "@spt-aki/models/eft/itemEvent/IItemEventRouterResponse";
+import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
+import { EventOutputHolder } from "@spt-aki/routers/EventOutputHolder";
+import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
+import { SaveServer } from "@spt-aki/servers/SaveServer";
+import { LocalisationService } from "@spt-aki/services/LocalisationService";
 export declare class CustomizationController {
     protected logger: ILogger;
     protected eventOutputHolder: EventOutputHolder;

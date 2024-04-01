@@ -1,5 +1,5 @@
-import { MinMax } from "../../../models/common/MinMax";
-import { Ixyz } from "./Ixyz";
+import { MinMax } from "@spt-aki/models/common/MinMax";
+import { Ixyz } from "@spt-aki/models/eft/common/Ixyz";
 export interface ILocationBase {
     AccessKeys: string[];
     AirdropParameters: AirdropParameter[];
@@ -132,6 +132,8 @@ export interface BossLocationSpawn {
     TriggerId: string;
     TriggerName: string;
     Delay?: number;
+    ForceSpawn?: boolean;
+    IgnoreMaxBots?: boolean;
     Supports?: BossSupport[];
     sptId?: string;
 }
@@ -171,6 +173,7 @@ export interface SpawnPointParam {
     BotZoneName: string;
     Categories: string[];
     ColliderParams: ColliderParams;
+    CorePointId: number;
     DelayToCanSpawnSec: number;
     Id: string;
     Infiltration: string;
@@ -187,9 +190,11 @@ export interface Props {
     Radius: number;
 }
 export interface Exit {
+    /** % Chance out of 100 exit will appear in raid */
     Chance: number;
     Count: number;
     EntryPoints: string;
+    EventAvailable: boolean;
     ExfiltrationTime: number;
     ExfiltrationType: string;
     RequiredSlot?: string;
@@ -200,6 +205,7 @@ export interface Exit {
     PassageRequirement: string;
     PlayersCount: number;
     RequirementTip: string;
+    Side?: string;
 }
 export interface MaxItemCountInLocation {
     TemplateId: string;

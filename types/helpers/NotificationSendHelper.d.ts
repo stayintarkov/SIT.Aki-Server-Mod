@@ -1,10 +1,10 @@
-import { INotification } from "../models/eft/notifier/INotifier";
-import { Dialogue, IUserDialogInfo } from "../models/eft/profile/IAkiProfile";
-import { MessageType } from "../models/enums/MessageType";
-import { SaveServer } from "../servers/SaveServer";
-import { WebSocketServer } from "../servers/WebSocketServer";
-import { NotificationService } from "../services/NotificationService";
-import { HashUtil } from "../utils/HashUtil";
+import { INotification } from "@spt-aki/models/eft/notifier/INotifier";
+import { Dialogue, IUserDialogInfo } from "@spt-aki/models/eft/profile/IAkiProfile";
+import { MessageType } from "@spt-aki/models/enums/MessageType";
+import { SaveServer } from "@spt-aki/servers/SaveServer";
+import { WebSocketServer } from "@spt-aki/servers/WebSocketServer";
+import { NotificationService } from "@spt-aki/services/NotificationService";
+import { HashUtil } from "@spt-aki/utils/HashUtil";
 export declare class NotificationSendHelper {
     protected webSocketServer: WebSocketServer;
     protected hashUtil: HashUtil;

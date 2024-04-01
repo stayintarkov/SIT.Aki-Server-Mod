@@ -1,40 +1,46 @@
-import { BotGeneratorHelper } from "../helpers/BotGeneratorHelper";
-import { BotWeaponGeneratorHelper } from "../helpers/BotWeaponGeneratorHelper";
-import { HandbookHelper } from "../helpers/HandbookHelper";
-import { ItemHelper } from "../helpers/ItemHelper";
-import { WeightedRandomHelper } from "../helpers/WeightedRandomHelper";
-import { Inventory as PmcInventory } from "../models/eft/common/tables/IBotBase";
-import { IBotType, Inventory, ModsChances } from "../models/eft/common/tables/IBotType";
-import { Item } from "../models/eft/common/tables/IItem";
-import { ITemplateItem } from "../models/eft/common/tables/ITemplateItem";
-import { EquipmentSlots } from "../models/enums/EquipmentSlots";
-import { IBotConfig } from "../models/spt/config/IBotConfig";
-import { IPmcConfig } from "../models/spt/config/IPmcConfig";
-import { ILogger } from "../models/spt/utils/ILogger";
-import { ConfigServer } from "../servers/ConfigServer";
-import { DatabaseServer } from "../servers/DatabaseServer";
-import { BotLootCacheService } from "../services/BotLootCacheService";
-import { LocalisationService } from "../services/LocalisationService";
-import { HashUtil } from "../utils/HashUtil";
-import { RandomUtil } from "../utils/RandomUtil";
-import { BotWeaponGenerator } from "./BotWeaponGenerator";
+import { BotWeaponGenerator } from "@spt-aki/generators/BotWeaponGenerator";
+import { BotGeneratorHelper } from "@spt-aki/helpers/BotGeneratorHelper";
+import { BotHelper } from "@spt-aki/helpers/BotHelper";
+import { HandbookHelper } from "@spt-aki/helpers/HandbookHelper";
+import { InventoryHelper } from "@spt-aki/helpers/InventoryHelper";
+import { ItemHelper } from "@spt-aki/helpers/ItemHelper";
+import { WeightedRandomHelper } from "@spt-aki/helpers/WeightedRandomHelper";
+import { Inventory as PmcInventory } from "@spt-aki/models/eft/common/tables/IBotBase";
+import { IBotType, Inventory, ModsChances } from "@spt-aki/models/eft/common/tables/IBotType";
+import { Item } from "@spt-aki/models/eft/common/tables/IItem";
+import { ITemplateItem } from "@spt-aki/models/eft/common/tables/ITemplateItem";
+import { EquipmentSlots } from "@spt-aki/models/enums/EquipmentSlots";
+import { IItemSpawnLimitSettings } from "@spt-aki/models/spt/bots/IItemSpawnLimitSettings";
+import { IBotConfig } from "@spt-aki/models/spt/config/IBotConfig";
+import { IPmcConfig } from "@spt-aki/models/spt/config/IPmcConfig";
+import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
+import { ConfigServer } from "@spt-aki/servers/ConfigServer";
+import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
+import { BotLootCacheService } from "@spt-aki/services/BotLootCacheService";
+import { LocalisationService } from "@spt-aki/services/LocalisationService";
+import { HashUtil } from "@spt-aki/utils/HashUtil";
+import { JsonUtil } from "@spt-aki/utils/JsonUtil";
+import { RandomUtil } from "@spt-aki/utils/RandomUtil";
 export declare class BotLootGenerator {
     protected logger: ILogger;
     protected hashUtil: HashUtil;
     protected randomUtil: RandomUtil;
     protected itemHelper: ItemHelper;
+    protected jsonUtil: JsonUtil;
+    protected inventoryHelper: InventoryHelper;
     protected databaseServer: DatabaseServer;
     protected handbookHelper: HandbookHelper;
     protected botGeneratorHelper: BotGeneratorHelper;
     protected botWeaponGenerator: BotWeaponGenerator;
-    protected botWeaponGeneratorHelper: BotWeaponGeneratorHelper;
     protected weightedRandomHelper: WeightedRandomHelper;
+    protected botHelper: BotHelper;
     protected botLootCacheService: BotLootCacheService;
     protected localisationService: LocalisationService;
     protected configServer: ConfigServer;
     protected botConfig: IBotConfig;
     protected pmcConfig: IPmcConfig;
-    constructor(logger: ILogger, hashUtil: HashUtil, randomUtil: RandomUtil, itemHelper: ItemHelper, databaseServer: DatabaseServer, handbookHelper: HandbookHelper, botGeneratorHelper: BotGeneratorHelper, botWeaponGenerator: BotWeaponGenerator, botWeaponGeneratorHelper: BotWeaponGeneratorHelper, weightedRandomHelper: WeightedRandomHelper, botLootCacheService: BotLootCacheService, localisationService: LocalisationService, configServer: ConfigServer);
+    constructor(logger: ILogger, hashUtil: HashUtil, randomUtil: RandomUtil, itemHelper: ItemHelper, jsonUtil: JsonUtil, inventoryHelper: InventoryHelper, databaseServer: DatabaseServer, handbookHelper: HandbookHelper, botGeneratorHelper: BotGeneratorHelper, botWeaponGenerator: BotWeaponGenerator, weightedRandomHelper: WeightedRandomHelper, botHelper: BotHelper, botLootCacheService: BotLootCacheService, localisationService: LocalisationService, configServer: ConfigServer);
+    protected getItemSpawnLimitsForBot(botRole: string): IItemSpawnLimitSettings;
     /**
      * Add loot to bots containers
      * @param sessionId Session id
@@ -66,80 +72,72 @@ export declare class BotLootGenerator {
      */
     protected getRandomisedCount(min: number, max: number, nValue: number): number;
     /**
-     * Take random items from a pool and add to an inventory until totalItemCount or totalValueLimit is reached
-     * @param pool Pool of items to pick from
+     * Take random items from a pool and add to an inventory until totalItemCount or totalValueLimit or space limit is reached
+     * @param pool Pool of items to pick from with weight
      * @param equipmentSlots What equipment slot will the loot items be added to
      * @param totalItemCount Max count of items to add
      * @param inventoryToAddItemsTo Bot inventory loot will be added to
      * @param botRole Role of the bot loot is being generated for (assault/pmcbot)
-     * @param useLimits Should item limit counts be used as defined in config/bot.json
+     * @param itemSpawnLimits Item spawn limits the bot must adhere to
      * @param totalValueLimitRub Total value of loot allowed in roubles
      * @param isPmc Is bot being generated for a pmc
      */
-    protected addLootFromPool(pool: ITemplateItem[], equipmentSlots: string[], totalItemCount: number, inventoryToAddItemsTo: PmcInventory, botRole: string, useLimits?: boolean, totalValueLimitRub?: number, isPmc?: boolean): void;
+    protected addLootFromPool(pool: Record<string, number>, equipmentSlots: string[], totalItemCount: number, inventoryToAddItemsTo: PmcInventory, botRole: string, itemSpawnLimits?: IItemSpawnLimitSettings, totalValueLimitRub?: number, isPmc?: boolean): void;
+    protected createWalletLoot(walletId: string): Item[][];
+    /**
+     * Some items need child items to function, add them to the itemToAddChildrenTo array
+     * @param itemToAddTemplate Db template of item to check
+     * @param itemToAddChildrenTo Item to add children to
+     * @param isPmc Is the item being generated for a pmc (affects money/ammo stack sizes)
+     * @param botRole role bot has that owns item
+     */
+    protected addRequiredChildItemsToParent(itemToAddTemplate: ITemplateItem, itemToAddChildrenTo: Item[], isPmc: boolean, botRole: string): void;
     /**
      * Add generated weapons to inventory as loot
      * @param botInventory inventory to add preset to
      * @param equipmentSlot slot to place the preset in (backpack)
      * @param templateInventory bots template, assault.json
      * @param modChances chances for mods to spawn on weapon
-     * @param botRole bots role, .e.g. pmcBot
+     * @param botRole bots role .e.g. pmcBot
      * @param isPmc are we generating for a pmc
      */
     protected addLooseWeaponsToInventorySlot(sessionId: string, botInventory: PmcInventory, equipmentSlot: string, templateInventory: Inventory, modChances: ModsChances, botRole: string, isPmc: boolean, botLevel: number): void;
     /**
-     * Get a random item from the pool parameter using the biasedRandomNumber system
-     * @param pool Pool of items to pick an item from
-     * @param isPmc Is the bot being created a pmc
-     * @returns ITemplateItem object
-     */
-    protected getRandomItemFromPoolByRole(pool: ITemplateItem[], botRole: string): ITemplateItem;
-    /**
-     * Get the loot nvalue from botconfig
-     * @param botRole Role of bot e.g. assault/bosstagilla/sptBear
-     * @returns nvalue as number
-     */
-    protected getBotLootNValueByRole(botRole: string): number;
-    /**
      * Hydrate item limit array to contain items that have a limit for a specific bot type
      * All values are set to 0
-     * @param isPmc Is the bot a pmc
      * @param botRole Role the bot has
      * @param limitCount
      */
-    protected initItemLimitArray(isPmc: boolean, botRole: string, limitCount: Record<string, number>): void;
+    protected initItemLimitArray(botRole: string, limitCount: Record<string, number>): void;
     /**
      * Check if an item has reached its bot-specific spawn limit
      * @param itemTemplate Item we check to see if its reached spawn limit
      * @param botRole Bot type
-     * @param isPmc Is bot we're working with a pmc
-     * @param limitCount Spawn limits for items on bot
-     * @param itemSpawnLimits The limits this bot is allowed to have
+     * @param itemSpawnLimits
      * @returns true if item has reached spawn limit
      */
-    protected itemHasReachedSpawnLimit(itemTemplate: ITemplateItem, botRole: string, isPmc: boolean, limitCount: Record<string, number>, itemSpawnLimits: Record<string, number>): boolean;
+    protected itemHasReachedSpawnLimit(itemTemplate: ITemplateItem, botRole: string, itemSpawnLimits: IItemSpawnLimitSettings): boolean;
     /**
      * Randomise the stack size of a money object, uses different values for pmc or scavs
-     * @param isPmc is this a PMC
-     * @param itemTemplate item details
-     * @param moneyItem Money stack to randomise
+     * @param botRole Role bot has that has money stack
+     * @param itemTemplate item details from db
+     * @param moneyItem Money item to randomise
      */
-    protected randomiseMoneyStackSize(isPmc: boolean, itemTemplate: ITemplateItem, moneyItem: Item): void;
+    protected randomiseMoneyStackSize(botRole: string, itemTemplate: ITemplateItem, moneyItem: Item): void;
     /**
      * Randomise the size of an ammo stack
-     * @param isPmc is this a PMC
-     * @param itemTemplate item details
-     * @param ammoItem Ammo stack to randomise
+     * @param isPmc Is ammo on a PMC bot
+     * @param itemTemplate item details from db
+     * @param ammoItem Ammo item to randomise
      */
     protected randomiseAmmoStackSize(isPmc: boolean, itemTemplate: ITemplateItem, ammoItem: Item): void;
     /**
      * Get spawn limits for a specific bot type from bot.json config
      * If no limit found for a non pmc bot, fall back to defaults
-     * @param isPmc is the bot we want limits for a pmc
      * @param botRole what role does the bot have
      * @returns Dictionary of tplIds and limit
      */
-    protected getItemSpawnLimitsForBotType(isPmc: boolean, botRole: string): Record<string, number>;
+    protected getItemSpawnLimitsForBotType(botRole: string): Record<string, number>;
     /**
      * Get the parentId or tplId of item inside spawnLimits object if it exists
      * @param itemTemplate item we want to look for in spawn limits

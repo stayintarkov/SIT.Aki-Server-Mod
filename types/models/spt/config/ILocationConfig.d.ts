@@ -1,6 +1,6 @@
-import { MinMax } from "../../../models/common/MinMax";
-import { BossLocationSpawn, Wave } from "../../../models/eft/common/ILocationBase";
-import { IBaseConfig } from "./IBaseConfig";
+import { MinMax } from "@spt-aki/models/common/MinMax";
+import { BossLocationSpawn, Wave } from "@spt-aki/models/eft/common/ILocationBase";
+import { IBaseConfig } from "@spt-aki/models/spt/config/IBaseConfig";
 export interface ILocationConfig extends IBaseConfig {
     kind: "aki-location";
     /** Waves with a min/max of the same value don't spawn any bots, bsg only spawn the difference between min and max */
@@ -34,17 +34,19 @@ export interface ILocationConfig extends IBaseConfig {
     /** How full must a random static magazine be %*/
     minFillStaticMagazinePercent: number;
     allowDuplicateItemsInStaticContainers: boolean;
+    /** Chance loose/static magazines have ammo in them */
+    magazineLootHasAmmoChancePercent: number;
     /** Key: map, value: loose loot ids to ignore */
     looseLootBlacklist: Record<string, string[]>;
+    /** Key: map, value: settings to control how long scav raids are*/
+    scavRaidTimeSettings: IScavRaidTimeSettings;
+    /** Settings to adjust mods for lootable equipment in raid */
+    equipmentLootSettings: IEquipmentLootSettings;
+    /** Sets the max Patrol Value of the Boxzone on the map Ground Zero*/
+    sandboxMaxPatrolvalue: number;
 }
-export interface IContainerRandomistionSettings {
-    enabled: boolean;
-    /** What maps can use the container randomisation feature */
-    maps: Record<string, boolean>;
-    /** Some container types don't work when randomised */
-    containerTypesToNotRandomise: string[];
-    containerGroupMinSizeMultiplier: number;
-    containerGroupMaxSizeMultiplier: number;
+export interface IEquipmentLootSettings {
+    modSpawnChancePercent: Record<string, number>;
 }
 export interface IFixEmptyBotWavesSettings {
     enabled: boolean;
@@ -85,4 +87,35 @@ export interface LootMultiplier {
     tarkovstreets: number;
     terminal: number;
     town: number;
+    sandbox: number;
+}
+export interface IContainerRandomistionSettings {
+    enabled: boolean;
+    /** What maps can use the container randomisation feature */
+    maps: Record<string, boolean>;
+    /** Some container types don't work when randomised */
+    containerTypesToNotRandomise: string[];
+    containerGroupMinSizeMultiplier: number;
+    containerGroupMaxSizeMultiplier: number;
+}
+export interface IScavRaidTimeSettings {
+    settings: IScavRaidTimeConfigSettings;
+    maps: Record<string, IScavRaidTimeLocationSettings>;
+}
+export interface IScavRaidTimeConfigSettings {
+    trainArrivalDelayObservedSeconds: number;
+}
+export interface IScavRaidTimeLocationSettings {
+    /** Should loot be reduced by same percent length of raid is reduced by */
+    reduceLootByPercent: boolean;
+    /** Smallest % of container loot that should be spawned */
+    minStaticLootPercent: number;
+    /** Smallest % of loose loot that should be spawned */
+    minDynamicLootPercent: number;
+    /** Chance raid time is reduced */
+    reducedChancePercent: number;
+    /** How much should raid time be reduced - weighted */
+    reductionPercentWeights: Record<string, number>;
+    /** Should bot waves be removed / spawn times be adjusted */
+    adjustWaves: boolean;
 }

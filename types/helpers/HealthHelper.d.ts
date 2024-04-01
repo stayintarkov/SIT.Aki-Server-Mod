@@ -1,12 +1,12 @@
-import { IPmcData } from "../models/eft/common/IPmcData";
-import { ISyncHealthRequestData } from "../models/eft/health/ISyncHealthRequestData";
-import { Effects, IAkiProfile } from "../models/eft/profile/IAkiProfile";
-import { IHealthConfig } from "../models/spt/config/IHealthConfig";
-import { ILogger } from "../models/spt/utils/ILogger";
-import { ConfigServer } from "../servers/ConfigServer";
-import { SaveServer } from "../servers/SaveServer";
-import { JsonUtil } from "../utils/JsonUtil";
-import { TimeUtil } from "../utils/TimeUtil";
+import { IPmcData } from "@spt-aki/models/eft/common/IPmcData";
+import { ISyncHealthRequestData } from "@spt-aki/models/eft/health/ISyncHealthRequestData";
+import { Effects, IAkiProfile } from "@spt-aki/models/eft/profile/IAkiProfile";
+import { IHealthConfig } from "@spt-aki/models/spt/config/IHealthConfig";
+import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
+import { ConfigServer } from "@spt-aki/servers/ConfigServer";
+import { SaveServer } from "@spt-aki/servers/SaveServer";
+import { JsonUtil } from "@spt-aki/utils/JsonUtil";
+import { TimeUtil } from "@spt-aki/utils/TimeUtil";
 export declare class HealthHelper {
     protected jsonUtil: JsonUtil;
     protected logger: ILogger;

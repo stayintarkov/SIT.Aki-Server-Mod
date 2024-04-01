@@ -1,5 +1,6 @@
 /**
  * @since v0.3.7
+ * @experimental
  */
 declare module "module" {
     import { URL } from "node:url";
@@ -11,9 +12,9 @@ declare module "module" {
          * does not add or remove exported names from the `ES Modules`.
          *
          * ```js
-         * const fs = require('fs');
-         * const assert = require('assert');
-         * const { syncBuiltinESMExports } = require('module');
+         * const fs = require('node:fs');
+         * const assert = require('node:assert');
+         * const { syncBuiltinESMExports } = require('node:module');
          *
          * fs.readFile = newAPI;
          *
@@ -27,7 +28,7 @@ declare module "module" {
          *
          * syncBuiltinESMExports();
          *
-         * import('fs').then((esmFS) => {
+         * import('node:fs').then((esmFS) => {
          *   // It syncs the existing readFile property with the new value
          *   assert.strictEqual(esmFS.readFile, newAPI);
          *   // readFileSync has been deleted from the required fs
@@ -45,6 +46,7 @@ declare module "module" {
          * `path` is the resolved path for the file for which a corresponding source map
          * should be fetched.
          * @since v13.7.0, v12.17.0
+         * @return Returns `module.SourceMap` if a source map is found, `undefined` otherwise.
          */
         function findSourceMap(path: string, error?: Error): SourceMap;
         interface SourceMapPayload {
@@ -120,7 +122,9 @@ declare module "module" {
              */
             findOrigin(lineNumber: number, columnNumber: number): SourceOrigin | {};
         }
-        interface ImportAssertions extends NodeJS.Dict<string> {
+        /** @deprecated Use `ImportAttributes` instead */
+        interface ImportAssertions extends ImportAttributes {}
+        interface ImportAttributes extends NodeJS.Dict<string> {
             type?: string | undefined;
         }
         type ModuleFormat = "builtin" | "commonjs" | "json" | "module" | "wasm";
@@ -129,6 +133,9 @@ declare module "module" {
             port: MessagePort;
         }
         /**
+         * @deprecated This hook will be removed in a future version.
+         * Use `initialize` instead. When a loader has an `initialize` export, `globalPreload` will be ignored.
+         *
          * Sometimes it might be necessary to run some code inside of the same global scope that the application runs in.
          * This hook allows the return of a string that is run as a sloppy-mode script on startup.
          *
@@ -136,15 +143,27 @@ declare module "module" {
          * @return Code to run before application startup
          */
         type GlobalPreloadHook = (context: GlobalPreloadContext) => string;
+        /**
+         * The `initialize` hook provides a way to define a custom function that runs in the hooks thread
+         * when the hooks module is initialized. Initialization happens when the hooks module is registered via `register`.
+         *
+         * This hook can receive data from a `register` invocation, including ports and other transferrable objects.
+         * The return value of `initialize` can be a `Promise`, in which case it will be awaited before the main application thread execution resumes.
+         */
+        type InitializeHook<Data = any> = (data: Data) => void | Promise<void>;
         interface ResolveHookContext {
             /**
              * Export conditions of the relevant `package.json`
              */
             conditions: string[];
             /**
+             * @deprecated Use `importAttributes` instead
+             */
+            importAssertions: ImportAttributes;
+            /**
              *  An object whose key-value pairs represent the assertions for the module to import
              */
-            importAssertions: ImportAssertions;
+            importAttributes: ImportAttributes;
             /**
              * The module importing this one, or undefined if this is the Node.js entry point
              */
@@ -156,9 +175,13 @@ declare module "module" {
              */
             format?: ModuleFormat | null | undefined;
             /**
-             * The import assertions to use when caching the module (optional; if excluded the input will be used)
+             * @deprecated Use `importAttributes` instead
              */
-            importAssertions?: ImportAssertions | undefined;
+            importAssertions?: ImportAttributes | undefined;
+            /**
+             * The import attributes to use when caching the module (optional; if excluded the input will be used)
+             */
+            importAttributes?: ImportAttributes | undefined;
             /**
              * A signal that this hook intends to terminate the chain of `resolve` hooks.
              * @default false
@@ -196,9 +219,13 @@ declare module "module" {
              */
             format: ModuleFormat;
             /**
+             * @deprecated Use `importAttributes` instead
+             */
+            importAssertions: ImportAttributes;
+            /**
              *  An object whose key-value pairs represent the assertions for the module to import
              */
-            importAssertions: ImportAssertions;
+            importAttributes: ImportAttributes;
         }
         interface LoadFnOutput {
             format: ModuleFormat;
@@ -226,6 +253,11 @@ declare module "module" {
             nextLoad: (url: string, context?: LoadHookContext) => LoadFnOutput | Promise<LoadFnOutput>,
         ) => LoadFnOutput | Promise<LoadFnOutput>;
     }
+    interface RegisterOptions<Data> {
+        parentURL: string | URL;
+        data?: Data | undefined;
+        transferList?: any[] | undefined;
+    }
     interface Module extends NodeModule {}
     class Module {
         static runMain(): void;
@@ -234,24 +266,45 @@ declare module "module" {
         static builtinModules: string[];
         static isBuiltin(moduleName: string): boolean;
         static Module: typeof Module;
+        static register<Data = any>(
+            specifier: string | URL,
+            parentURL?: string | URL,
+            options?: RegisterOptions<Data>,
+        ): void;
+        static register<Data = any>(specifier: string | URL, options?: RegisterOptions<Data>): void;
         constructor(id: string, parent?: Module);
     }
     global {
         interface ImportMeta {
+            /**
+             * The directory name of the current module. This is the same as the `path.dirname()` of the `import.meta.filename`.
+             * **Caveat:** only present on `file:` modules.
+             */
+            dirname: string;
+            /**
+             * The full absolute path and filename of the current module, with symlinks resolved.
+             * This is the same as the `url.fileURLToPath()` of the `import.meta.url`.
+             * **Caveat:** only local modules support this property. Modules not using the `file:` protocol will not provide it.
+             */
+            filename: string;
+            /**
+             * The absolute `file:` URL of the module.
+             */
             url: string;
             /**
-             * @experimental
-             * This feature is only available with the `--experimental-import-meta-resolve`
-             * command flag enabled.
-             *
              * Provides a module-relative resolution function scoped to each module, returning
              * the URL string.
              *
-             * @param specified The module specifier to resolve relative to `parent`.
-             * @param parent The absolute parent module URL to resolve from. If none
-             * is specified, the value of `import.meta.url` is used as the default.
+             * Second `parent` parameter is only used when the `--experimental-import-meta-resolve`
+             * command flag enabled.
+             *
+             * @since v20.6.0
+             *
+             * @param specifier The module specifier to resolve relative to `parent`.
+             * @param parent The absolute parent module URL to resolve from.
+             * @returns The absolute (`file:`) URL string for the resolved module.
              */
-            resolve?(specified: string, parent?: string | URL): Promise<string>;
+            resolve(specifier: string, parent?: string | URL | undefined): string;
         }
     }
     export = Module;

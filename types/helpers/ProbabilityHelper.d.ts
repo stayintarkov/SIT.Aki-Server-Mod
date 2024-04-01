@@ -1,5 +1,5 @@
-import { ILogger } from "../models/spt/utils/ILogger";
-import { RandomUtil } from "../utils/RandomUtil";
+import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
+import { RandomUtil } from "@spt-aki/utils/RandomUtil";
 export declare class ProbabilityHelper {
     protected logger: ILogger;
     protected randomUtil: RandomUtil;

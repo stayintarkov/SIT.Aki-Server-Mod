@@ -1,8 +1,8 @@
-import { QuestCallbacks } from "../../callbacks/QuestCallbacks";
-import { HandledRoute, ItemEventRouterDefinition } from "../../di/Router";
-import { IPmcData } from "../../models/eft/common/IPmcData";
-import { IItemEventRouterResponse } from "../../models/eft/itemEvent/IItemEventRouterResponse";
-import { ILogger } from "../../models/spt/utils/ILogger";
+import { QuestCallbacks } from "@spt-aki/callbacks/QuestCallbacks";
+import { HandledRoute, ItemEventRouterDefinition } from "@spt-aki/di/Router";
+import { IPmcData } from "@spt-aki/models/eft/common/IPmcData";
+import { IItemEventRouterResponse } from "@spt-aki/models/eft/itemEvent/IItemEventRouterResponse";
+import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
 export declare class QuestItemEventRouter extends ItemEventRouterDefinition {
     protected logger: ILogger;
     protected questCallbacks: QuestCallbacks;

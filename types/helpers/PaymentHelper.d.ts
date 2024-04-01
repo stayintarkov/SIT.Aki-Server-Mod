@@ -1,5 +1,5 @@
-import { IInventoryConfig } from "../models/spt/config/IInventoryConfig";
-import { ConfigServer } from "../servers/ConfigServer";
+import { IInventoryConfig } from "@spt-aki/models/spt/config/IInventoryConfig";
+import { ConfigServer } from "@spt-aki/servers/ConfigServer";
 export declare class PaymentHelper {
     protected configServer: ConfigServer;
     protected inventoryConfig: IInventoryConfig;
@@ -11,9 +11,9 @@ export declare class PaymentHelper {
      */
     isMoneyTpl(tpl: string): boolean;
     /**
-    * Gets currency TPL from TAG
-    * @param {string} currency
-    * @returns string
-    */
+     * Gets currency TPL from TAG
+     * @param {string} currency
+     * @returns string
+     */
     getCurrency(currency: string): string;
 }

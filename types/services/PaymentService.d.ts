@@ -1,19 +1,21 @@
-import { HandbookHelper } from "../helpers/HandbookHelper";
-import { InventoryHelper } from "../helpers/InventoryHelper";
-import { ItemHelper } from "../helpers/ItemHelper";
-import { PaymentHelper } from "../helpers/PaymentHelper";
-import { TraderHelper } from "../helpers/TraderHelper";
-import { IPmcData } from "../models/eft/common/IPmcData";
-import { Item } from "../models/eft/common/tables/IItem";
-import { IItemEventRouterResponse } from "../models/eft/itemEvent/IItemEventRouterResponse";
-import { IProcessBuyTradeRequestData } from "../models/eft/trade/IProcessBuyTradeRequestData";
-import { IProcessSellTradeRequestData } from "../models/eft/trade/IProcessSellTradeRequestData";
-import { ILogger } from "../models/spt/utils/ILogger";
-import { DatabaseServer } from "../servers/DatabaseServer";
-import { HttpResponseUtil } from "../utils/HttpResponseUtil";
-import { LocalisationService } from "./LocalisationService";
+import { HandbookHelper } from "@spt-aki/helpers/HandbookHelper";
+import { InventoryHelper } from "@spt-aki/helpers/InventoryHelper";
+import { ItemHelper } from "@spt-aki/helpers/ItemHelper";
+import { PaymentHelper } from "@spt-aki/helpers/PaymentHelper";
+import { TraderHelper } from "@spt-aki/helpers/TraderHelper";
+import { IPmcData } from "@spt-aki/models/eft/common/IPmcData";
+import { Item } from "@spt-aki/models/eft/common/tables/IItem";
+import { IItemEventRouterResponse } from "@spt-aki/models/eft/itemEvent/IItemEventRouterResponse";
+import { IProcessBuyTradeRequestData } from "@spt-aki/models/eft/trade/IProcessBuyTradeRequestData";
+import { IProcessSellTradeRequestData } from "@spt-aki/models/eft/trade/IProcessSellTradeRequestData";
+import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
+import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
+import { LocalisationService } from "@spt-aki/services/LocalisationService";
+import { HashUtil } from "@spt-aki/utils/HashUtil";
+import { HttpResponseUtil } from "@spt-aki/utils/HttpResponseUtil";
 export declare class PaymentService {
     protected logger: ILogger;
+    protected hashUtil: HashUtil;
     protected httpResponse: HttpResponseUtil;
     protected databaseServer: DatabaseServer;
     protected handbookHelper: HandbookHelper;
@@ -22,15 +24,15 @@ export declare class PaymentService {
     protected inventoryHelper: InventoryHelper;
     protected localisationService: LocalisationService;
     protected paymentHelper: PaymentHelper;
-    constructor(logger: ILogger, httpResponse: HttpResponseUtil, databaseServer: DatabaseServer, handbookHelper: HandbookHelper, traderHelper: TraderHelper, itemHelper: ItemHelper, inventoryHelper: InventoryHelper, localisationService: LocalisationService, paymentHelper: PaymentHelper);
+    constructor(logger: ILogger, hashUtil: HashUtil, httpResponse: HttpResponseUtil, databaseServer: DatabaseServer, handbookHelper: HandbookHelper, traderHelper: TraderHelper, itemHelper: ItemHelper, inventoryHelper: InventoryHelper, localisationService: LocalisationService, paymentHelper: PaymentHelper);
     /**
      * Take money and insert items into return to server request
-     * @param {IPmcData} pmcData Player profile
-     * @param {IProcessBuyTradeRequestData} request
-     * @param {string} sessionID
-     * @returns IItemEventRouterResponse
+     * @param pmcData Pmc profile
+     * @param request Buy item request
+     * @param sessionID Session id
+     * @param output Client response
      */
-    payMoney(pmcData: IPmcData, request: IProcessBuyTradeRequestData, sessionID: string, output: IItemEventRouterResponse): IItemEventRouterResponse;
+    payMoney(pmcData: IPmcData, request: IProcessBuyTradeRequestData, sessionID: string, output: IItemEventRouterResponse): void;
     /**
      * Get the item price of a specific traders assort
      * @param traderAssortId Id of assort to look up
@@ -41,29 +43,22 @@ export declare class PaymentService {
     /**
      * Receive money back after selling
      * @param {IPmcData} pmcData
-     * @param {number} amount
-     * @param {IProcessSellTradeRequestData} body
+     * @param {number} amountToSend
+     * @param {IProcessSellTradeRequestData} request
      * @param {IItemEventRouterResponse} output
      * @param {string} sessionID
      * @returns IItemEventRouterResponse
      */
-    getMoney(pmcData: IPmcData, amount: number, body: IProcessSellTradeRequestData, output: IItemEventRouterResponse, sessionID: string): IItemEventRouterResponse;
+    giveProfileMoney(pmcData: IPmcData, amountToSend: number, request: IProcessSellTradeRequestData, output: IItemEventRouterResponse, sessionID: string): void;
     /**
-   * Recursively checks if the given item is
-   * inside the stash, that is it has the stash as
-   * ancestor with slotId=hideout
-   */
-    protected isItemInStash(pmcData: IPmcData, item: Item): boolean;
-    /**
-     * Remove currency from player stash/inventory
+     * Remove currency from player stash/inventory and update client object with changes
      * @param pmcData Player profile to find and remove currency from
      * @param currencyTpl Type of currency to pay
      * @param amountToPay money value to pay
      * @param sessionID Session id
      * @param output output object to send to client
-     * @returns IItemEventRouterResponse
      */
-    addPaymentToOutput(pmcData: IPmcData, currencyTpl: string, amountToPay: number, sessionID: string, output: IItemEventRouterResponse): IItemEventRouterResponse;
+    addPaymentToOutput(pmcData: IPmcData, currencyTpl: string, amountToPay: number, sessionID: string, output: IItemEventRouterResponse): void;
     /**
      * Get all money stacks in inventory and prioritse items in stash
      * @param pmcData

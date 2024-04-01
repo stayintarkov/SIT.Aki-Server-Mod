@@ -1,25 +1,27 @@
-import { IPmcData } from "../models/eft/common/IPmcData";
-import { Common, HideoutArea, IHideoutImprovement, Production, Productive } from "../models/eft/common/tables/IBotBase";
-import { Upd } from "../models/eft/common/tables/IItem";
-import { StageBonus } from "../models/eft/hideout/IHideoutArea";
-import { IHideoutContinuousProductionStartRequestData } from "../models/eft/hideout/IHideoutContinuousProductionStartRequestData";
-import { IHideoutProduction } from "../models/eft/hideout/IHideoutProduction";
-import { IHideoutSingleProductionStartRequestData } from "../models/eft/hideout/IHideoutSingleProductionStartRequestData";
-import { IHideoutTakeProductionRequestData } from "../models/eft/hideout/IHideoutTakeProductionRequestData";
-import { IAddItemRequestData } from "../models/eft/inventory/IAddItemRequestData";
-import { IItemEventRouterResponse } from "../models/eft/itemEvent/IItemEventRouterResponse";
-import { IHideoutConfig } from "../models/spt/config/IHideoutConfig";
-import { ILogger } from "../models/spt/utils/ILogger";
-import { EventOutputHolder } from "../routers/EventOutputHolder";
-import { ConfigServer } from "../servers/ConfigServer";
-import { DatabaseServer } from "../servers/DatabaseServer";
-import { LocalisationService } from "../services/LocalisationService";
-import { PlayerService } from "../services/PlayerService";
-import { HashUtil } from "../utils/HashUtil";
-import { HttpResponseUtil } from "../utils/HttpResponseUtil";
-import { TimeUtil } from "../utils/TimeUtil";
-import { InventoryHelper } from "./InventoryHelper";
-import { ProfileHelper } from "./ProfileHelper";
+import { InventoryHelper } from "@spt-aki/helpers/InventoryHelper";
+import { ItemHelper } from "@spt-aki/helpers/ItemHelper";
+import { ProfileHelper } from "@spt-aki/helpers/ProfileHelper";
+import { IPmcData } from "@spt-aki/models/eft/common/IPmcData";
+import { HideoutArea, IHideoutImprovement, Production, Productive } from "@spt-aki/models/eft/common/tables/IBotBase";
+import { Item, Upd } from "@spt-aki/models/eft/common/tables/IItem";
+import { StageBonus } from "@spt-aki/models/eft/hideout/IHideoutArea";
+import { IHideoutContinuousProductionStartRequestData } from "@spt-aki/models/eft/hideout/IHideoutContinuousProductionStartRequestData";
+import { IHideoutProduction } from "@spt-aki/models/eft/hideout/IHideoutProduction";
+import { IHideoutSingleProductionStartRequestData } from "@spt-aki/models/eft/hideout/IHideoutSingleProductionStartRequestData";
+import { IHideoutTakeProductionRequestData } from "@spt-aki/models/eft/hideout/IHideoutTakeProductionRequestData";
+import { IItemEventRouterResponse } from "@spt-aki/models/eft/itemEvent/IItemEventRouterResponse";
+import { SkillTypes } from "@spt-aki/models/enums/SkillTypes";
+import { IHideoutConfig } from "@spt-aki/models/spt/config/IHideoutConfig";
+import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
+import { EventOutputHolder } from "@spt-aki/routers/EventOutputHolder";
+import { ConfigServer } from "@spt-aki/servers/ConfigServer";
+import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
+import { LocalisationService } from "@spt-aki/services/LocalisationService";
+import { PlayerService } from "@spt-aki/services/PlayerService";
+import { HashUtil } from "@spt-aki/utils/HashUtil";
+import { HttpResponseUtil } from "@spt-aki/utils/HttpResponseUtil";
+import { JsonUtil } from "@spt-aki/utils/JsonUtil";
+import { TimeUtil } from "@spt-aki/utils/TimeUtil";
 export declare class HideoutHelper {
     protected logger: ILogger;
     protected hashUtil: HashUtil;
@@ -31,14 +33,17 @@ export declare class HideoutHelper {
     protected inventoryHelper: InventoryHelper;
     protected playerService: PlayerService;
     protected localisationService: LocalisationService;
+    protected itemHelper: ItemHelper;
     protected configServer: ConfigServer;
+    protected jsonUtil: JsonUtil;
     static bitcoinFarm: string;
+    static bitcoinProductionId: string;
     static waterCollector: string;
-    static bitcoin: string;
+    static bitcoinTpl: string;
     static expeditionaryFuelTank: string;
     static maxSkillPoint: number;
     protected hideoutConfig: IHideoutConfig;
-    constructor(logger: ILogger, hashUtil: HashUtil, timeUtil: TimeUtil, databaseServer: DatabaseServer, eventOutputHolder: EventOutputHolder, httpResponse: HttpResponseUtil, profileHelper: ProfileHelper, inventoryHelper: InventoryHelper, playerService: PlayerService, localisationService: LocalisationService, configServer: ConfigServer);
+    constructor(logger: ILogger, hashUtil: HashUtil, timeUtil: TimeUtil, databaseServer: DatabaseServer, eventOutputHolder: EventOutputHolder, httpResponse: HttpResponseUtil, profileHelper: ProfileHelper, inventoryHelper: InventoryHelper, playerService: PlayerService, localisationService: LocalisationService, itemHelper: ItemHelper, configServer: ConfigServer, jsonUtil: JsonUtil);
     /**
      * Add production to profiles' Hideout.Production array
      * @param pmcData Profile to add production to
@@ -81,6 +86,16 @@ export declare class HideoutHelper {
     };
     protected doesWaterCollectorHaveFilter(waterCollector: HideoutArea): boolean;
     /**
+     * Iterate over productions and update their progress timers
+     * @param pmcData Profile to check for productions and update
+     * @param hideoutProperties Hideout properties
+     */
+    protected updateProductionTimers(pmcData: IPmcData, hideoutProperties: {
+        btcFarmCGs: number;
+        isGeneratorOn: boolean;
+        waterCollectorHasFilter: boolean;
+    }): void;
+    /**
      * Update progress timer for water collector
      * @param pmcData profile to update
      * @param productionId id of water collection production to update
@@ -88,16 +103,6 @@ export declare class HideoutHelper {
      */
     protected updateWaterCollectorProductionTimer(pmcData: IPmcData, productionId: string, hideoutProperties: {
         btcFarmCGs?: number;
-        isGeneratorOn: boolean;
-        waterCollectorHasFilter: boolean;
-    }): void;
-    /**
-     * Iterate over productions and update their progress timers
-     * @param pmcData Profile to check for productions and update
-     * @param hideoutProperties Hideout properties
-     */
-    protected updateProductionTimers(pmcData: IPmcData, hideoutProperties: {
-        btcFarmCGs: number;
         isGeneratorOn: boolean;
         waterCollectorHasFilter: boolean;
     }): void;
@@ -138,17 +143,34 @@ export declare class HideoutHelper {
         isGeneratorOn: boolean;
         waterCollectorHasFilter: boolean;
     }): void;
-    protected updateFuel(generatorArea: HideoutArea, pmcData: IPmcData): void;
-    protected updateWaterCollector(sessionId: string, pmcData: IPmcData, area: HideoutArea, isGeneratorOn: boolean): void;
+    /**
+     * Decrease fuel from generator slots based on amount of time since last time this occured
+     * @param generatorArea Hideout area
+     * @param pmcData Player profile
+     * @param isGeneratorOn Is the generator turned on since last update
+     */
+    protected updateFuel(generatorArea: HideoutArea, pmcData: IPmcData, isGeneratorOn: boolean): void;
+    protected updateWaterCollector(sessionId: string, pmcData: IPmcData, area: HideoutArea, hideoutProperties: {
+        btcFarmCGs: number;
+        isGeneratorOn: boolean;
+        waterCollectorHasFilter: boolean;
+    }): void;
+    /**
+     * Get craft time and make adjustments to account for dev profile + crafting skill level
+     * @param pmcData Player profile making craft
+     * @param recipeId Recipe being crafted
+     * @param applyHideoutManagementBonus should the hideout mgmt bonus be appled to the calculation
+     * @returns Items craft time with bonuses subtracted
+     */
+    protected getAdjustedCraftTimeWithSkills(pmcData: IPmcData, recipeId: string, applyHideoutManagementBonus?: boolean): number;
     /**
      * Adjust water filter objects resourceValue or delete when they reach 0 resource
      * @param waterFilterArea water filter area to update
      * @param production production object
      * @param isGeneratorOn is generator enabled
      * @param pmcData Player profile
-     * @returns Updated HideoutArea object
      */
-    protected updateWaterFilters(waterFilterArea: HideoutArea, production: Production, isGeneratorOn: boolean, pmcData: IPmcData): HideoutArea;
+    protected updateWaterFilters(waterFilterArea: HideoutArea, production: Production, isGeneratorOn: boolean, pmcData: IPmcData): void;
     /**
      * Get an adjusted water filter drain rate based on time elapsed since last run,
      * handle edge case when craft time has gone on longer than total production time
@@ -156,9 +178,9 @@ export declare class HideoutHelper {
      * @param totalProductionTime Total time collecting water
      * @param productionProgress how far water collector has progressed
      * @param baseFilterDrainRate Base drain rate
-     * @returns
+     * @returns drain rate (adjusted)
      */
-    protected adjustWaterFilterDrainRate(secondsSinceServerTick: number, totalProductionTime: number, productionProgress: number, baseFilterDrainRate: number): number;
+    protected getTimeAdjustedWaterFilterDrainRate(secondsSinceServerTick: number, totalProductionTime: number, productionProgress: number, baseFilterDrainRate: number): number;
     /**
      * Get the water filter drain rate based on hideout bonues player has
      * @param pmcData Player profile
@@ -178,8 +200,8 @@ export declare class HideoutHelper {
      * @param resourceUnitsConsumed
      * @returns Upd
      */
-    protected getAreaUpdObject(stackCount: number, resourceValue: number, resourceUnitsConsumed: number): Upd;
-    protected updateAirFilters(airFilterArea: HideoutArea, pmcData: IPmcData): void;
+    protected getAreaUpdObject(stackCount: number, resourceValue: number, resourceUnitsConsumed: number, isFoundInRaid: boolean): Upd;
+    protected updateAirFilters(airFilterArea: HideoutArea, pmcData: IPmcData, isGeneratorOn: boolean): void;
     protected updateBitcoinFarm(pmcData: IPmcData, btcFarmCGs: number, isGeneratorOn: boolean): Production;
     /**
      * Add bitcoin object to btc production products array and set progress time
@@ -196,27 +218,15 @@ export declare class HideoutHelper {
      */
     protected getTimeElapsedSinceLastServerTick(pmcData: IPmcData, isGeneratorOn: boolean, recipe?: IHideoutProduction): number;
     /**
-     * Get a count of how many BTC can be gathered by the profile
+     * Get a count of how many possible BTC can be gathered by the profile
      * @param pmcData Profile to look up
-     * @returns coin slot count
+     * @returns Coin slot count
      */
     protected getBTCSlots(pmcData: IPmcData): number;
     /**
-     * Does profile have elite hideout management skill
-     * @param pmcData Profile to look at
-     * @returns True if profile has skill
+     * Get a count of how many additional bitcoins player hideout can hold with elite skill
      */
-    protected hasEliteHideoutManagementSkill(pmcData: IPmcData): boolean;
-    /**
-     * Get a count of bitcoins player miner can hold
-     */
-    protected getBitcoinMinerContainerSlotSize(): number;
-    /**
-     * Get the hideout management skill from player profile
-     * @param pmcData Profile to look at
-     * @returns Hideout management skill object
-     */
-    protected getHideoutManagementSkill(pmcData: IPmcData): Common;
+    protected getEliteSkillAdditionalBitcoinSlotCount(): number;
     /**
      * HideoutManagement skill gives a consumption bonus the higher the level
      * 0.5% per level per 1-51, (25.5% at max)
@@ -225,12 +235,21 @@ export declare class HideoutHelper {
      */
     protected getHideoutManagementConsumptionBonus(pmcData: IPmcData): number;
     /**
-     * Adjust craft time based on crafting skill level found in player profile
+     * Get a multipler based on players skill level and value per level
+     * @param pmcData Player profile
+     * @param skill Player skill from profile
+     * @param valuePerLevel Value from globals.config.SkillsSettings - `PerLevel`
+     * @returns Multipler from 0 to 1
+     */
+    protected getSkillBonusMultipliedBySkillLevel(pmcData: IPmcData, skill: SkillTypes, valuePerLevel: number): number;
+    /**
      * @param pmcData Player profile
      * @param productionTime Time to complete hideout craft in seconds
-     * @returns Adjusted craft time in seconds
+     * @param skill Skill bonus to get reduction from
+     * @param amountPerLevel Skill bonus amount to apply
+     * @returns Seconds to reduce craft time by
      */
-    protected getCraftingSkillProductionTimeReduction(pmcData: IPmcData, productionTime: number): number;
+    getSkillProductionTimeReduction(pmcData: IPmcData, productionTime: number, skill: SkillTypes, amountPerLevel: number): number;
     isProduction(productive: Productive): productive is Production;
     /**
      * Gather crafted BTC from hideout area and add to inventory
@@ -238,15 +257,9 @@ export declare class HideoutHelper {
      * @param pmcData Player profile
      * @param request Take production request
      * @param sessionId Session id
-     * @returns IItemEventRouterResponse
+     * @param output Output object to update
      */
-    getBTC(pmcData: IPmcData, request: IHideoutTakeProductionRequestData, sessionId: string): IItemEventRouterResponse;
-    /**
-     * Create a single bitcoin request object
-     * @param pmcData Player profile
-     * @returns IAddItemRequestData
-     */
-    protected createBitcoinRequest(pmcData: IPmcData): IAddItemRequestData;
+    getBTC(pmcData: IPmcData, request: IHideoutTakeProductionRequestData, sessionId: string, output: IItemEventRouterResponse): void;
     /**
      * Upgrade hideout wall from starting level to interactable level if necessary stations have been upgraded
      * @param pmcProfile Profile to upgrade wall in
@@ -263,4 +276,17 @@ export declare class HideoutHelper {
      * @param pmcProfile Profile to adjust
      */
     setHideoutImprovementsToCompleted(pmcProfile: IPmcData): void;
+    /**
+     * Add/remove bonus combat skill based on number of dogtags in place of fame hideout area
+     * @param pmcData Player profile
+     */
+    applyPlaceOfFameDogtagBonus(pmcData: IPmcData): void;
+    /**
+     * Calculate the raw dogtag combat skill bonus for place of fame based on number of dogtags
+     * Reverse engineered from client code
+     * @param pmcData Player profile
+     * @param activeDogtags Active dogtags in place of fame dogtag slots
+     * @returns combat bonus
+     */
+    protected getDogtagCombatSkillBonusPercent(pmcData: IPmcData, activeDogtags: Item[]): number;
 }
