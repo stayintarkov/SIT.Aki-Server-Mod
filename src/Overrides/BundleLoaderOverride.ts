@@ -1,26 +1,9 @@
 import path from "node:path";
 import { BundleHashCacheService } from "@spt-aki/services/cache/BundleHashCacheService";
-import { BundleLoader } from "@spt-aki/loaders/BundleLoader";
+import { BundleInfo, BundleLoader } from "@spt-aki/loaders/BundleLoader";
 import { JsonUtil } from "@spt-aki/utils/JsonUtil";
 import { VFS } from "@spt-aki/utils/VFS";
 import { DependencyContainer } from "tsyringe";
-
-class BundleInfo
-{
-    modPath: string;
-    key: string;
-    path: string;
-    filepath: string;
-    dependencyKeys: string[];
-
-    constructor(modpath: string, bundle: BundleManifestEntry, bundleHash: number)
-    {
-        this.modpath = modpath
-        this.filename = bundle.key;
-        this.crc = bundleHash;
-        this.dependencies = bundle.dependencyKeys || [];
-    }
-}
 
 export class BundleLoaderOverride
 {
@@ -28,6 +11,7 @@ export class BundleLoaderOverride
     jsonUtil: JsonUtil;
     vfs: VFS;
     protected bundles: Record<string, BundleInfo> = {};
+    bundleHashCacheService: BundleHashCacheService;
 
     constructor(
         container: DependencyContainer
@@ -93,12 +77,12 @@ export class BundleLoaderOverride
             result.addBundles = (modpath: string) => {
                 return thisObj.addBundles(modpath);
             }
-            result.getBundle = (key: string, local: boolean) => {
-                return thisObj.getBundle(key, local);
+            result.getBundle = (key: string) => {
+                return thisObj.getBundle(key);
             }
-            result.getBundles = (local: boolean) => {
+            result.getBundles = () => {
                 
-                return thisObj.getBundles(local);
+                return thisObj.getBundles();
             }
         });
     }
