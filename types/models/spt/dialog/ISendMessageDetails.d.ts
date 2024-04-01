@@ -1,7 +1,7 @@
-import { Item } from "../../../models/eft/common/tables/IItem";
-import { ISystemData, IUserDialogInfo, MessageContentRagfair } from "../../../models/eft/profile/IAkiProfile";
-import { MessageType } from "../../../models/enums/MessageType";
-import { Traders } from "../../../models/enums/Traders";
+import { Item } from "@spt-aki/models/eft/common/tables/IItem";
+import { ISystemData, IUserDialogInfo, MessageContentRagfair } from "@spt-aki/models/eft/profile/IAkiProfile";
+import { MessageType } from "@spt-aki/models/enums/MessageType";
+import { Traders } from "@spt-aki/models/enums/Traders";
 export interface ISendMessageDetails {
     /** Player id */
     recipientId: string;
@@ -25,6 +25,12 @@ export interface ISendMessageDetails {
     systemData?: ISystemData;
     /** Optional - Used by ragfair messages */
     ragfairDetails?: MessageContentRagfair;
-    /** Optional - Usage not known, unsure of purpose, even dumps dont have it */
-    profileChangeEvents?: any[];
+    /** OPTIONAL - allows modification of profile settings via mail */
+    profileChangeEvents?: IProfileChangeEvent[];
+}
+export interface IProfileChangeEvent {
+    _id: string;
+    Type: "TraderSalesSum" | "TraderStanding" | "ProfileLevel" | "SkillPoints" | "ExamineAllItems" | "UnlockTrader";
+    value: number;
+    entity?: string;
 }

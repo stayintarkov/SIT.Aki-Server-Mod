@@ -2,5 +2,5 @@ export declare class ErrorHandler {
     private logger;
     private readLine;
     constructor();
-    handleCriticalError(err: any): void;
+    handleCriticalError(err: Error): void;
 }

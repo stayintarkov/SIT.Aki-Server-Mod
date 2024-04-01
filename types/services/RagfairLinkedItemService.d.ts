@@ -1,6 +1,6 @@
-import { ItemHelper } from "../helpers/ItemHelper";
-import { ITemplateItem } from "../models/eft/common/tables/ITemplateItem";
-import { DatabaseServer } from "../servers/DatabaseServer";
+import { ItemHelper } from "@spt-aki/helpers/ItemHelper";
+import { ITemplateItem } from "@spt-aki/models/eft/common/tables/ITemplateItem";
+import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
 export declare class RagfairLinkedItemService {
     protected databaseServer: DatabaseServer;
     protected itemHelper: ItemHelper;

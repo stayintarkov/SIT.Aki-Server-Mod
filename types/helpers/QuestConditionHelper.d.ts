@@ -1,8 +1,8 @@
-import { AvailableForConditions } from "../models/eft/common/tables/IQuest";
+import { IQuestCondition } from "@spt-aki/models/eft/common/tables/IQuest";
 export declare class QuestConditionHelper {
-    getQuestConditions(q: AvailableForConditions[], furtherFilter?: (a: AvailableForConditions) => AvailableForConditions[]): AvailableForConditions[];
-    getLevelConditions(q: AvailableForConditions[], furtherFilter?: (a: AvailableForConditions) => AvailableForConditions[]): AvailableForConditions[];
-    getLoyaltyConditions(q: AvailableForConditions[], furtherFilter?: (a: AvailableForConditions) => AvailableForConditions[]): AvailableForConditions[];
-    getStandingConditions(q: AvailableForConditions[], furtherFilter?: (a: AvailableForConditions) => AvailableForConditions[]): AvailableForConditions[];
-    protected filterConditions(q: AvailableForConditions[], questType: string, furtherFilter?: (a: AvailableForConditions) => AvailableForConditions[]): AvailableForConditions[];
+    getQuestConditions(q: IQuestCondition[], furtherFilter?: (a: IQuestCondition) => IQuestCondition[]): IQuestCondition[];
+    getLevelConditions(q: IQuestCondition[], furtherFilter?: (a: IQuestCondition) => IQuestCondition[]): IQuestCondition[];
+    getLoyaltyConditions(q: IQuestCondition[], furtherFilter?: (a: IQuestCondition) => IQuestCondition[]): IQuestCondition[];
+    getStandingConditions(q: IQuestCondition[], furtherFilter?: (a: IQuestCondition) => IQuestCondition[]): IQuestCondition[];
+    protected filterConditions(q: IQuestCondition[], questType: string, furtherFilter?: (a: IQuestCondition) => IQuestCondition[]): IQuestCondition[];
 }

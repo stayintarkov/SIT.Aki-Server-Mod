@@ -7,5 +7,6 @@ export declare enum Traders {
     MECHANIC = "5a7c2eca46aef81a7ca2145d",
     RAGMAN = "5ac3b934156ae10c4430e83c",
     JAEGER = "5c0647fdd443bc2504c2d371",
-    LIGHTHOUSEKEEPER = "638f541a29ffd1183d187f57"
+    LIGHTHOUSEKEEPER = "638f541a29ffd1183d187f57",
+    BTR = "656f0f98d80a697f855d34b1"
 }

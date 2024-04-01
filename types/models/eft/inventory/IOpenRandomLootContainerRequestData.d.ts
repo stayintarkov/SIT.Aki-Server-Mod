@@ -1,7 +1,7 @@
-import { IInventoryBaseActionRequestData } from "./IInventoryBaseActionRequestData";
+import { IInventoryBaseActionRequestData } from "@spt-aki/models/eft/inventory/IInventoryBaseActionRequestData";
 export interface IOpenRandomLootContainerRequestData extends IInventoryBaseActionRequestData {
     Action: "OpenRandomLootContainer";
-    /** Container item opened */
+    /** Container item id being opened */
     item: string;
     to: To[];
 }

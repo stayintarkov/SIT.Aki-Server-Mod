@@ -1,6 +1,6 @@
 /// <reference types="node" />
-import { IncomingMessage, ServerResponse } from "http";
-import { IHttpListener } from "../../../servers/http/IHttpListener";
+import { IncomingMessage, ServerResponse } from "node:http";
+import { IHttpListener } from "@spt-aki/servers/http/IHttpListener";
 export declare class HttpListenerMod implements IHttpListener {
     private canHandleOverride;
     private handleOverride;

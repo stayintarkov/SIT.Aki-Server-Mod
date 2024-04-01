@@ -1,28 +1,32 @@
-import { PlayerScavGenerator } from "../generators/PlayerScavGenerator";
-import { DialogueHelper } from "../helpers/DialogueHelper";
-import { ItemHelper } from "../helpers/ItemHelper";
-import { ProfileHelper } from "../helpers/ProfileHelper";
-import { QuestHelper } from "../helpers/QuestHelper";
-import { TraderHelper } from "../helpers/TraderHelper";
-import { IPmcData } from "../models/eft/common/IPmcData";
-import { IItemEventRouterResponse } from "../models/eft/itemEvent/IItemEventRouterResponse";
-import { IMiniProfile } from "../models/eft/launcher/IMiniProfile";
-import { IAkiProfile } from "../models/eft/profile/IAkiProfile";
-import { IProfileChangeNicknameRequestData } from "../models/eft/profile/IProfileChangeNicknameRequestData";
-import { IProfileChangeVoiceRequestData } from "../models/eft/profile/IProfileChangeVoiceRequestData";
-import { IProfileCreateRequestData } from "../models/eft/profile/IProfileCreateRequestData";
-import { ISearchFriendRequestData } from "../models/eft/profile/ISearchFriendRequestData";
-import { ISearchFriendResponse } from "../models/eft/profile/ISearchFriendResponse";
-import { IValidateNicknameRequestData } from "../models/eft/profile/IValidateNicknameRequestData";
-import { ILogger } from "../models/spt/utils/ILogger";
-import { EventOutputHolder } from "../routers/EventOutputHolder";
-import { DatabaseServer } from "../servers/DatabaseServer";
-import { SaveServer } from "../servers/SaveServer";
-import { LocalisationService } from "../services/LocalisationService";
-import { MailSendService } from "../services/MailSendService";
-import { ProfileFixerService } from "../services/ProfileFixerService";
-import { HashUtil } from "../utils/HashUtil";
-import { TimeUtil } from "../utils/TimeUtil";
+import { PlayerScavGenerator } from "@spt-aki/generators/PlayerScavGenerator";
+import { DialogueHelper } from "@spt-aki/helpers/DialogueHelper";
+import { ItemHelper } from "@spt-aki/helpers/ItemHelper";
+import { ProfileHelper } from "@spt-aki/helpers/ProfileHelper";
+import { QuestHelper } from "@spt-aki/helpers/QuestHelper";
+import { TraderHelper } from "@spt-aki/helpers/TraderHelper";
+import { IPmcData } from "@spt-aki/models/eft/common/IPmcData";
+import { IItemEventRouterResponse } from "@spt-aki/models/eft/itemEvent/IItemEventRouterResponse";
+import { IMiniProfile } from "@spt-aki/models/eft/launcher/IMiniProfile";
+import { GetProfileStatusResponseData } from "@spt-aki/models/eft/profile/GetProfileStatusResponseData";
+import { IAkiProfile } from "@spt-aki/models/eft/profile/IAkiProfile";
+import { IGetOtherProfileRequest } from "@spt-aki/models/eft/profile/IGetOtherProfileRequest";
+import { IGetOtherProfileResponse } from "@spt-aki/models/eft/profile/IGetOtherProfileResponse";
+import { IProfileChangeNicknameRequestData } from "@spt-aki/models/eft/profile/IProfileChangeNicknameRequestData";
+import { IProfileChangeVoiceRequestData } from "@spt-aki/models/eft/profile/IProfileChangeVoiceRequestData";
+import { IProfileCreateRequestData } from "@spt-aki/models/eft/profile/IProfileCreateRequestData";
+import { ISearchFriendRequestData } from "@spt-aki/models/eft/profile/ISearchFriendRequestData";
+import { ISearchFriendResponse } from "@spt-aki/models/eft/profile/ISearchFriendResponse";
+import { IValidateNicknameRequestData } from "@spt-aki/models/eft/profile/IValidateNicknameRequestData";
+import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
+import { EventOutputHolder } from "@spt-aki/routers/EventOutputHolder";
+import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
+import { SaveServer } from "@spt-aki/servers/SaveServer";
+import { LocalisationService } from "@spt-aki/services/LocalisationService";
+import { MailSendService } from "@spt-aki/services/MailSendService";
+import { ProfileFixerService } from "@spt-aki/services/ProfileFixerService";
+import { SeasonalEventService } from "@spt-aki/services/SeasonalEventService";
+import { HashUtil } from "@spt-aki/utils/HashUtil";
+import { TimeUtil } from "@spt-aki/utils/TimeUtil";
 export declare class ProfileController {
     protected logger: ILogger;
     protected hashUtil: HashUtil;
@@ -32,6 +36,7 @@ export declare class ProfileController {
     protected itemHelper: ItemHelper;
     protected profileFixerService: ProfileFixerService;
     protected localisationService: LocalisationService;
+    protected seasonalEventService: SeasonalEventService;
     protected mailSendService: MailSendService;
     protected playerScavGenerator: PlayerScavGenerator;
     protected eventOutputHolder: EventOutputHolder;
@@ -39,7 +44,7 @@ export declare class ProfileController {
     protected dialogueHelper: DialogueHelper;
     protected questHelper: QuestHelper;
     protected profileHelper: ProfileHelper;
-    constructor(logger: ILogger, hashUtil: HashUtil, timeUtil: TimeUtil, saveServer: SaveServer, databaseServer: DatabaseServer, itemHelper: ItemHelper, profileFixerService: ProfileFixerService, localisationService: LocalisationService, mailSendService: MailSendService, playerScavGenerator: PlayerScavGenerator, eventOutputHolder: EventOutputHolder, traderHelper: TraderHelper, dialogueHelper: DialogueHelper, questHelper: QuestHelper, profileHelper: ProfileHelper);
+    constructor(logger: ILogger, hashUtil: HashUtil, timeUtil: TimeUtil, saveServer: SaveServer, databaseServer: DatabaseServer, itemHelper: ItemHelper, profileFixerService: ProfileFixerService, localisationService: LocalisationService, seasonalEventService: SeasonalEventService, mailSendService: MailSendService, playerScavGenerator: PlayerScavGenerator, eventOutputHolder: EventOutputHolder, traderHelper: TraderHelper, dialogueHelper: DialogueHelper, questHelper: QuestHelper, profileHelper: ProfileHelper);
     /**
      * Handle /launcher/profiles
      */
@@ -54,8 +59,16 @@ export declare class ProfileController {
     getCompleteProfile(sessionID: string): IPmcData[];
     /**
      * Handle client/game/profile/create
+     * @param info Client reqeust object
+     * @param sessionID Player id
+     * @returns Profiles _id value
      */
-    createProfile(info: IProfileCreateRequestData, sessionID: string): void;
+    createProfile(info: IProfileCreateRequestData, sessionID: string): string;
+    /**
+     * make profiles pmcData.Inventory.equipment unique
+     * @param pmcData Profile to update
+     */
+    protected updateInventoryEquipmentId(pmcData: IPmcData): void;
     /**
      * Delete a profile
      * @param sessionID Id of profile to delete
@@ -98,4 +111,9 @@ export declare class ProfileController {
      * Handle client/game/profile/search
      */
     getFriends(info: ISearchFriendRequestData, sessionID: string): ISearchFriendResponse[];
+    /**
+     * Handle client/profile/status
+     */
+    getProfileStatus(sessionId: string): GetProfileStatusResponseData;
+    getOtherProfile(sessionId: string, request: IGetOtherProfileRequest): IGetOtherProfileResponse;
 }

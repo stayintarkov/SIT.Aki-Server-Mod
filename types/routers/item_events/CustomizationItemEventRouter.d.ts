@@ -1,7 +1,7 @@
-import { CustomizationCallbacks } from "../../callbacks/CustomizationCallbacks";
-import { HandledRoute, ItemEventRouterDefinition } from "../../di/Router";
-import { IPmcData } from "../../models/eft/common/IPmcData";
-import { IItemEventRouterResponse } from "../../models/eft/itemEvent/IItemEventRouterResponse";
+import { CustomizationCallbacks } from "@spt-aki/callbacks/CustomizationCallbacks";
+import { HandledRoute, ItemEventRouterDefinition } from "@spt-aki/di/Router";
+import { IPmcData } from "@spt-aki/models/eft/common/IPmcData";
+import { IItemEventRouterResponse } from "@spt-aki/models/eft/itemEvent/IItemEventRouterResponse";
 export declare class CustomizationItemEventRouter extends ItemEventRouterDefinition {
     protected customizationCallbacks: CustomizationCallbacks;
     constructor(customizationCallbacks: CustomizationCallbacks);

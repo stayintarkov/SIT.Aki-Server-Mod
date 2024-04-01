@@ -1,14 +1,14 @@
 /// <reference types="node" />
-import http, { IncomingMessage, ServerResponse } from "http";
-import { ApplicationContext } from "../context/ApplicationContext";
-import { HttpServerHelper } from "../helpers/HttpServerHelper";
-import { IHttpConfig } from "../models/spt/config/IHttpConfig";
-import { ILogger } from "../models/spt/utils/ILogger";
-import { LocalisationService } from "../services/LocalisationService";
-import { ConfigServer } from "./ConfigServer";
-import { DatabaseServer } from "./DatabaseServer";
-import { IHttpListener } from "./http/IHttpListener";
-import { WebSocketServer } from "./WebSocketServer";
+import { IncomingMessage, ServerResponse } from "node:http";
+import { ApplicationContext } from "@spt-aki/context/ApplicationContext";
+import { HttpServerHelper } from "@spt-aki/helpers/HttpServerHelper";
+import { IHttpConfig } from "@spt-aki/models/spt/config/IHttpConfig";
+import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
+import { ConfigServer } from "@spt-aki/servers/ConfigServer";
+import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
+import { WebSocketServer } from "@spt-aki/servers/WebSocketServer";
+import { IHttpListener } from "@spt-aki/servers/http/IHttpListener";
+import { LocalisationService } from "@spt-aki/services/LocalisationService";
 export declare class HttpServer {
     protected logger: ILogger;
     protected databaseServer: DatabaseServer;
@@ -25,5 +25,5 @@ export declare class HttpServer {
      */
     load(): void;
     protected handleRequest(req: IncomingMessage, resp: ServerResponse): void;
-    protected getCookies(req: http.IncomingMessage): Record<string, string>;
+    protected getCookies(req: IncomingMessage): Record<string, string>;
 }

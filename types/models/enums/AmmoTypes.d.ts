@@ -21,7 +21,10 @@ export declare enum Ammo762x54 {
     PS_GZH = "59e77a2386f7742ee578960a",
     T46M_GZH = "5e023cf8186a883be655e54f",
     BT_GZH = "5e023d34e8a400319a28ed44",
-    BS_GZH = "5e023d48186a883be655e551"
+    BS_GZH = "5e023d48186a883be655e551",
+    FMJ = "64b8f7968532cf95ee0a0dbf",
+    SP_BT = "64b8f7b5389d7ffd620ccba2",
+    HP_BT = "64b8f7c241772715af0f9c3d"
 }
 export declare enum Ammo86x70 {
     TAC_X = "5fc382b6d6fa9c00c571bbc3",
@@ -33,7 +36,8 @@ export declare enum Ammo46x30 {
     AP_SX = "5ba26835d4351e0035628ff5",
     ACTION_SX = "5ba26812d4351e003201fef1",
     FMJ_SX = "5ba2678ad4351e44f824b344",
-    SUBSONIC_SX = "5ba26844d4351e00334c9475"
+    SUBSONIC_SX = "5ba26844d4351e00334c9475",
+    JSP_SX = "64b6979341772715af0f9c39"
 }
 export declare enum Ammo57x28 {
     SS198LF = "5cc80f79e4a949033c7343b2",
@@ -77,7 +81,8 @@ export declare enum Ammo9x19 {
     AP_63 = "5c925fa22e221601da359b7b",
     LUGER_CCI = "5a3c16fe86f77452b62de32a",
     PBP_GZH = "5efb0da7a29a85116f6ea05f",
-    QUAKEMAKER = "5efb0e16aeb21837e749c7ff"
+    QUAKEMAKER = "5efb0e16aeb21837e749c7ff",
+    FMJ_M882 = "64b7bbb74b75259c590fa897"
 }
 export declare enum Ammo9x21 {
     P_GZH = "5a26abfac4a28232980eabff",
@@ -131,7 +136,8 @@ export declare enum Ammo762x35 {
     BCP_FMJ = "5fbe3ffdf8b6a877a729ea82",
     AP = "5fd20ff893a8961fc660a954",
     V_MAX = "6196364158ef8c428c287d9f",
-    WHISPER = "6196365d58ef8c428c287da1"
+    WHISPER = "6196365d58ef8c428c287da1",
+    CBJ = "64b8725c4b75259c590fa899"
 }
 export declare enum Ammo762x39 {
     PS_GZH = "5656d7c34bdc2d9d198b4587",
@@ -139,7 +145,10 @@ export declare enum Ammo762x39 {
     US_GZH = "59e4d24686f7741776641ac7",
     T45M1_GZH = "59e4cf5286f7741778269d8a",
     BP_GZH = "59e0d99486f7744a32234762",
-    MAI_AP = "601aa3d2b2bcb34913271e6d"
+    MAI_AP = "601aa3d2b2bcb34913271e6d",
+    PP_GZH = "64b7af434b75259c590fa893",
+    SP = "64b7af734b75259c590fa895",
+    FMJ = "64b7af5a8532cf95ee0a0dbd"
 }
 export declare enum Ammo9x39 {
     SP5_GS = "57a0dfb82459774d3078b56c",
@@ -175,7 +184,8 @@ export declare enum Ammo12Gauge {
     GRIZZLY_40_SLUG = "5d6e6869a4b9361c140bcfde",
     SUPERFORMANCE_HP_SLUG = "5d6e68d1a4b93622fe60e845",
     COPPER_SABOT_PREMIER_HP_SLUG = "5d6e68b3a4b9361bca7e50b5",
-    LEAD_SLUG = "58820d1224597753c90aeb13"
+    LEAD_SLUG = "58820d1224597753c90aeb13",
+    PIRANHA = "64b8ee384b75259c590fa89b"
 }
 export declare enum Ammo20Gauge {
     BUCKSHOT_75MM = "5a38ebd9c4a282000d722a5b",

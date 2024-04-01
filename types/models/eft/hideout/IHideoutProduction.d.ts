@@ -3,6 +3,7 @@ export interface IHideoutProduction {
     areaType: number;
     requirements: Requirement[];
     productionTime: number;
+    /** Tpl of item being crafted */
     endProduct: string;
     isEncoded: boolean;
     locked: boolean;

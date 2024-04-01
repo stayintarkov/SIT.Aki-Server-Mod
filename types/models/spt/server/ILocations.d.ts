@@ -1,26 +1,23 @@
-import { ILocationBase } from "../../eft/common/ILocationBase";
-import { ILooseLoot } from "../../eft/common/ILooseLoot";
-import { ILocationsBase } from "../../eft/common/tables/ILocationsBase";
+import { ILocation } from "@spt-aki/models/eft/common/ILocation";
+import { ILocationsBase } from "@spt-aki/models/eft/common/tables/ILocationsBase";
 export interface ILocations {
-    bigmap?: ILocationData;
-    develop?: ILocationData;
-    factory4_day?: ILocationData;
-    factory4_night?: ILocationData;
-    hideout?: ILocationData;
-    interchange?: ILocationData;
-    laboratory?: ILocationData;
-    lighthouse?: ILocationData;
-    privatearea?: ILocationData;
-    rezervbase?: ILocationData;
-    shoreline?: ILocationData;
-    suburbs?: ILocationData;
-    tarkovstreets?: ILocationData;
-    terminal?: ILocationData;
-    town?: ILocationData;
-    woods?: ILocationData;
+    bigmap?: ILocation;
+    develop?: ILocation;
+    factory4_day?: ILocation;
+    factory4_night?: ILocation;
+    hideout?: ILocation;
+    interchange?: ILocation;
+    laboratory?: ILocation;
+    lighthouse?: ILocation;
+    privatearea?: ILocation;
+    rezervbase?: ILocation;
+    shoreline?: ILocation;
+    suburbs?: ILocation;
+    tarkovstreets?: ILocation;
+    terminal?: ILocation;
+    town?: ILocation;
+    woods?: ILocation;
+    sandbox?: ILocation;
+    /** Holds a mapping of the linkages between locations on the UI */
     base?: ILocationsBase;
-}
-export interface ILocationData {
-    base: ILocationBase;
-    looseLoot?: ILooseLoot;
 }

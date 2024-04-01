@@ -1,6 +1,6 @@
-import { Inventory } from "../../models/eft/common/tables/IBotBase";
-import { GenerationData } from "../../models/eft/common/tables/IBotType";
-import { ITemplateItem } from "../../models/eft/common/tables/ITemplateItem";
+import { Inventory } from "@spt-aki/models/eft/common/tables/IBotBase";
+import { GenerationData } from "@spt-aki/models/eft/common/tables/IBotType";
+import { ITemplateItem } from "@spt-aki/models/eft/common/tables/ITemplateItem";
 export declare class InventoryMagGen {
     private magCounts;
     private magazineTemplate;

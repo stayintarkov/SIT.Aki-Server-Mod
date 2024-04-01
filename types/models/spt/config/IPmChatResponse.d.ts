@@ -1,4 +1,4 @@
-import { IBaseConfig } from "./IBaseConfig";
+import { IBaseConfig } from "@spt-aki/models/spt/config/IBaseConfig";
 export interface IPmcChatResponse extends IBaseConfig {
     kind: "aki-pmcchatresponse";
     victim: IResponseSettings;

@@ -1,9 +1,9 @@
 /// <reference types="node" />
-import { IncomingMessage, ServerResponse } from "http";
-import { NotifierController } from "../../controllers/NotifierController";
-import { Serializer } from "../../di/Serializer";
-import { HttpServerHelper } from "../../helpers/HttpServerHelper";
-import { JsonUtil } from "../../utils/JsonUtil";
+import { IncomingMessage, ServerResponse } from "node:http";
+import { NotifierController } from "@spt-aki/controllers/NotifierController";
+import { Serializer } from "@spt-aki/di/Serializer";
+import { HttpServerHelper } from "@spt-aki/helpers/HttpServerHelper";
+import { JsonUtil } from "@spt-aki/utils/JsonUtil";
 export declare class NotifySerializer extends Serializer {
     protected notifierController: NotifierController;
     protected jsonUtil: JsonUtil;

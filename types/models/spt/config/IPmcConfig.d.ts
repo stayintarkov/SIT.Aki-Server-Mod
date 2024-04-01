@@ -1,6 +1,6 @@
-import { MemberCategory } from "../../../models/enums/MemberCategory";
-import { MinMax } from "../../common/MinMax";
-import { IBaseConfig } from "./IBaseConfig";
+import { MinMax } from "@spt-aki/models/common/MinMax";
+import { MemberCategory } from "@spt-aki/models/enums/MemberCategory";
+import { IBaseConfig } from "@spt-aki/models/spt/config/IBaseConfig";
 export interface IPmcConfig extends IBaseConfig {
     kind: "aki-pmc";
     /** What game version should the PMC have */
@@ -13,7 +13,6 @@ export interface IPmcConfig extends IBaseConfig {
     pocketLoot: SlotLootSettings;
     /** Global whitelist/blacklist of backpack loot for PMCs */
     backpackLoot: SlotLootSettings;
-    dynamicLoot: DynamicLoot;
     /** Use difficulty defined in config/bot.json/difficulty instead of chosen difficulty dropdown value */
     useDifficultyOverride: boolean;
     /** Difficulty override e.g. "AsOnline/Hard" */
@@ -42,9 +41,10 @@ export interface IPmcConfig extends IBaseConfig {
     enemyTypes: string[];
     /** How many levels above player level can a PMC be */
     botRelativeLevelDeltaMax: number;
+    /** How many levels below player level can a PMC be */
+    botRelativeLevelDeltaMin: number;
     /** Force a number of healing items into PMCs secure container to ensure they can heal */
     forceHealingItemsIntoSecure: boolean;
-    addPrefixToSameNamePMCAsPlayerChance: number;
     allPMCsHavePlayerNameWithRandomPrefixChance: number;
 }
 export interface PmcTypes {
@@ -54,8 +54,4 @@ export interface PmcTypes {
 export interface SlotLootSettings {
     whitelist: string[];
     blacklist: string[];
-    moneyStackLimits: Record<string, number>;
-}
-export interface DynamicLoot {
-    moneyStackLimits: Record<string, number>;
 }

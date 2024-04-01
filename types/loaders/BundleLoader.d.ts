@@ -1,33 +1,33 @@
-import { HttpServerHelper } from "../helpers/HttpServerHelper";
-import { JsonUtil } from "../utils/JsonUtil";
-import { VFS } from "../utils/VFS";
-declare class BundleInfo {
-    modPath: string;
-    key: string;
-    path: string;
-    filepath: string;
-    dependencyKeys: string[];
-    constructor(modpath: string, bundle: any, bundlePath: string, bundleFilepath: string);
+import { HttpServerHelper } from "@spt-aki/helpers/HttpServerHelper";
+import { BundleHashCacheService } from "@spt-aki/services/cache/BundleHashCacheService";
+import { JsonUtil } from "@spt-aki/utils/JsonUtil";
+import { VFS } from "@spt-aki/utils/VFS";
+export declare class BundleInfo {
+    modpath: string;
+    filename: string;
+    crc: number;
+    dependencies: string[];
+    constructor(modpath: string, bundle: BundleManifestEntry, bundleHash: number);
 }
 export declare class BundleLoader {
     protected httpServerHelper: HttpServerHelper;
     protected vfs: VFS;
     protected jsonUtil: JsonUtil;
+    protected bundleHashCacheService: BundleHashCacheService;
     protected bundles: Record<string, BundleInfo>;
-    constructor(httpServerHelper: HttpServerHelper, vfs: VFS, jsonUtil: JsonUtil);
+    constructor(httpServerHelper: HttpServerHelper, vfs: VFS, jsonUtil: JsonUtil, bundleHashCacheService: BundleHashCacheService);
     /**
      * Handle singleplayer/bundles
      */
-    getBundles(local: boolean): BundleInfo[];
-    getBundle(key: string, local: boolean): BundleInfo;
+    getBundles(): BundleInfo[];
+    getBundle(key: string): BundleInfo;
     addBundles(modpath: string): void;
     addBundle(key: string, b: BundleInfo): void;
 }
 export interface BundleManifest {
-    manifest: Array<BundleManifestEntry>;
+    manifest: BundleManifestEntry[];
 }
 export interface BundleManifestEntry {
     key: string;
-    path: string;
+    dependencyKeys: string[];
 }
-export {};

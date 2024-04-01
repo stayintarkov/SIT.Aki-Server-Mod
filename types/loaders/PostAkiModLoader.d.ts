@@ -1,21 +1,17 @@
 import { DependencyContainer } from "tsyringe";
-import { IModLoader } from "../models/spt/mod/IModLoader";
-import { ILogger } from "../models/spt/utils/ILogger";
-import { LocalisationService } from "../services/LocalisationService";
-import { VFS } from "../utils/VFS";
-import { BundleLoader } from "./BundleLoader";
-import { ModTypeCheck } from "./ModTypeCheck";
-import { PreAkiModLoader } from "./PreAkiModLoader";
+import { ModTypeCheck } from "@spt-aki/loaders/ModTypeCheck";
+import { PreAkiModLoader } from "@spt-aki/loaders/PreAkiModLoader";
+import { IModLoader } from "@spt-aki/models/spt/mod/IModLoader";
+import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
+import { LocalisationService } from "@spt-aki/services/LocalisationService";
 export declare class PostAkiModLoader implements IModLoader {
     protected logger: ILogger;
-    protected bundleLoader: BundleLoader;
-    protected vfs: VFS;
     protected preAkiModLoader: PreAkiModLoader;
     protected localisationService: LocalisationService;
     protected modTypeCheck: ModTypeCheck;
-    constructor(logger: ILogger, bundleLoader: BundleLoader, vfs: VFS, preAkiModLoader: PreAkiModLoader, localisationService: LocalisationService, modTypeCheck: ModTypeCheck);
+    protected container: DependencyContainer;
+    constructor(logger: ILogger, preAkiModLoader: PreAkiModLoader, localisationService: LocalisationService, modTypeCheck: ModTypeCheck);
     getModPath(mod: string): string;
     load(): Promise<void>;
-    protected executeMods(container: DependencyContainer): Promise<void>;
-    protected addBundles(): void;
+    protected executeModsAsync(): Promise<void>;
 }

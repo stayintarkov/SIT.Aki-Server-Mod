@@ -1,6 +1,6 @@
-import { IPmcData } from "../../eft/common/IPmcData";
-import { IWishlistActionData } from "../../eft/wishlist/IWishlistActionData";
-import { IItemEventRouterResponse } from "../../eft/itemEvent/IItemEventRouterResponse";
+import { IPmcData } from "@spt-aki/models/eft/common/IPmcData";
+import { IItemEventRouterResponse } from "@spt-aki/models/eft/itemEvent/IItemEventRouterResponse";
+import { IWishlistActionData } from "@spt-aki/models/eft/wishlist/IWishlistActionData";
 export interface IWishlistCallbacks {
     addToWishlist(pmcData: IPmcData, body: IWishlistActionData, sessionID: string): IItemEventRouterResponse;
     removeFromWishlist(pmcData: IPmcData, body: IWishlistActionData, sessionID: string): IItemEventRouterResponse;

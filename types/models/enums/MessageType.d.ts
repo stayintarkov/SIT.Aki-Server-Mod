@@ -12,5 +12,6 @@ export declare enum MessageType {
     QUEST_FAIL = 11,
     QUEST_SUCCESS = 12,
     MESSAGE_WITH_ITEMS = 13,
-    INITIAL_SUPPORT = 14
+    INITIAL_SUPPORT = 14,
+    BTR_ITEMS_DELIVERY = 15
 }

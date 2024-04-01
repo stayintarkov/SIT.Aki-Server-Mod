@@ -1,26 +1,28 @@
-import { OnLoad } from "../di/OnLoad";
-import { OnUpdate } from "../di/OnUpdate";
-import { RagfairController } from "../controllers/RagfairController";
-import { IEmptyRequestData } from "../models/eft/common/IEmptyRequestData";
-import { IPmcData } from "../models/eft/common/IPmcData";
-import { IGetBodyResponseData } from "../models/eft/httpResponse/IGetBodyResponseData";
-import { INullResponseData } from "../models/eft/httpResponse/INullResponseData";
-import { IItemEventRouterResponse } from "../models/eft/itemEvent/IItemEventRouterResponse";
-import { IAddOfferRequestData } from "../models/eft/ragfair/IAddOfferRequestData";
-import { IExtendOfferRequestData } from "../models/eft/ragfair/IExtendOfferRequestData";
-import { IGetItemPriceResult } from "../models/eft/ragfair/IGetItemPriceResult";
-import { IGetMarketPriceRequestData } from "../models/eft/ragfair/IGetMarketPriceRequestData";
-import { IGetOffersResult } from "../models/eft/ragfair/IGetOffersResult";
-import { IRemoveOfferRequestData } from "../models/eft/ragfair/IRemoveOfferRequestData";
-import { ISearchRequestData } from "../models/eft/ragfair/ISearchRequestData";
-import { ISendRagfairReportRequestData } from "../models/eft/ragfair/ISendRagfairReportRequestData";
-import { IStorePlayerOfferTaxAmountRequestData } from "../models/eft/ragfair/IStorePlayerOfferTaxAmountRequestData";
-import { IRagfairConfig } from "../models/spt/config/IRagfairConfig";
-import { ConfigServer } from "../servers/ConfigServer";
-import { RagfairServer } from "../servers/RagfairServer";
-import { RagfairTaxService } from "../services/RagfairTaxService";
-import { HttpResponseUtil } from "../utils/HttpResponseUtil";
-import { JsonUtil } from "../utils/JsonUtil";
+import { RagfairController } from "@spt-aki/controllers/RagfairController";
+import { OnLoad } from "@spt-aki/di/OnLoad";
+import { OnUpdate } from "@spt-aki/di/OnUpdate";
+import { IEmptyRequestData } from "@spt-aki/models/eft/common/IEmptyRequestData";
+import { IPmcData } from "@spt-aki/models/eft/common/IPmcData";
+import { IGetBodyResponseData } from "@spt-aki/models/eft/httpResponse/IGetBodyResponseData";
+import { INullResponseData } from "@spt-aki/models/eft/httpResponse/INullResponseData";
+import { IItemEventRouterResponse } from "@spt-aki/models/eft/itemEvent/IItemEventRouterResponse";
+import { IAddOfferRequestData } from "@spt-aki/models/eft/ragfair/IAddOfferRequestData";
+import { IExtendOfferRequestData } from "@spt-aki/models/eft/ragfair/IExtendOfferRequestData";
+import { IGetItemPriceResult } from "@spt-aki/models/eft/ragfair/IGetItemPriceResult";
+import { IGetMarketPriceRequestData } from "@spt-aki/models/eft/ragfair/IGetMarketPriceRequestData";
+import { IGetOffersResult } from "@spt-aki/models/eft/ragfair/IGetOffersResult";
+import { IGetRagfairOfferByIdRequest } from "@spt-aki/models/eft/ragfair/IGetRagfairOfferByIdRequest";
+import { IRagfairOffer } from "@spt-aki/models/eft/ragfair/IRagfairOffer";
+import { IRemoveOfferRequestData } from "@spt-aki/models/eft/ragfair/IRemoveOfferRequestData";
+import { ISearchRequestData } from "@spt-aki/models/eft/ragfair/ISearchRequestData";
+import { ISendRagfairReportRequestData } from "@spt-aki/models/eft/ragfair/ISendRagfairReportRequestData";
+import { IStorePlayerOfferTaxAmountRequestData } from "@spt-aki/models/eft/ragfair/IStorePlayerOfferTaxAmountRequestData";
+import { IRagfairConfig } from "@spt-aki/models/spt/config/IRagfairConfig";
+import { ConfigServer } from "@spt-aki/servers/ConfigServer";
+import { RagfairServer } from "@spt-aki/servers/RagfairServer";
+import { RagfairTaxService } from "@spt-aki/services/RagfairTaxService";
+import { HttpResponseUtil } from "@spt-aki/utils/HttpResponseUtil";
+import { JsonUtil } from "@spt-aki/utils/JsonUtil";
 /**
  * Handle ragfair related callback events
  */
@@ -45,7 +47,7 @@ export declare class RagfairCallbacks implements OnLoad, OnUpdate {
     getMarketPrice(url: string, info: IGetMarketPriceRequestData, sessionID: string): IGetBodyResponseData<IGetItemPriceResult>;
     /** Handle RagFairAddOffer event */
     addOffer(pmcData: IPmcData, info: IAddOfferRequestData, sessionID: string): IItemEventRouterResponse;
-    /** \Handle RagFairRemoveOffer event */
+    /** Handle RagFairRemoveOffer event */
     removeOffer(pmcData: IPmcData, info: IRemoveOfferRequestData, sessionID: string): IItemEventRouterResponse;
     /** Handle RagFairRenewOffer event */
     extendOffer(pmcData: IPmcData, info: IExtendOfferRequestData, sessionID: string): IItemEventRouterResponse;
@@ -57,4 +59,6 @@ export declare class RagfairCallbacks implements OnLoad, OnUpdate {
     /** Handle client/reports/ragfair/send */
     sendReport(url: string, info: ISendRagfairReportRequestData, sessionID: string): INullResponseData;
     storePlayerOfferTaxAmount(url: string, request: IStorePlayerOfferTaxAmountRequestData, sessionId: string): INullResponseData;
+    /** Handle client/ragfair/offer/findbyid */
+    getFleaOfferById(url: string, request: IGetRagfairOfferByIdRequest, sessionID: string): IGetBodyResponseData<IRagfairOffer>;
 }

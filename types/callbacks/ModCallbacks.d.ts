@@ -1,12 +1,12 @@
-import { OnLoad } from "../di/OnLoad";
-import { PostAkiModLoader } from "../loaders/PostAkiModLoader";
-import { IHttpConfig } from "../models/spt/config/IHttpConfig";
-import { ILogger } from "../models/spt/utils/ILogger";
-import { ConfigServer } from "../servers/ConfigServer";
-import { LocalisationService } from "../services/LocalisationService";
-import { HttpFileUtil } from "../utils/HttpFileUtil";
-import { HttpResponseUtil } from "../utils/HttpResponseUtil";
-declare class ModCallbacks implements OnLoad {
+import { OnLoad } from "@spt-aki/di/OnLoad";
+import { PostAkiModLoader } from "@spt-aki/loaders/PostAkiModLoader";
+import { IHttpConfig } from "@spt-aki/models/spt/config/IHttpConfig";
+import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
+import { ConfigServer } from "@spt-aki/servers/ConfigServer";
+import { LocalisationService } from "@spt-aki/services/LocalisationService";
+import { HttpFileUtil } from "@spt-aki/utils/HttpFileUtil";
+import { HttpResponseUtil } from "@spt-aki/utils/HttpResponseUtil";
+export declare class ModCallbacks implements OnLoad {
     protected logger: ILogger;
     protected httpResponse: HttpResponseUtil;
     protected httpFileUtil: HttpFileUtil;
@@ -18,4 +18,3 @@ declare class ModCallbacks implements OnLoad {
     onLoad(): Promise<void>;
     getRoute(): string;
 }
-export { ModCallbacks };

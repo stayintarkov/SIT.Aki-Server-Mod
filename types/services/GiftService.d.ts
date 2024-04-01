@@ -1,12 +1,12 @@
-import { ProfileHelper } from "../helpers/ProfileHelper";
-import { GiftSentResult } from "../models/enums/GiftSentResult";
-import { MessageType } from "../models/enums/MessageType";
-import { Gift, IGiftsConfig } from "../models/spt/config/IGiftsConfig";
-import { ILogger } from "../models/spt/utils/ILogger";
-import { ConfigServer } from "../servers/ConfigServer";
-import { HashUtil } from "../utils/HashUtil";
-import { TimeUtil } from "../utils/TimeUtil";
-import { MailSendService } from "./MailSendService";
+import { ProfileHelper } from "@spt-aki/helpers/ProfileHelper";
+import { GiftSentResult } from "@spt-aki/models/enums/GiftSentResult";
+import { MessageType } from "@spt-aki/models/enums/MessageType";
+import { Gift, IGiftsConfig } from "@spt-aki/models/spt/config/IGiftsConfig";
+import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
+import { ConfigServer } from "@spt-aki/servers/ConfigServer";
+import { MailSendService } from "@spt-aki/services/MailSendService";
+import { HashUtil } from "@spt-aki/utils/HashUtil";
+import { TimeUtil } from "@spt-aki/utils/TimeUtil";
 export declare class GiftService {
     protected logger: ILogger;
     protected mailSendService: MailSendService;

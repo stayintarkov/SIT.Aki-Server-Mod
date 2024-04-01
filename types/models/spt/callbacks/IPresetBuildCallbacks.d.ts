@@ -1,8 +1,8 @@
-import { IPmcData } from "../../eft/common/IPmcData";
-import { IGetBodyResponseData } from "../../eft/httpResponse/IGetBodyResponseData";
-import { IItemEventRouterResponse } from "../../eft/itemEvent/IItemEventRouterResponse";
-import { IPresetBuildActionRequestData } from "../../eft/presetBuild/IPresetBuildActionRequestData";
-import { IWeaponBuild } from "../../eft/profile/IAkiProfile";
+import { IPmcData } from "@spt-aki/models/eft/common/IPmcData";
+import { IGetBodyResponseData } from "@spt-aki/models/eft/httpResponse/IGetBodyResponseData";
+import { IItemEventRouterResponse } from "@spt-aki/models/eft/itemEvent/IItemEventRouterResponse";
+import { IPresetBuildActionRequestData } from "@spt-aki/models/eft/presetBuild/IPresetBuildActionRequestData";
+import { IWeaponBuild } from "@spt-aki/models/eft/profile/IAkiProfile";
 export interface IPresetBuildCallbacks {
     getHandbookUserlist(url: string, info: any, sessionID: string): IGetBodyResponseData<IWeaponBuild[]>;
     saveWeaponBuild(pmcData: IPmcData, body: IPresetBuildActionRequestData, sessionID: string): IItemEventRouterResponse;

@@ -1,6 +1,6 @@
-import { AirdropTypeEnum } from "../../../models/enums/AirdropType";
-import { MinMax } from "../../common/MinMax";
-import { IBaseConfig } from "./IBaseConfig";
+import { MinMax } from "@spt-aki/models/common/MinMax";
+import { AirdropTypeEnum } from "@spt-aki/models/enums/AirdropType";
+import { IBaseConfig } from "@spt-aki/models/spt/config/IBaseConfig";
 export interface IAirdropConfig extends IBaseConfig {
     kind: "aki-airdrop";
     airdropChancePercent: AirdropChancePercent;
@@ -33,11 +33,14 @@ export interface AirdropChancePercent {
     interchange: number;
     reserve: number;
     tarkovStreets: number;
+    sandbox: number;
 }
 /** Loot inside crate */
 export interface AirdropLoot {
     /** Min/max of weapons inside crate */
-    presetCount?: MinMax;
+    weaponPresetCount?: MinMax;
+    /** Min/max of armors (head/chest/rig) inside crate */
+    armorPresetCount?: MinMax;
     /** Min/max of items inside crate */
     itemCount: MinMax;
     /** Min/max of sealed weapon boxes inside crate */
@@ -52,4 +55,6 @@ export interface AirdropLoot {
     itemStackLimits: Record<string, MinMax>;
     /** Armor levels to allow inside crate e.g. [4,5,6] */
     armorLevelWhitelist?: number[];
+    /** Should boss items be added to airdrop crate */
+    allowBossItems: boolean;
 }

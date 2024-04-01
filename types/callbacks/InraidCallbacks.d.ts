@@ -1,8 +1,10 @@
-import { InraidController } from "../controllers/InraidController";
-import { INullResponseData } from "../models/eft/httpResponse/INullResponseData";
-import { IRegisterPlayerRequestData } from "../models/eft/inRaid/IRegisterPlayerRequestData";
-import { ISaveProgressRequestData } from "../models/eft/inRaid/ISaveProgressRequestData";
-import { HttpResponseUtil } from "../utils/HttpResponseUtil";
+import { InraidController } from "@spt-aki/controllers/InraidController";
+import { IEmptyRequestData } from "@spt-aki/models/eft/common/IEmptyRequestData";
+import { INullResponseData } from "@spt-aki/models/eft/httpResponse/INullResponseData";
+import { IItemDeliveryRequestData } from "@spt-aki/models/eft/inRaid/IItemDeliveryRequestData";
+import { IRegisterPlayerRequestData } from "@spt-aki/models/eft/inRaid/IRegisterPlayerRequestData";
+import { ISaveProgressRequestData } from "@spt-aki/models/eft/inRaid/ISaveProgressRequestData";
+import { HttpResponseUtil } from "@spt-aki/utils/HttpResponseUtil";
 /**
  * Handle client requests
  */
@@ -47,4 +49,19 @@ export declare class InraidCallbacks {
      * @returns JSON as string
      */
     getAirdropConfig(): string;
+    /**
+     * Handle singleplayer/btr/config
+     * @returns JSON as string
+     */
+    getBTRConfig(): string;
+    /**
+     * Handle singleplayer/traderServices/getTraderServices
+     */
+    getTraderServices(url: string, info: IEmptyRequestData, sessionId: string): string;
+    /**
+     * Handle singleplayer/traderServices/itemDelivery
+     */
+    itemDelivery(url: string, request: IItemDeliveryRequestData, sessionId: string): INullResponseData;
+    getTraitorScavHostileChance(url: string, info: IEmptyRequestData, sessionId: string): string;
+    getSandboxMaxPatrolValue(url: string, info: IEmptyRequestData, sessionId: string): string;
 }

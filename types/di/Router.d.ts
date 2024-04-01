@@ -1,6 +1,6 @@
-import { IPmcData } from "../models/eft/common/IPmcData";
-import { IItemEventRouterResponse } from "../models/eft/itemEvent/IItemEventRouterResponse";
-import { IAkiProfile } from "../models/eft/profile/IAkiProfile";
+import { IPmcData } from "@spt-aki/models/eft/common/IPmcData";
+import { IItemEventRouterResponse } from "@spt-aki/models/eft/itemEvent/IItemEventRouterResponse";
+import { IAkiProfile } from "@spt-aki/models/eft/profile/IAkiProfile";
 export declare class Router {
     protected handledRoutes: HandledRoute[];
     getTopLevelRoute(): string;
@@ -21,11 +21,9 @@ export declare class DynamicRouter extends Router {
     getHandledRoutes(): HandledRoute[];
 }
 export declare class ItemEventRouterDefinition extends Router {
-    constructor();
-    handleItemEvent(url: string, pmcData: IPmcData, body: any, sessionID: string): IItemEventRouterResponse;
+    handleItemEvent(url: string, pmcData: IPmcData, body: any, sessionID: string, output: IItemEventRouterResponse): void;
 }
 export declare class SaveLoadRouter extends Router {
-    constructor();
     handleLoad(profile: IAkiProfile): IAkiProfile;
 }
 export declare class HandledRoute {

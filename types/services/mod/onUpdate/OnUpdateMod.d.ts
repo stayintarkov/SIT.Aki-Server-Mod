@@ -1,4 +1,4 @@
-import { OnUpdate } from "../../../di/OnUpdate";
+import { OnUpdate } from "@spt-aki/di/OnUpdate";
 export declare class OnUpdateMod implements OnUpdate {
     private onUpdateOverride;
     private getRouteOverride;

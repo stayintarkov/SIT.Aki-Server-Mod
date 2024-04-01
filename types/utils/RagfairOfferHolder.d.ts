@@ -1,4 +1,4 @@
-import { IRagfairOffer } from "../models/eft/ragfair/IRagfairOffer";
+import { IRagfairOffer } from "@spt-aki/models/eft/ragfair/IRagfairOffer";
 export declare class RagfairOfferHolder {
     protected offersById: Map<string, IRagfairOffer>;
     protected offersByTemplate: Map<string, Map<string, IRagfairOffer>>;
@@ -10,9 +10,13 @@ export declare class RagfairOfferHolder {
     getOffers(): Array<IRagfairOffer>;
     addOffers(offers: Array<IRagfairOffer>): void;
     addOffer(offer: IRagfairOffer): void;
+    /**
+     * Purge offer from offer cache
+     * @param offer Offer to remove
+     */
     removeOffer(offer: IRagfairOffer): void;
     removeOffers(offers: Array<IRagfairOffer>): void;
-    removeOfferByTrader(traderId: string): void;
+    removeAllOffersByTrader(traderId: string): void;
     /**
      * Get an array of stale offers that are still shown to player
      * @returns IRagfairOffer array

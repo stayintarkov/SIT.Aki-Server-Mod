@@ -9,6 +9,8 @@ export interface IGetRaidConfigurationRequestData {
     timeAndWeatherSettings: TimeAndWeatherSettings;
     botSettings: BotSettings;
     wavesSettings: WavesSettings;
+    CanShowGroupPreview: boolean;
+    MaxGroupCount: number;
 }
 export interface TimeAndWeatherSettings {
     isRandomTime: boolean;

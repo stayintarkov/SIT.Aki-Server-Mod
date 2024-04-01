@@ -1,18 +1,18 @@
-import { HideoutController } from "../controllers/HideoutController";
-import { RagfairController } from "../controllers/RagfairController";
-import { IEmptyRequestData } from "../models/eft/common/IEmptyRequestData";
-import { IGlobals } from "../models/eft/common/IGlobals";
-import { ICustomizationItem } from "../models/eft/common/tables/ICustomizationItem";
-import { IHandbookBase } from "../models/eft/common/tables/IHandbookBase";
-import { IGetItemPricesResponse } from "../models/eft/game/IGetItemPricesResponse";
-import { IHideoutArea } from "../models/eft/hideout/IHideoutArea";
-import { IHideoutProduction } from "../models/eft/hideout/IHideoutProduction";
-import { IHideoutScavCase } from "../models/eft/hideout/IHideoutScavCase";
-import { IHideoutSettingsBase } from "../models/eft/hideout/IHideoutSettingsBase";
-import { IGetBodyResponseData } from "../models/eft/httpResponse/IGetBodyResponseData";
-import { ISettingsBase } from "../models/spt/server/ISettingsBase";
-import { DatabaseServer } from "../servers/DatabaseServer";
-import { HttpResponseUtil } from "../utils/HttpResponseUtil";
+import { HideoutController } from "@spt-aki/controllers/HideoutController";
+import { RagfairController } from "@spt-aki/controllers/RagfairController";
+import { IEmptyRequestData } from "@spt-aki/models/eft/common/IEmptyRequestData";
+import { IGlobals } from "@spt-aki/models/eft/common/IGlobals";
+import { ICustomizationItem } from "@spt-aki/models/eft/common/tables/ICustomizationItem";
+import { IHandbookBase } from "@spt-aki/models/eft/common/tables/IHandbookBase";
+import { IGetItemPricesResponse } from "@spt-aki/models/eft/game/IGetItemPricesResponse";
+import { IHideoutArea } from "@spt-aki/models/eft/hideout/IHideoutArea";
+import { IHideoutProduction } from "@spt-aki/models/eft/hideout/IHideoutProduction";
+import { IHideoutScavCase } from "@spt-aki/models/eft/hideout/IHideoutScavCase";
+import { IHideoutSettingsBase } from "@spt-aki/models/eft/hideout/IHideoutSettingsBase";
+import { IGetBodyResponseData } from "@spt-aki/models/eft/httpResponse/IGetBodyResponseData";
+import { ISettingsBase } from "@spt-aki/models/spt/server/ISettingsBase";
+import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
+import { HttpResponseUtil } from "@spt-aki/utils/HttpResponseUtil";
 /**
  * Handle client requests
  */

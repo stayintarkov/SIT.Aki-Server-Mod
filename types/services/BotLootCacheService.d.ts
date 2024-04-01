@@ -1,13 +1,13 @@
-import { PMCLootGenerator } from "../generators/PMCLootGenerator";
-import { ItemHelper } from "../helpers/ItemHelper";
-import { IBotType } from "../models/eft/common/tables/IBotType";
-import { ITemplateItem, Props } from "../models/eft/common/tables/ITemplateItem";
-import { IBotLootCache, LootCacheType } from "../models/spt/bots/IBotLootCache";
-import { ILogger } from "../models/spt/utils/ILogger";
-import { DatabaseServer } from "../servers/DatabaseServer";
-import { JsonUtil } from "../utils/JsonUtil";
-import { LocalisationService } from "./LocalisationService";
-import { RagfairPriceService } from "./RagfairPriceService";
+import { PMCLootGenerator } from "@spt-aki/generators/PMCLootGenerator";
+import { ItemHelper } from "@spt-aki/helpers/ItemHelper";
+import { IBotType } from "@spt-aki/models/eft/common/tables/IBotType";
+import { ITemplateItem, Props } from "@spt-aki/models/eft/common/tables/ITemplateItem";
+import { IBotLootCache, LootCacheType } from "@spt-aki/models/spt/bots/IBotLootCache";
+import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
+import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
+import { LocalisationService } from "@spt-aki/services/LocalisationService";
+import { RagfairPriceService } from "@spt-aki/services/RagfairPriceService";
+import { JsonUtil } from "@spt-aki/utils/JsonUtil";
 export declare class BotLootCacheService {
     protected logger: ILogger;
     protected jsonUtil: JsonUtil;
@@ -30,7 +30,7 @@ export declare class BotLootCacheService {
      * @param botJsonTemplate Base json db file for the bot having its loot generated
      * @returns ITemplateItem array
      */
-    getLootFromCache(botRole: string, isPmc: boolean, lootType: LootCacheType, botJsonTemplate: IBotType): ITemplateItem[];
+    getLootFromCache(botRole: string, isPmc: boolean, lootType: LootCacheType, botJsonTemplate: IBotType): Record<string, number>;
     /**
      * Generate loot for a bot and store inside a private class property
      * @param botRole bots role (assault / pmcBot etc)
@@ -39,16 +39,12 @@ export declare class BotLootCacheService {
      */
     protected addLootToCache(botRole: string, isPmc: boolean, botJsonTemplate: IBotType): void;
     /**
-     * Sort a pool of item objects by its flea price
-     * @param poolToSort pool of items to sort
-     */
-    protected sortPoolByRagfairPrice(poolToSort: ITemplateItem[]): void;
-    /**
      * Add unique items into combined pool
-     * @param combinedItemPool Pool of items to add to
+     * @param poolToAddTo Pool of items to add to
      * @param itemsToAdd items to add to combined pool if unique
      */
-    protected addUniqueItemsToPool(combinedItemPool: ITemplateItem[], itemsToAdd: ITemplateItem[]): void;
+    protected addUniqueItemsToPool(poolToAddTo: ITemplateItem[], itemsToAdd: ITemplateItem[]): void;
+    protected addItemsToPool(poolToAddTo: Record<string, number>, poolOfItemsToAdd: Record<string, number>): void;
     /**
      * Ammo/grenades have this property
      * @param props

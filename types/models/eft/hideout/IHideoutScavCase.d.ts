@@ -1,4 +1,4 @@
-import { MinMax } from "../../common/MinMax";
+import { MinMax } from "@spt-aki/models/common/MinMax";
 export interface IHideoutScavCase {
     _id: string;
     ProductionTime: number;

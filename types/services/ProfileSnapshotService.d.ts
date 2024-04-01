@@ -1,5 +1,5 @@
-import { IAkiProfile } from "../models/eft/profile/IAkiProfile";
-import { JsonUtil } from "../utils/JsonUtil";
+import { IAkiProfile } from "@spt-aki/models/eft/profile/IAkiProfile";
+import { JsonUtil } from "@spt-aki/utils/JsonUtil";
 export declare class ProfileSnapshotService {
     protected jsonUtil: JsonUtil;
     protected storedProfileSnapshots: Record<string, IAkiProfile>;

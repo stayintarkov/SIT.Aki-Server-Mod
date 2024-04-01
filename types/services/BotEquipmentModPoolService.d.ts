@@ -1,12 +1,12 @@
-import { ItemHelper } from "../helpers/ItemHelper";
-import { Mods } from "../models/eft/common/tables/IBotType";
-import { ITemplateItem } from "../models/eft/common/tables/ITemplateItem";
-import { IBotConfig } from "../models/spt/config/IBotConfig";
-import { ILogger } from "../models/spt/utils/ILogger";
-import { ConfigServer } from "../servers/ConfigServer";
-import { DatabaseServer } from "../servers/DatabaseServer";
-import { VFS } from "../utils/VFS";
-import { LocalisationService } from "./LocalisationService";
+import { ItemHelper } from "@spt-aki/helpers/ItemHelper";
+import { Mods } from "@spt-aki/models/eft/common/tables/IBotType";
+import { ITemplateItem } from "@spt-aki/models/eft/common/tables/ITemplateItem";
+import { IBotConfig } from "@spt-aki/models/spt/config/IBotConfig";
+import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
+import { ConfigServer } from "@spt-aki/servers/ConfigServer";
+import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
+import { LocalisationService } from "@spt-aki/services/LocalisationService";
+import { VFS } from "@spt-aki/utils/VFS";
 /** Store a mapping between weapons, their slots and the items that fit those slots */
 export declare class BotEquipmentModPoolService {
     protected logger: ILogger;

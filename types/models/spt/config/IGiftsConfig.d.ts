@@ -1,9 +1,10 @@
-import { Item } from "../../../models/eft/common/tables/IItem";
-import { IUserDialogInfo } from "../../../models/eft/profile/IAkiProfile";
-import { GiftSenderType } from "../../../models/enums/GiftSenderType";
-import { SeasonalEventType } from "../../../models/enums/SeasonalEventType";
-import { Traders } from "../../../models/enums/Traders";
-import { IBaseConfig } from "./IBaseConfig";
+import { Item } from "@spt-aki/models/eft/common/tables/IItem";
+import { IUserDialogInfo } from "@spt-aki/models/eft/profile/IAkiProfile";
+import { GiftSenderType } from "@spt-aki/models/enums/GiftSenderType";
+import { SeasonalEventType } from "@spt-aki/models/enums/SeasonalEventType";
+import { Traders } from "@spt-aki/models/enums/Traders";
+import { IBaseConfig } from "@spt-aki/models/spt/config/IBaseConfig";
+import { IProfileChangeEvent } from "../dialog/ISendMessageDetails";
 export interface IGiftsConfig extends IBaseConfig {
     kind: "aki-gifts";
     gifts: Record<string, Gift>;
@@ -25,4 +26,6 @@ export interface Gift {
     timestampToSend?: number;
     associatedEvent: SeasonalEventType;
     collectionTimeHours: number;
+    /** Optional, can be used to change profile settings like level/skills */
+    profileChangeEvents?: IProfileChangeEvent[];
 }

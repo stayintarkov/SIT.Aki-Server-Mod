@@ -1,4 +1,4 @@
-import { MessageType } from "../../enums/MessageType";
+import { MessageType } from "@spt-aki/models/enums/MessageType";
 export interface ISendMessageRequest {
     dialogId: string;
     type: MessageType;

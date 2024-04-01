@@ -1,6 +1,6 @@
 /// <reference types="node" />
-import { IncomingMessage } from "http";
-import { DynamicRouter, Router, StaticRouter } from "../di/Router";
+import { IncomingMessage } from "node:http";
+import { DynamicRouter, Router, StaticRouter } from "@spt-aki/di/Router";
 export declare class HttpRouter {
     protected staticRouters: StaticRouter[];
     protected dynamicRoutes: DynamicRouter[];

@@ -1,4 +1,4 @@
-import { INotification } from "../models/eft/notifier/INotifier";
+import { INotification } from "@spt-aki/models/eft/notifier/INotifier";
 export declare class NotificationService {
     protected messageQueue: Record<string, any[]>;
     getMessageQueue(): Record<string, any[]>;

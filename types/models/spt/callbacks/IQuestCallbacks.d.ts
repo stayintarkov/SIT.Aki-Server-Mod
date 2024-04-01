@@ -1,14 +1,14 @@
-import { IPmcData } from "../../eft/common/IPmcData";
-import { IAcceptQuestRequestData } from "../../eft/quests/IAcceptQuestRequestData";
-import { IGetBodyResponseData } from "../../eft/httpResponse/IGetBodyResponseData";
-import { IListQuestsRequestData } from "../../eft/quests/IListQuestsRequestData";
-import { IEmptyRequestData } from "../../eft/common/IEmptyRequestData";
-import { ICompleteQuestRequestData } from "../../eft/quests/ICompleteQuestRequestData";
-import { IHandoverQuestRequestData } from "../../eft/quests/IHandoverQuestRequestData";
-import { IItemEventRouterResponse } from "../../eft/itemEvent/IItemEventRouterResponse";
-import { IQuest } from "../../eft/common/tables/IQuest";
-import { IPmcDataRepeatableQuest } from "../../eft/common/tables/IRepeatableQuests";
-import { IRepeatableQuestChangeRequest } from "../../eft/quests/IRepeatableQuestChangeRequest";
+import { IEmptyRequestData } from "@spt-aki/models/eft/common/IEmptyRequestData";
+import { IPmcData } from "@spt-aki/models/eft/common/IPmcData";
+import { IQuest } from "@spt-aki/models/eft/common/tables/IQuest";
+import { IPmcDataRepeatableQuest } from "@spt-aki/models/eft/common/tables/IRepeatableQuests";
+import { IGetBodyResponseData } from "@spt-aki/models/eft/httpResponse/IGetBodyResponseData";
+import { IItemEventRouterResponse } from "@spt-aki/models/eft/itemEvent/IItemEventRouterResponse";
+import { IAcceptQuestRequestData } from "@spt-aki/models/eft/quests/IAcceptQuestRequestData";
+import { ICompleteQuestRequestData } from "@spt-aki/models/eft/quests/ICompleteQuestRequestData";
+import { IHandoverQuestRequestData } from "@spt-aki/models/eft/quests/IHandoverQuestRequestData";
+import { IListQuestsRequestData } from "@spt-aki/models/eft/quests/IListQuestsRequestData";
+import { IRepeatableQuestChangeRequest } from "@spt-aki/models/eft/quests/IRepeatableQuestChangeRequest";
 export interface IQuestCallbacks {
     changeRepeatableQuest(pmcData: IPmcData, body: IRepeatableQuestChangeRequest, sessionID: string): IItemEventRouterResponse;
     acceptQuest(pmcData: IPmcData, body: IAcceptQuestRequestData, sessionID: string): IItemEventRouterResponse;

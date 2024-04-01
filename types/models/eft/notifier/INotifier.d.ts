@@ -1,4 +1,4 @@
-import { Message } from "../profile/IAkiProfile";
+import { Message } from "@spt-aki/models/eft/profile/IAkiProfile";
 export interface INotifierChannel {
     server: string;
     channel_id: string;

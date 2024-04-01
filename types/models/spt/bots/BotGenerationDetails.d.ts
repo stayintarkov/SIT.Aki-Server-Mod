@@ -6,13 +6,18 @@ export interface BotGenerationDetails {
     /** Side of bot */
     side: string;
     /** Active players current level */
-    playerLevel: number;
-    /** Delta of highest level of bot */
+    playerLevel?: number;
+    playerName?: string;
+    /** Delta of highest level of bot e.g. 50 means 50 levels above player */
     botRelativeLevelDeltaMax: number;
+    /** Delta of lowest level of bot e.g. 50 means 50 levels below player */
+    botRelativeLevelDeltaMin: number;
     /** How many to create and store */
     botCountToGenerate: number;
     /** Desired difficulty of the bot */
     botDifficulty: string;
     /** Will the generated bot be a player scav */
     isPlayerScav: boolean;
+    eventRole?: string;
+    allPmcsHaveSameNameAsPlayer?: boolean;
 }
