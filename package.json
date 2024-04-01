@@ -1,6 +1,6 @@
 {
     "name": "sit-coop",
-    "version": "1.6.3",
+    "version": "1.6.4",
     "main": "src/StayInTarkovMod.js",
     "license": "MIT",
     "author": "Paulov and SIT Team",
