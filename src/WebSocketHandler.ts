@@ -1,108 +1,71 @@
 import { ILogger } from "@spt-aki/models/spt/utils/ILogger";
 import { IncomingMessage } from "http";
 import WebSocket, { RawData } from "ws";
-import { CoopMatch } from "./CoopMatch";
+import { CoopMatch, CoopMatchEndSessionMessages } from "./CoopMatch";
+
+type WebSocketClientState = {
+    sessionID: NonNullable<string>;
+    websocket: NonNullable<WebSocket.WebSocket>;
+    currentMatch: CoopMatch;
+}
 
 export class WebSocketHandler {
-
-    public webSockets: Record<string, WebSocket.WebSocket> = {};
+    public webSockets: Record<string, WebSocketClientState> = {};
     logger: ILogger;
     public static Instance: WebSocketHandler;
 
-    constructor(
-        webSocketPort: number
-        , logger: ILogger
-        )
-        { 
-            WebSocketHandler.Instance = this;
-            this.logger = logger;
-            const webSocketServer = new WebSocket.Server({
-                port: webSocketPort,
-                clientTracking: true,
-                skipUTF8Validation: true
-            });
+    constructor(port: number, logger: ILogger) {
+        WebSocketHandler.Instance = this;
+        this.logger = logger;
+        const webSocketServer = new WebSocket.Server({
+            port,
+            clientTracking: true,
+            skipUTF8Validation: true
+        });
 
-            // const pinger = setInterval(function ping() {
-            //     webSocketServer.clients.forEach(function each(ws) {
-            //     //   if (ws.isAlive === false) return ws.terminate();
-              
-            //     //   ws.isAlive = false;
-            //       ws.ping();
-            //     });
-            //   }, 30000);
-    
-            webSocketServer.addListener("listening", () => 
-            {
-                console.log(`SIT: TCP Relay WebSocket is listening on ${webSocketPort}`);
-            });
-    
-            webSocketServer.addListener("connection", this.wsOnConnection.bind(this));
+        webSocketServer.addListener("listening", () => {
+            this.logger.info(`SIT: TCP Relay WebSocket is listening on ${port}`);
+        });
 
-            
+        webSocketServer.addListener("connection", this.wsOnConnection.bind(this));
     }
 
     protected wsOnConnection(ws: WebSocket.WebSocket, req: IncomingMessage): void 
     {
-        const wsh = this;
-
-        // Strip request and break it into sections
         const splitUrl = req.url.substring(0, req.url.indexOf("?")).split("/");
-
         const sessionID = splitUrl.pop();
-        const ip = req.socket.remoteAddress;
-        // get url params
-        //const urlParams = this.getUrlParams(req.url);
+        const state = this.webSockets[sessionID] = {sessionID, websocket: ws, currentMatch: null};
         
-        ws.on("message", async function message(msg) 
-        {
-            wsh.processMessage(msg);
-        });
+        ws.on("message", (msg) => this.processMessage(state, msg));
 
-        ws.on("close", async (code: number, reason: Buffer) =>
-        {
-            wsh.processClose(ws, sessionID);
-        });
+        ws.on("close", (code: number, reason: Buffer) => this.processClose(state, sessionID));
         
-        this.webSockets[sessionID] = ws;
-        console.log(`${sessionID}:${ip} has connected to SIT WebSocket`);
+        this.logger.info(`${sessionID}:${req.socket.remoteAddress} has connected to SIT WebSocket`);
     }
 
-    private TryParseJsonArray(msg: string) {
-
-        if(msg.charAt(0) === '[') {
-           var jsonArray = JSON.parse(msg);
-
-           return jsonArray;
+    private processMessage(state: WebSocketClientState, msg: RawData): void {
+        // if not JSON array or object, and not SIT*, fan out binary payload as a black box
+        if (msg[0] !== 0x5B && msg[0] !== 0x7B && !(msg[0] === 0x53 && msg[1] === 0x49 && msg[2] === 0x54)) {
+            if (state.currentMatch) {
+                WebSocketHandler.Instance.sendToWebSockets(state.currentMatch.ConnectedUsers, msg, undefined);
+            } else {
+                this.logger.warning(`${state.sessionID}: received raw binary without a corresponding match`);
+            }
+        } else {
+            this.processMessageString(state, msg, msg.toString());
         }
-
-        return undefined;
-
     }
 
-    private async processMessage(msg: RawData) {
+    private processClose(state: WebSocketClientState, sessionId: string): void {
+        this.logger.info(`Web Socket ${sessionId} has disconnected`);
 
-        const msgStr = msg.toString();
-
-        this.processMessageString(msg, msgStr);
-    }
-
-    private async processClose(ws: WebSocket, sessionId: string) {
-
-        // console.log("processClose");
-        // console.log(ws);
-        console.log(`Web Socket ${sessionId} has disconnected`);
-
-        if(this.webSockets[sessionId] !== undefined)
+        if (this.webSockets[sessionId] !== undefined)
             delete this.webSockets[sessionId];
-
     }
 
-
-    private async processMessageString(msg: RawData, msgStr: string) {
-
+    private processMessageString(state: WebSocketClientState, msg: RawData, msgStr: string): void {
         // If is SIT serialized string -- This is NEVER stored.
-        if(msgStr.startsWith("SIT")) {
-            // console.log(`received ${msgStr}`);
+        if (msgStr.startsWith("SIT")) {
             const messageWithoutSITPrefix = msgStr.substring(3, msgStr.length);
             // const serverId = messageWithoutSITPrefix.substring(0, 24); // get serverId (MongoIds are 24 characters)
             
@@ -111,13 +74,12 @@ export class WebSocketHandler {
 
             // Post 0.14.*, yes thats right, we are back to 24 chars again
             const serverId = messageWithoutSITPrefix.substring(0, 24); // get serverId (MongoIds are 24 characters)
-            // console.log(`server Id is ${serverId}`);
 
             // the last chunk will be the method, the ?, and other data
             const messageWithoutSITPrefixes = messageWithoutSITPrefix.substring(24, messageWithoutSITPrefix.length); 
 
             const match = CoopMatch.CoopMatches[serverId];
-            if(match !== undefined) {
+            if (match) {
                 // match.ProcessData(messageWithoutSITPrefixes, this.logger);
                 const method = messageWithoutSITPrefixes.substring(1, messageWithoutSITPrefixes.indexOf('?'));
                 let d = messageWithoutSITPrefixes.substring(messageWithoutSITPrefixes.indexOf('?')).replace('?', '')
@@ -126,38 +88,40 @@ export class WebSocketHandler {
                 // const resultObj = { m: method, data: d, message: msgStr };
                 // WebSocketHandler.Instance.sendToWebSockets(match.ConnectedUsers, JSON.stringify(resultObj));
                 WebSocketHandler.Instance.sendToWebSockets(match.ConnectedUsers, msg, undefined);
-            }
-            else {
-                console.log(`couldn't find match ${serverId}`);
+            } else {
+                this.logger.warning(`couldn't find match ${serverId}`);
             }
             return;
-        }
-
-        var jsonArray = this.TryParseJsonArray(msgStr);
-        if(jsonArray !== undefined) {
-            for(const key in jsonArray) {
-                this.processObject(jsonArray[key]);
+        } else if (msgStr[0] === "[") {
+            const ary = JSON.parse(msgStr);
+            for (const key in ary) {
+                this.processObject(state, ary[key]);
             }
+        } else if (msgStr[0] === "{") {
+            this.processObject(state, JSON.parse(msgStr));
+        } else {
+            this.logger.error(`unexpected message: ${msgStr.substring(0, 100)}`);
         }
-
-        if(msgStr.charAt(0) !== '{')
-            return;
-
-        var jsonObject = JSON.parse(msgStr);
-
-        this.processObject(jsonObject);
     }
 
-    private async processObject(jsonObject: any) {
-
-        const match = CoopMatch.CoopMatches[jsonObject["serverId"]];
-        if(match !== undefined) {
-            
-            if(jsonObject["connect"] == true) {
-                match.PlayerJoined(jsonObject["profileId"]);
-            }
-            else {
-                // console.log("found match");
+    private processObject(state: WebSocketClientState, jsonObject: any): void {
+        const {profileId, serverId, connect} = jsonObject;
+        const match = CoopMatch.CoopMatches[serverId];
+        if (match) {
+            if (connect) {
+                if (!match.PlayerJoined(profileId)) {
+                    const ws = state.websocket;
+                    if (ws.readyState === WebSocket.OPEN) {
+                        ws.send(JSON.stringify({ "endSession": true, reason: CoopMatchEndSessionMessages.WEBSOCKET_TIMEOUT_MESSAGE }));
+                        ws.close();
+                    }
+                    delete this.webSockets[profileId];
+                }
+                state.currentMatch = match;
+            } else {
+                if (match !== state.currentMatch) {
+                    this.logger.warning(`match mismatch between client state (${state.currentMatch?.ServerId}) and client request (${match.ServerId})`)
+                }
                 match.ProcessData(jsonObject, this.logger);
             }
         } else {
@@ -165,84 +129,24 @@ export class WebSocketHandler {
         }
     }
 
-    public sendToAllWebSockets(data: RawData, dataString: string) {
+    public sendToAllWebSockets(data: RawData, dataString: string): void {
         this.sendToWebSockets(Object.keys(this.webSockets), data, dataString);
     }
 
-    public sendToWebSockets(sessions: string[], data: RawData, dataString: string) {
-        for(let session of sessions) {
-            if(this.webSockets[session] !== undefined)
-            {
-                if (this.webSockets[session].readyState === WebSocket.OPEN) 
-                {
+    public sendToWebSockets(sessions: string[], data: RawData, dataString: string): void {
+        for (const session of sessions) {
+            if (this.webSockets[session]) {
+                const ws = this.webSockets[session].websocket;
+                if (ws.readyState === WebSocket.OPEN) {
                     if (data !== undefined)
-                        this.webSockets[session].send(data);
+                        ws.send(data);
 
                     if (dataString !== undefined)
-                        this.webSockets[session].send(dataString);
-                }
-                else 
-                {
+                        ws.send(dataString);
+                } else {
                     delete this.webSockets[session];
                 }
             }
         }
-    }
-
-    public sendToWebSocketsAsArray(sessions: string[], data: ArrayBuffer) {
-        for(let session of sessions) {
-            if(this.webSockets[session] !== undefined)
-            {
-                if (this.webSockets[session].readyState === WebSocket.OPEN) 
-                {
-                    this.webSockets[session].send(data);
-                }
-                else 
-                {
-                    delete this.webSockets[session];
-                }
-            }
-        }
-    }
-
-    public areThereAnyWebSocketsOpen(sessions: string[]):boolean {
-        
-        for(let session of sessions) {
-            if(this.webSockets[session] !== undefined)
-            {
-                // if (this.webSockets[session].readyState === WebSocket.OPEN) 
-                    return true;
-            }
-        }
-
-        return false;
-    }
-
-    public closeWebSocketSession(session: string, reason: string) {
-        if(this.webSockets[session] !== undefined) {
-            if(this.webSockets[session].readyState === WebSocket.OPEN) {
-                this.webSockets[session].send(JSON.stringify({ "endSession": true, reason: reason }));
-                this.webSockets[session].close();
-            }
-            delete this.webSockets[session];
-        }
-    }
-
-    private getUrlParams(url: string):Record<string, string> {
-
-        let urlParams: Record<string, string> = {};
-
-        url.substring(url.indexOf("?")+1).split("&").forEach(param => {
-            
-            const paramSplit = param.split("=");
-
-            urlParams[paramSplit[0]] = paramSplit[1];
-        });
-
-        return urlParams;
     }
 }
-
-// class SITWebSocketServer extends WebSocketServer
-// {
-// }

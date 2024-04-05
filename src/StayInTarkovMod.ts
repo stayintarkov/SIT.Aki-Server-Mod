@@ -334,9 +334,6 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                     url: "/coop/server/create",
                     action: (url, info: any, sessionId, output) => {
                         logger.info(`Start a Coop Server ${info.serverId}`);
-                        // logger.info("Coop Data:_________");
-                        logger.info(info);
-                        // logger.info("___________________");
                         let currentCoopMatch = CoopMatch.CoopMatches[info.serverId];
                         if(currentCoopMatch !== undefined && currentCoopMatch !== null) {
                             currentCoopMatch.endSession(CoopMatchEndSessionMessages.HOST_SHUTDOWN_MESSAGE);
@@ -511,20 +508,20 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                         }
 
                         output = JSON.stringify(charactersToSend);
-                        // console.log(output);
                         return output;
                     }
                 },
                 {
                     url: "/coop/server/update",
                     action: (url, info, sessionId, output) => {
-                        if(info === undefined || info.serverId === undefined) {
-
-                            if(JSON.stringify(info).charAt(0) === '[') {
-                                for(var item of info) {
-                                    let coopMatch = this.getCoopMatch(item.serverId);
-                                    if(coopMatch === undefined)
+                        if (info === undefined || info.serverId === undefined) {
+                            if (Array.isArray(info)) {
+                                for (const item of info) {
+                                    const coopMatch = this.getCoopMatch(item.serverId);
+                                    if (!coopMatch) {
+                                        console.warn(`could not find coop match ${item.serverId}`);
                                         break;
+                                    }
 
                                     coopMatch.ProcessData(item, logger);
                                 }
@@ -533,36 +530,22 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                             }
 
                             console.error("/coop/server/update -- no info or serverId provided");
-                            output = JSON.stringify({ response: "ERROR" });
                             return JSON.stringify({ response: "ERROR" });
                         }
 
-                        // let timeCheck = Date.now();
-
-                        // console.log(info);
-                        let coopMatch = this.getCoopMatch(info.serverId);
-                        if(coopMatch == null || coopMatch == undefined)
-                        {
+                        const coopMatch = this.getCoopMatch(info.serverId);
+                        if (!coopMatch) {
                             console.error("/coop/server/update -- no coopMatch found to update");
-
-                            output = JSON.stringify({});
-                            return output; 
+                            return JSON.stringify({}); 
                         }
 
-                        if(info.m == "PlayerSpawn" && info.isAI)
-                        {
+                        if (info.m == "PlayerSpawn" && info.isAI) {
                             coopMatch.AuthorizedUsers.push(info.profileId);
                         }
 
                         coopMatch.ProcessData(info, logger);
-                        
 
-                        // 
-                        // console.log(Date.now() - timeCheck);
-
-
-                        output = JSON.stringify({});
-                        return output;
+                        return JSON.stringify({});
                     }
                 },
                 {
