@@ -4,7 +4,7 @@
     "main": "src/StayInTarkovMod.js",
     "license": "MIT",
     "author": "Paulov and SIT Team",
-    "akiVersion": "~3.8",
+    "akiVersion": "~3.9",
     "engines": {
         "node": "20.11.1"
     },
