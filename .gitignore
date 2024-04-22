@@ -8,3 +8,5 @@ Aki-Server
 SITCoop
 tempZipContents
 *.zip
+/node_modules
+/tmp
