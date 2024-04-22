@@ -10,6 +10,7 @@
     },
     "scripts": {
         "setup": "npm i",
+        "prebuild": "npx tsc --noEmit",
         "build": "node ./packageBuild.ts"
     },
     "devDependencies": {
@@ -24,7 +25,9 @@
         "archiver": "^6.0",
         "eslint": "8.57",
         "fs-extra": "11.2",
+        "i18n": "~0.15",
         "ignore": "^5.2",
+        "jsonc": "~2.0",
         "os": "^0.1",
         "tsyringe": "4.8.0",
         "typescript": "5.4",

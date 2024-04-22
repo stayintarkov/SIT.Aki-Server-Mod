@@ -16,9 +16,10 @@ $ErrorActionPreference = "Stop"
 $SOURCE_REPO = "https://dev.sp-tarkov.com/SPT-AKI/Server.git"
 $SERVER_DIR = "./Aki-Server"
 $ZIP_Folder = "./tempZipContents"
+$MOD_DIR = "./dist/SITCoop"
 
 # build coop mod
-npm ci
+npm clean-install
 npm run build
 
 if ($LASTEXITCODE -ne 0) {
@@ -82,8 +83,6 @@ if ($IsWindows) {
     npm run build:release
 }
 
-
-
 if ($LASTEXITCODE -ne 0) {
     throw "npm run build:release failed, exit code $LASTEXITCODE"
 }
@@ -92,7 +91,7 @@ Set-Location ../../
 
 New-Item -ItemType Directory -Force -Path "$ZIP_Folder/user/mods/"
 Copy-Item -Path "$SERVER_DIR/project/build\*" -Destination "$ZIP_Folder" -Recurse
-Copy-Item -Path "./SITCoop" -Destination "$ZIP_Folder/user/mods/" -Recurse
+Copy-Item -Path "$MOD_DIR" -Destination "$ZIP_Folder/user/mods/" -Recurse
 
 # make release package
 if ($IsWindows) {
