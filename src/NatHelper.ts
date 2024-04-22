@@ -74,9 +74,6 @@ export class NatHelper {
         const splitUrl = req.url.substring(0, req.url.indexOf("?")).split("/");
 
         const sessionID = splitUrl.pop();
-
-        // get url params
-        //const urlParams = this.getUrlParams(req.url);
         
         ws.on("message", async function message(msg) 
         {

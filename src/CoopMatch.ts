@@ -150,35 +150,21 @@ export class CoopMatch {
         });
 
         this.friendlyAI = new friendlyAI();
-
-        // This checks to see if the WebSockets can still be communicated with. If it cannot for any reason. The match/raid/session will close down.
-    //     this.CheckStartTimeout = setTimeout(() => {
-    //         this.CheckStillRunningInterval = setInterval(() => {
-
-    //             if(!WebSocketHandler.Instance.areThereAnyWebSocketsOpen(this.ConnectedPlayers)) {
-    //                 this.endSession(CoopMatchEndSessionMessages.WEBSOCKET_TIMEOUT_MESSAGE);
-    //             }
-    
-    //         }, CoopConfig.Instance.webSocketTimeoutSeconds * 1000);
-    //     }, CoopConfig.Instance.webSocketTimeoutCheckStartSeconds * 1000);        
     }
 
     public ProcessData(info: any, logger: ILogger) {
 
-        if(info === undefined)
+        if (info === undefined)
             return;
 
-        if(JSON.stringify(info).charAt(0) === "[") {
-
-            for(var indexOfInfo in info) {
+        if (Array.isArray(info)) {
+            for (const indexOfInfo in info) {
                 const _info = info[indexOfInfo];
                 this.ProcessData(_info, logger);
             }
 
             return;
         }
-
-        // console.log(info);
 
         if (typeof(info) === "string") {
             // Old SIT Serializer used a '?' as a split of data
@@ -200,13 +186,12 @@ export class CoopMatch {
             return;
         }
 
-        if(info.m === "Ping" && info.t !== undefined && info.profileId !== undefined) {
+        if (info.m === "Ping" && info.t !== undefined && info.profileId !== undefined) {
             this.Ping(info.profileId, info.t);
             return;
         }
 
-        if(info.m === "SpawnPointForCoop") {
-
+        if (info.m === "SpawnPointForCoop") {
             this.SpawnPoint.x = info.x;
             this.SpawnPoint.y = info.y;
             this.SpawnPoint.z = info.z;
@@ -214,47 +199,44 @@ export class CoopMatch {
             return;
         }
 
-        if(info.profileId !== undefined && info.m === "PlayerLeft") {
+        if (info.profileId !== undefined && info.m === "PlayerLeft") {
             this.PlayerLeft(info.profileId);
 
-            if(this.ConnectedPlayers.length == 0)
+            if (this.ConnectedPlayers.length == 0)
                 this.endSession(CoopMatchEndSessionMessages.NO_PLAYERS_MESSAGE);
 
             return;
         }
 
-        // if(info.accountId !== undefined)
-        //     this.PlayerJoined(info.accountId);
-
-        if(info.profileId !== undefined)
+        if (info.profileId !== undefined)
             this.PlayerJoined(info.profileId);
 
         // logger.info(`Update a Coop Server [${info.serverId}][${info.m}]`);
 
-        if(info.m !== "PlayerSpawn") {
+        if (info.m !== "PlayerSpawn") {
             // this.LastData[info.m] = info;
 
-            if(this.LastDataByProfileId[info.profileId] === undefined)
+            if (this.LastDataByProfileId[info.profileId] === undefined)
                 this.LastDataByProfileId[info.profileId] = {};
 
             this.LastDataByProfileId[info.profileId][info.m] = info;
         }
         
-        if(info.m == "PlayerSpawn") {
+        if (info.m === "PlayerSpawn") {
             // console.log(info);
             let foundExistingPlayer = false;
-            for(var c of this.Characters) {
-                if(info.profileId == c.profileId) {
+            for (const c of this.Characters) {
+                if (info.profileId == c.profileId) {
                     foundExistingPlayer = true;
                     break;
                 }
             }
-            if(!foundExistingPlayer)
+            if (!foundExistingPlayer)
                 this.Characters.push(info);
         }
         
-        if(info.m == "Kill") {
-            for(var c of this.Characters) {
+        if (info.m === "Kill") {
+            for (const c of this.Characters) {
                 if (info.profileId == c.profileId) {
                     c.isDead = true;
                     break;
@@ -283,30 +265,24 @@ export class CoopMatch {
         this.Status = inStatus;
     }
 
-    public PlayerJoined(profileId: string) {
-        
-        // if(profileId.startsWith("pmc") && this.ConnectedUsers.findIndex(x => x == profileId) === -1) {
-        if(this.ConnectedUsers.findIndex(x => x == profileId) === -1) {
-
+    public PlayerJoined(profileId: string): boolean {
+        if (this.ConnectedUsers.indexOf(profileId) === -1) {
             console.log(`Checking server authorization for profile: ${profileId}`);
 
-            if(this.AuthorizedUsers.findIndex(x => x == profileId) === -1)
-            {
-                console.log(`${profileId} is not authorized in server: ${this.ServerId}`);
-    
-                WebSocketHandler.Instance.closeWebSocketSession(profileId, CoopMatchEndSessionMessages.WEBSOCKET_TIMEOUT_MESSAGE);
-    
-                return;
+            if (this.AuthorizedUsers.indexOf(profileId) === -1) {
+                console.warn(`${profileId} is not authorized in server: ${this.ServerId}`);
+                return false;
             }
 
             this.ConnectedUsers.push(profileId);
             console.log(`${this.ServerId}: ${profileId} has joined`);
         }
         
-        if(this.ConnectedPlayers.findIndex(x => x == profileId) === -1) {
+        if (this.ConnectedPlayers.indexOf(profileId) === -1) {
             this.ConnectedPlayers.push(profileId);
-            // console.log(`${this.ServerId}: ${profileId} has joined`);
         }
+
+        return true;
     }
 
     public PlayerLeft(profileId: string) {
