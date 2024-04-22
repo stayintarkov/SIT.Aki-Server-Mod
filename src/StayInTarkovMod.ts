@@ -411,7 +411,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                     url: "/coop/server/join",
                     action: (url, info, sessionId, output) => {
                         
-                        let coopMatch: CoopMatch = CoopMatch.CoopMatches[info.serverId];
+                        const coopMatch: CoopMatch = CoopMatch.CoopMatches[info.serverId];
                         logger.info(coopMatch !== null ? "match exists" : "match doesn't exist!");
 
                         if(coopMatch === null || coopMatch === undefined) {
@@ -446,7 +446,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                         {
                             if(WebSocketHandler.Instance.webSockets[info.profileId] !== undefined)
                             {
-                                if(WebSocketHandler.Instance.webSockets[info.profileId].readyState == WebSocket.OPEN)
+                                if(WebSocketHandler.Instance.webSockets[info.profileId].websocket.readyState == WebSocket.OPEN)
                                 {
                                     logger.info(`JoinMatch failed: ${info.profileId} is already connected!`);
                                     
