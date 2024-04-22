@@ -46,7 +46,7 @@ jobs:
         if: github.event_name != 'workflow_dispatch'
 
       - name: Compress SITCoop folder
-        run: zip -r SITCoop.zip ./dist/SITCoop
+        run: cd dist && zip -r ../SITCoop.zip ./SITCoop
         if: github.event_name == 'workflow_dispatch'
       
       - name: Create release
