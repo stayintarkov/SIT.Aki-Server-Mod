@@ -71,6 +71,9 @@ git lfs pull
 Write-Output "build"
 Set-Location ./project
 
+$thejson = "./assets/configs/http.json"
+(Get-Content $thejson).Replace('"ip": "127.0.0.1"', '"ip": "0.0.0.0"') | Set-Content $thejson
+
 if ($IsWindows) {
     npm install
     npm run build:release
