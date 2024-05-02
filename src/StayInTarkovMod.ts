@@ -12,7 +12,8 @@ import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
 
 import { IGetLocationRequestData } from "@spt-aki/models/eft/location/IGetLocationRequestData";
 import { CoopConfig } from "./CoopConfig";
-import { CoopMatch, CoopMatchEndSessionMessages, CoopMatchStatus } from "./CoopMatch";
+import { CoopMatch, CoopMatchEndSessionMessages } from "./CoopMatch";
+import { MPMatchStatus } from "./MPMatchStatus";
 import { WebSocketHandler } from "./WebSocketHandler";
 import { NatHelper } from "./NatHelper";
 
@@ -22,12 +23,6 @@ import { IPostDBLoadMod } from "@spt-aki/models/external/IPostDBLoadMod";
 import { ConfigServer } from "@spt-aki/servers/ConfigServer";
 
 import { SITConfig } from "./SITConfig";
-
-// -------------------------------------------------------------------------
-// Custom Traders (needs to be refactored into SITCustomTraders.ts)
-import { CoopMatchResponse } from "./CoopMatchResponse";
-import { friendlyAI } from "./FriendlyAI";
-// -------------------------------------------------------------------------
 
 // Overrides ---------------------------------------------------------------
 import { BundleLoaderOverride } from "./Overrides/BundleLoaderOverride";
@@ -48,6 +43,7 @@ import { ProfileCallbacks } from "@spt-aki/callbacks/ProfileCallbacks";
 import { HashUtil } from "@spt-aki/utils/HashUtil";
 import { SITHelpers } from "./SITHelpers";
 import { UPNPHelper } from "./upnp/UPNPHelper";
+import { MPMatchResponse } from "./MPMatchResponse";
 // -------------------------------------------------------------------------
 
 @injectable()
@@ -219,28 +215,6 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                         return output;
                     }
                 ),
-                new RouteAction(
-                    "/coop/server/friendlyAI",
-                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                    (url: string, info: any, sessionID: string, output: string): any =>
-                    {
-
-                        const splitUrl = url.split("/");
-                        const matchId = splitUrl.pop();
-
-                        var friendlyAI: friendlyAI;
-                        if(matchId !== undefined) {
-                            // console.log("matchId:" + matchId);
-                            const coopMatch = this.getCoopMatch(matchId);
-                            if(coopMatch !== undefined)
-                            friendlyAI = coopMatch.friendlyAI;
-                        }
-
-
-                        output = JSON.stringify(friendlyAI);
-                        return output;
-                    }
-                ),
                 /* Fix for downloading bundle files with extension not ending with .bundle */
                 new RouteAction(
                     "/files/bundle",
@@ -261,7 +235,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                     url: "/coop/server/getAllForLocation",
                     action: (url, info: any, sessionId: string, output) => {
                         // console.log(info);
-                        const matches : CoopMatchResponse[] = [];
+                        const matches : MPMatchResponse[] = [];
                         const profiles = this.saveServer.getProfiles();
                         for(let itemKey in CoopMatch.CoopMatches) {
 
@@ -290,7 +264,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                                 continue;
 
                             // Create the custom CoopMatchResponse with the exact Json values needed by the Client
-                            const matchResponse = new CoopMatchResponse();
+                            const matchResponse = new MPMatchResponse();
                             // Account Id / Server Id
                             matchResponse.HostProfileId = itemKey;
 
@@ -323,6 +297,8 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                             matchResponse.Protocol = m.Protocol;
                             // IP Address (v4)
                             matchResponse.IPAddress = m.IPAddress;
+                            // Status
+                            matchResponse.Status = m.Status;
 
                             matches.push(matchResponse);
                         }
@@ -360,9 +336,6 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                                 continue;
 
                             if(CoopMatch.CoopMatches[cm].Time != info.timeVariant)
-                                continue;
-
-                            if (CoopMatch.CoopMatches[cm].Status == CoopMatchStatus.Complete)
                                 continue;
 
                             // Player starting the server has 5 minutes to load into a raid

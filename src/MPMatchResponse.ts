@@ -1,4 +1,6 @@
-export class CoopMatchResponse {
+import { MPMatchStatus } from "./MPMatchStatus";
+
+export class MPMatchResponse {
     ServerId: string;
     HostProfileId: string;
     HostName: string;
@@ -12,4 +14,5 @@ export class CoopMatchResponse {
     IsPasswordLocked: boolean;
     Protocol: string;
     IPAddress: string;
+    Status: MPMatchStatus;
 }
