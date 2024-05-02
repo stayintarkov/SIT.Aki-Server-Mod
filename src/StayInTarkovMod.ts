@@ -88,7 +88,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         return CoopMatch.CoopMatches[serverId];
     }
 
-    private InitializeVariables(container: DependencyContainer): void {
+    private InitializeVariables(container: DependencyContainer): void { 
         // ----------------------------------------------------------------
         // Initialize & resolve variables
         StayInTarkovMod.container = container;
@@ -113,7 +113,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         this.coopConfig = new CoopConfig();
         this.sitConfig = new SITConfig();
         this.sitConfig.routeHandler(container);
-
+        
         // Relay server
         this.webSocketHandler = new WebSocketHandler(this.coopConfig.webSocketPort, logger);
 
@@ -122,7 +122,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
 
         // this.traders.push(new SITCustomTraders(), new CoopGroupTrader(), new UsecTrader(), new BearTrader());
         // this.traders.push(new SITCustomTraders());
-
+        
         // UPNP Helper (UPNP map the ports used by AKI and SIT)
         new UPNPHelper(this.httpConfig.ip, this.httpConfig.port);
     }
@@ -353,7 +353,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                 {
                     url: "/coop/server/exist",
                     action: (url, info, sessionId, output) => {
-
+                        
                         let coopMatch: CoopMatch = null;
                         for (let cm in CoopMatch.CoopMatches)
                         {
@@ -383,7 +383,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                                     )
                                     return output;
                                 }
-
+                                
                                 if(CoopMatch.CoopMatches[cm].Password !== info.password)
                                 {
                                     output = JSON.stringify(
@@ -393,18 +393,18 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                                     )
                                     return output;
                                 }
-                            }
+                            } 
 
                             coopMatch = CoopMatch.CoopMatches[cm];
                         }
                         logger.info(coopMatch !== null ? "match exists" : "match doesn't exist!");
 
-                        output = JSON.stringify(coopMatch !== null ?
-                            {
+                        output = JSON.stringify(coopMatch !== null ? 
+                            { 
                                 ServerId: coopMatch.ServerId
                                 , timestamp: coopMatch.Timestamp
-                                , expectedNumberOfPlayers: coopMatch.ExpectedNumberOfPlayers
-                                , sitVersion: coopMatch.SITVersion
+                                , expectedNumberOfPlayers: coopMatch.ExpectedNumberOfPlayers 
+                                , sitVersion: coopMatch.SITVersion 
                                 , gameVersion: coopMatch.GameVersion
                             } : null);
                         return output;
@@ -413,7 +413,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                 {
                     url: "/coop/server/join",
                     action: (url, info, sessionId, output) => {
-
+                        
                         let coopMatch: CoopMatch = CoopMatch.CoopMatches[info.serverId];
                         logger.info(coopMatch !== null ? "match exists" : "match doesn't exist!");
 
@@ -433,7 +433,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                                 )
                                 return output;
                             }
-
+                            
                             if(coopMatch.Password !== info.password)
                             {
                                 output = JSON.stringify(
@@ -444,7 +444,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                                 return output;
                             }
                         }
-
+                        
                         if(coopMatch.ConnectedUsers.findIndex(x => x == info.profileId) !== -1)
                         {
                             if(WebSocketHandler.Instance.webSockets[info.profileId] !== undefined)
@@ -452,13 +452,13 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                                 if(WebSocketHandler.Instance.webSockets[info.profileId].readyState == WebSocket.OPEN)
                                 {
                                     logger.info(`JoinMatch failed: ${info.profileId} is already connected!`);
-
+                                    
                                     output = JSON.stringify(
                                         {
                                             alreadyConnected: true
                                         }
                                     )
-
+                                    
                                     return output;
                                 }
                             }
@@ -470,8 +470,8 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                             logger.info(`Added authorized user: ${info.profileId} in server: ${coopMatch.ServerId}`);
                         }
 
-                        output = JSON.stringify(coopMatch !== null ?
-                            {
+                        output = JSON.stringify(coopMatch !== null ? 
+                            { 
                                 serverId: coopMatch.ServerId,
                                 timestamp: coopMatch.Timestamp,
                                 expectedNumberOfPlayers: coopMatch.ExpectedNumberOfPlayers,
@@ -490,7 +490,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                 {
                     url: "/coop/server/read/players",
                     action: (url, info, sessionId, output) => {
-
+                        
                         // ---------------------------------------------------------------------------------------------------
                         // This call requires the client to pass what players/bots it knows about to filter the response back!
 
@@ -498,7 +498,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                         if(coopMatch == null || coopMatch == undefined)
                         {
                             output = JSON.stringify([{ notFound: true }]);
-                            return output;
+                            return output; 
                         }
 
                         //
@@ -529,7 +529,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                                     coopMatch.ProcessData(item, logger);
                                 }
                                 output = JSON.stringify({});
-                                return output;
+                                return output; 
                             }
 
                             console.error("/coop/server/update -- no info or serverId provided");
@@ -546,7 +546,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                             console.error("/coop/server/update -- no coopMatch found to update");
 
                             output = JSON.stringify({});
-                            return output;
+                            return output; 
                         }
 
                         if(info.m == "PlayerSpawn" && info.isAI)
@@ -555,9 +555,9 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                         }
 
                         coopMatch.ProcessData(info, logger);
+                        
 
-
-                        //
+                        // 
                         // console.log(Date.now() - timeCheck);
 
 
@@ -569,7 +569,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                     url: "/coop/server/delete",
                     action: (url, info, sessionId, output) => {
                         logger.debug(`Request to delete Coop Server ${info.serverId}`);
-
+                        
                         const response = { response: "NOT_EXIST" };
                         if(CoopMatch.CoopMatches[info.serverId] !== undefined) {
 
@@ -598,7 +598,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                 },
                 {
                     url: "/coop/get-invites",
-                    action: (url: string, info: any, sessionID: string, output: string): any =>
+                    action: (url: string, info: any, sessionID: string, output: string): any => 
                     {
                         logger.info("Getting Coop Server Invites")
                         const obj = {
@@ -613,35 +613,24 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                 },
                 {
                     url: "/coop/server-status",
-                    action: (url, info, sessionId, output) =>
+                    action: (url, info, sessionId, output) => 
                     {
                         logger.info("Getting Coop Server Match Status")
                         return "";
-                    }
-                },
-                {
-                    url: "/coop/raid/udp/join",
-                    action: (url, info, sessionId, output) =>
-                    {
-                        const match = CoopMatch.CoopMatches[info.serverId]
-                        if(match !== undefined) {
-                            match.PlayerJoined(info.profileId)
-                        }
-                        return JSON.stringify({});
                     }
                 },
             ],
             "sit-coop"
             // "aki"
         );
-
+        
         // Hook up to existing AKI static route
         staticRouterModService.registerStaticRouter(
             "MatchStaticRouter-SIT",
             [
                 {
                     url: "/client/match/group/status",
-                    action: (url: string, info: any, sessionID: string, output: string): any =>
+                    action: (url: string, info: any, sessionID: string, output: string): any => 
                     {
                         logger.info("/client/match/group/status")
                         logger.info("Getting Coop Server Match Status")
@@ -656,7 +645,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                 },
                 {
                     url: "/client/game/start",
-                    action: (url: string, info: any, sessionID: string, output: string): any =>
+                    action: (url: string, info: any, sessionID: string, output: string): any => 
                     {
                         new SITHelpers().fixProfileEquipmentId(container, sessionID);
                         return StayInTarkovMod.Instance.gameCallbacks.gameStart(url, info, sessionID);
@@ -664,7 +653,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                 },
                 {
                     url: "/client/game/profile/create",
-                    action: (url: string, info: any, sessionID: string, output: string): any =>
+                    action: (url: string, info: any, sessionID: string, output: string): any => 
                     {
                         const profileC = StayInTarkovMod.Instance.profileCallbacks.createProfile(url, info, sessionID);
                         new SITHelpers().fixProfileEquipmentId(container, sessionID);
@@ -674,7 +663,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                 },
                 {
                     url: "/client/match/group/exit_from_menu",
-                    action: (url: string, info: any, sessionID: string, output: string): any =>
+                    action: (url: string, info: any, sessionID: string, output: string): any => 
                     {
                         logger.info("exit_from_menu")
                         output = JSON.stringify({});
@@ -683,7 +672,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                 }
                 ,{
                     url: "/client/match/group/exit_from_menu",
-                    action: (url: string, info: any, sessionID: string, output: string): any =>
+                    action: (url: string, info: any, sessionID: string, output: string): any => 
                     {
                         logger.info("exit_from_menu")
                         output = JSON.stringify({});
@@ -692,7 +681,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                 },
                 {
                     url: "/client/raid/person/killed",
-                    action: (url: string, info: any, sessionID: string, output: string): any =>
+                    action: (url: string, info: any, sessionID: string, output: string): any => 
                     {
                         logger.info("Person has been Killed!")
                         console.log(info);
@@ -702,7 +691,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                 },
                 {
                     url: "/client/raid/createFriendlyAI",
-                    action: (url: string, info: any, sessionID: string, output: string): any =>
+                    action: (url: string, info: any, sessionID: string, output: string): any => 
                     {
                         // logger.info("Person has been Killed!")
                         console.log(info);
@@ -712,7 +701,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                 },
                 {
                     url: "/client/match/raid/ready",
-                    action: (url: string, info: any, sessionID: string, output: string): any =>
+                    action: (url: string, info: any, sessionID: string, output: string): any => 
                     {
                         console.log(url);
                         console.log(info);
@@ -723,7 +712,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                 },
                 {
                     url: "/client/match/raid/not-ready",
-                    action: (url: string, info: any, sessionID: string, output: string): any =>
+                    action: (url: string, info: any, sessionID: string, output: string): any => 
                     {
                         console.log(url);
                         console.log(info);
@@ -734,7 +723,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                 },
                 {
                     url: "/client/match/group/invite/cancel-all",
-                    action: (url: string, info: any, sessionID: string, output: string): any =>
+                    action: (url: string, info: any, sessionID: string, output: string): any => 
                     {
                         console.log(url);
                         console.log(info);
@@ -745,7 +734,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                 },
                 {
                     url: "/client/match/available",
-                    action: (url: string, info: any, sessionID: string, output: string): any =>
+                    action: (url: string, info: any, sessionID: string, output: string): any => 
                     {
                         console.log(url);
                         console.log(info);
@@ -760,18 +749,18 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
 
     }
 
-
+    
 
     postDBLoad(container: DependencyContainer): void {
         StayInTarkovMod.container = container;
 
         const dbTables = StayInTarkovMod.container.resolve<DatabaseServer>("DatabaseServer").getTables();
-        dbTables.locales.global["en"]["Attention! This is a Beta version of Escape from Tarkov for testing purposes."]
+        dbTables.locales.global["en"]["Attention! This is a Beta version of Escape from Tarkov for testing purposes."] 
             = "Welcome to Stay in Tarkov. The OFFLINE Coop mod for SPT-Aki.";
 
-        dbTables.locales.global["en"]["NDA free warning"]
+        dbTables.locales.global["en"]["NDA free warning"] 
             = "To Host/Join a game. You must select a map and go to the last screen to use the Server Browser. Have fun!";
-
+            
         const locations = dbTables.locations;
 
         // Open All Exfils. This is a SIT >mod< feature. Has nothing to do with the Coop module. Can be turned off in config/SITConfig.json
@@ -802,7 +791,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
             "woods",
             "sandbox"
         ];
-
+        
         // Loop through each location
         for (const location of locationNames)
         {
@@ -817,8 +806,8 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
                 {
                     locations[location].base.exits[extract].EntryPoints = newEntryPoint;
                 }
-
-
+                
+                    
                 // If this is a train extract... Move on to the next extract.
                 if (locations[location].base.exits[extract].PassageRequirement === "Train")
                 {
