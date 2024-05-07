@@ -10,12 +10,7 @@ import { WebSocketHandler } from "./WebSocketHandler";
 import { ILocationBase } from "@spt-aki/models/eft/common/ILocationBase";
 import { LocationController } from "@spt-aki/controllers/LocationController";
 import { IGetLocationRequestData } from "@spt-aki/models/eft/location/IGetLocationRequestData";
-
-export enum CoopMatchStatus {
-    Loading,
-    InGame,
-    Complete
-}
+import { MPMatchStatus } from "./MPMatchStatus";
 
 export class CoopMatchEndSessionMessages {
     static HOST_SHUTDOWN_MESSAGE: string = "host-shutdown"
@@ -36,9 +31,6 @@ export class CoopMatch {
 
     /** The time the match was last updated. Useful for clearing out old matches. */
     LastUpdateDateTime: Date = new Date();
-
-    /** The state of the match. */
-    State: any;
 
     /** The expected number of players. Used to hold the match before starting. Unused. */
     ExpectedNumberOfPlayers: number = 1;
@@ -79,7 +71,7 @@ export class CoopMatch {
     PreviousSentData: string[] = [];
 	PreviousSentDataMaxSize: number = 128;
 
-    Status: CoopMatchStatus = CoopMatchStatus.Loading;
+    Status: MPMatchStatus = MPMatchStatus.Loading;
     Settings: any = {};
     LocationData: ILocationBase;
     Location: string;
@@ -103,7 +95,7 @@ export class CoopMatch {
     public constructor(inData: any) {
 
         this.ServerId = inData.serverId;
-        this.Status = CoopMatchStatus.Loading;
+        this.Status = MPMatchStatus.Loading;
         this.CreatedDateTime = new Date(Date.now());
         this.LastUpdateDateTime = new Date(Date.now());
 
@@ -132,7 +124,7 @@ export class CoopMatch {
         this.GameVersion = inData.gameVersion;
         this.SITVersion = inData.sitVersion;
         this.AuthorizedUsers.push(inData.serverId);
-        this.Status = CoopMatchStatus.Loading;
+        this.Status = MPMatchStatus.Loading;
         this.CreatedDateTime = new Date(Date.now());
         this.LastUpdateDateTime = new Date(Date.now());
 
@@ -244,6 +236,10 @@ export class CoopMatch {
             }
         }
 
+        if (info.status !== undefined) {
+            this.UpdateStatus(info.status);
+        }
+
         this.LastUpdateDateTime = new Date(Date.now());
 
         const serializedData = JSON.stringify(info);
@@ -261,8 +257,9 @@ export class CoopMatch {
         WebSocketHandler.Instance.sendToWebSockets(this.ConnectedUsers, undefined, serializedData);
     }
 
-    public UpdateStatus(inStatus: CoopMatchStatus) {
+    public UpdateStatus(inStatus: MPMatchStatus) {
         this.Status = inStatus;
+        console.log(`Updated server:[${this.ServerId}] to status [${inStatus}]`);
     }
 
     public PlayerJoined(profileId: string): boolean {
@@ -307,7 +304,7 @@ export class CoopMatch {
         console.log(`COOP SESSION ${this.ServerId} HAS BEEN ENDED: ${reason}`);
         WebSocketHandler.Instance.sendToWebSockets(this.ConnectedPlayers, undefined, JSON.stringify({ "endSession": true, reason: reason }));
 
-        this.Status = CoopMatchStatus.Complete;
+        this.Status = MPMatchStatus.Complete;
         
         //clearTimeout(this.SendLastDataInterval);
         // clearTimeout(this.CheckStartTimeout);
