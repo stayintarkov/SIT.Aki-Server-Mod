@@ -7,6 +7,7 @@ export class CoopConfig {
     public useUPNP: boolean;
     public useMessageWSUrlOverride: boolean;
     public messageWSUrlOverride: string;
+    public checkPasswordOnLogin: boolean;
 
     public static Instance: CoopConfig;
 
@@ -16,6 +17,7 @@ export class CoopConfig {
         this.useUPNP = true;
         this.useMessageWSUrlOverride = false;
         this.messageWSUrlOverride = '127.0.0.1:6969';
+        this.checkPasswordOnLogin = false;
 
         const configFilePath = path.join(__dirname, "..", "config");
         if(!fs.existsSync(configFilePath))
