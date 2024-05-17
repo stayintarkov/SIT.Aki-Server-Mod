@@ -52,7 +52,7 @@ export class SITConfig {
             [
                 {
                     url: "/SIT/Config",
-                    action: (url, info: any, sessionId, output) => {
+                    action: (url: string, info: any, sessionID: string, output: string): any => {
                         console.log(SITConfig.Instance)
                         output = JSON.stringify(SITConfig.Instance);
                         return output;

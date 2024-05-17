@@ -145,7 +145,7 @@ export class StayInTarkovMod implements IPreAkiLoadMod, IPostDBLoadMod
         gameControllerOverride.override();
 
         // ----------------------- Launcher Controller overrides -------------------------------------------------
-        const launcherControllerOverride = new LauncherControllerOverride(container, gameControllerOverride);
+        const launcherControllerOverride = new LauncherControllerOverride(container, gameControllerOverride, this.coopConfig);
         launcherControllerOverride.override();
 
         // ----------------------- Http Server Helper overrides ------------------------------------------------

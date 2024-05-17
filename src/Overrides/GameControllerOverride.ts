@@ -3,6 +3,7 @@ import { GameController } from "@spt-aki/controllers/GameController";
 import { IGameConfigResponse } from "@spt-aki/models/eft/game/IGameConfigResponse";
 import { ProfileHelper } from "@spt-aki/helpers/ProfileHelper";
 import { DatabaseServer } from "@spt-aki/servers/DatabaseServer";
+import { HttpServerHelper } from "@spt-aki/helpers/HttpServerHelper";
 
 export class GameControllerOverride
 {
@@ -12,6 +13,7 @@ export class GameControllerOverride
     databaseServer: DatabaseServer;
     
     protected sessionBackendUrl: Record<string, string> = {};
+    httpServerHelper: HttpServerHelper;
     
     constructor
     (
@@ -21,6 +23,7 @@ export class GameControllerOverride
         this.container = container;
         this.profileHelper = container.resolve<ProfileHelper>("ProfileHelper");
         this.databaseServer = container.resolve<DatabaseServer>("DatabaseServer");
+        this.httpServerHelper = container.resolve<HttpServerHelper>("HttpServerHelper");
     }
 
     public setSessionBackendUrl(sessionID: string, backendUrl: string)
@@ -31,6 +34,10 @@ export class GameControllerOverride
     private getGameConfig(sessionID: string, backendUrl: string): IGameConfigResponse
     {
         const profile = this.profileHelper.getPmcProfile(sessionID);
+
+        if (backendUrl === undefined || backendUrl === "") {
+            backendUrl =  this.httpServerHelper.getBackendUrl();
+        }
 
         const config: IGameConfigResponse = {
             languages: this.databaseServer.getTables().locales.languages,

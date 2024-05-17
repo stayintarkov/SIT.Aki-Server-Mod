@@ -11,16 +11,19 @@ export class LauncherControllerOverride
     container: DependencyContainer;
     saveServer: SaveServer;
     gameControllerOverride: GameControllerOverride;
+    coopConfig: CoopConfig;
     
     constructor
     (
         container: DependencyContainer,
         gameControllerOverride: GameControllerOverride,
+        coopConfig: CoopConfig
     )
     {
         this.container = container;
         this.saveServer = container.resolve<SaveServer>("SaveServer");
         this.gameControllerOverride = gameControllerOverride;
+        this.coopConfig = coopConfig;
     }
 
     private login(info: any)
@@ -31,19 +34,22 @@ export class LauncherControllerOverride
         {
             const account = this.saveServer.getProfile(sessionID).info;
             
+            // does the account exist?
             if (info.username === account.username)
             {
-                if(info.password === account.password)
-                {
-                    if(info.backendUrl !== undefined && info.backendUrl !== "")
-                    {
+                // should we check password? if yes, check it
+                if (!this.coopConfig.checkPasswordOnLogin || info.password === account.password) {
+
+                    if(info.backendUrl !== undefined && info.backendUrl !== "") {
                         this.gameControllerOverride.setSessionBackendUrl(sessionID, info.backendUrl);
                     
                         return sessionID;
                     }
+                    else {
+                        return sessionID;
+                    }
                 }
-                else
-                {
+                else {
                     return "INVALID_PASSWORD";
                 }
             }

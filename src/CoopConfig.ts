@@ -7,6 +7,10 @@ export class CoopConfig {
     public useUPNP: boolean;
     public useMessageWSUrlOverride: boolean;
     public messageWSUrlOverride: string;
+    /**
+     * Forces players to use a password. FALSE IF USING SPT LAUNCHER!
+     */
+    public checkPasswordOnLogin: boolean;
 
     public static Instance: CoopConfig;
 
@@ -16,6 +20,10 @@ export class CoopConfig {
         this.useUPNP = true;
         this.useMessageWSUrlOverride = false;
         this.messageWSUrlOverride = '127.0.0.1:6969';
+
+        // This is up for debate. This forces players to use a password..
+        // However, this breaks the SPT Launcher if a user wanted to use that
+        this.checkPasswordOnLogin = true;
 
         const configFilePath = path.join(__dirname, "..", "config");
         if(!fs.existsSync(configFilePath))
